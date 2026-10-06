@@ -23,7 +23,20 @@ function restoreSnapshot(d){
   armies=Array.from(armyMap.values()).filter(a=>a.id!=="player");
   units=d.units.filter(u=>u&&typeof u.x==="number"&&typeof u.y==="number"&&armyMap.has(u.armyId)).map(u=>({...u,army:armyMap.get(u.armyId)}));
   spawnType=d.spawnType||"pawn";gameEnded=!!d.gameEnded;selectedUnit=null;
-  const king=units.find(u=>u.army===playerArmy&&u.type==="king"&&u.alive);if(king){camera.x=king.x*TILE+TILE/2;camera.y=king.y*TILE+TILE/2;}
+
+  // Recuperación: un guardado antiguo o incompleto no debe borrar al Rey.
+  let king=units.find(u=>u.army===playerArmy&&u.type==="king"&&u.alive&&!u.deadAnimating);
+  if(!king){
+    playerArmy.lives=Math.max(1,Number(playerArmy.lives)||3);
+    gameEnded=false;
+    createPlayer();
+    king=units.find(u=>u.army===playerArmy&&u.type==="king"&&u.alive&&!u.deadAnimating);
+  }
+  if(king){
+    camera.x=(king.moving?king.renderX:king.x)*TILE+TILE/2;
+    camera.y=(king.moving?king.renderY:king.y)*TILE+TILE/2;
+  }
+
   updatePieceButtons();updateUI();render();return true;
 }
 function saveProgress(){
