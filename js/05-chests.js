@@ -1,113 +1,96 @@
 /* =========================================================
-   TERRENO
-   EXACTAMENTE EL MISMO DISEÑO/TEXTURAS
+   COFRES
+   Se añaden sin modificar las texturas existentes.
 ========================================================= */
 
-function generateTerrain(){
+function chestCellFree(x,y){
+  if(!validCell(x,y))return false;
+  if(chests.some(c=>c.x===x&&c.y===y&&!c.collected))return false;
+  if(units.some(u=>u.alive&&u.x===x&&u.y===y))return false;
+  return true;
+}
 
-  terrain=Array.from(
-    {length:MAP_H},
-    ()=>Array(MAP_W).fill("grass")
-  );
-
-  terrainDecor=Array.from(
-    {length:MAP_H},
-    ()=>[]
-  );
-
-  for(let y=0;y<MAP_H;y++){
-    for(let x=0;x<MAP_W;x++){
-
-      const q=quadrant(x,y);
-
-      if(q==="chess"){
-
-        terrain[y][x]=(x+y)%2===0
-          ?"chessWhite"
-          :"chessBlack";
-
-        if(Math.random()<.012){
-          terrainDecor[y].push({
-            type:"crack",
-            x,y,scale:rand(.5,1)
-          });
-        }
-
-      }else if(q==="wonder"){
-
-        terrain[y][x]="grass";
-
-        const n=noise(x,y,.08);
-
-        if(n<.08) terrain[y][x]="dirt";
-
-        if(Math.random()<.055){
-          terrainDecor[y].push({
-            type:"tree",x,y,scale:rand(.75,1.25)
-          });
-        }
-
-        if(Math.random()<.095){
-          terrainDecor[y].push({
-            type:"bush",x,y,scale:rand(.7,1.15)
-          });
-        }
-
-        if(Math.random()<.045){
-          terrainDecor[y].push({
-            type:"flower",x,y,scale:rand(.6,1)
-          });
-        }
-
-        if(
-          (x-72)*(x-72)+(y-18)*(y-18)<40 ||
-          (x-87)*(x-87)+(y-31)*(y-31)<30 ||
-          (x-62)*(x-62)+(y-35)*(y-35)<24
-        ){
-          terrain[y][x]="water";
-        }
-
-      }else if(q==="desert"){
-
-        terrain[y][x]="sand";
-
-        if(noise(x,y,.035)<.025){
-          terrain[y][x]="sandDark";
-        }
-
-        if(Math.random()<.028){
-          terrainDecor[y].push({
-            type:"cactus",x,y,scale:rand(.7,1.15)
-          });
-        }
-
-        if(Math.random()<.025){
-          terrainDecor[y].push({
-            type:"desertRock",x,y,scale:rand(.65,1.25)
-          });
-        }
-
-      }else{
-
-        terrain[y][x]="ash";
-
-        const n=noise(x,y,.07);
-
-        if(n<.08) terrain[y][x]="volcanicRock";
-
-        if(
-          (x-77)*(x-77)+(y-62)*(y-62)<60 ||
-          (x-91)*(x-91)+(y-91)*(y-91)<60
-        ){
-          terrain[y][x]="lava";
-        }
-
-        if(Math.random()<.035){
-          terrainDecor[y].push({
-            type:"ember",x,y,scale:rand(.5,1)
-          });
-        }
-      }
-    }
+function generateChests(){
+  chests=[];
+  const wanted=18;
+  let attempts=0;
+  while(chests.length<wanted&&attempts<12000){
+    attempts++;
+    const x=Math.floor(Math.random()*MAP_W);
+    const y=Math.floor(Math.random()*MAP_H);
+    if(!chestCellFree(x,y))continue;
+    chests.push({
+      x,y,
+      reward:15+Math.floor(Math.random()*36),
+      collected:false
+    });
   }
+}
+
+function drawChest(c){
+  if(!c||c.collected)return;
+  if(!isVisible(c.x,c.y))return;
+
+  const p=worldToScreen(c.x*TILE+TILE/2,c.y*TILE+TILE/2);
+  const s=TILE*camera.zoom;
+  if(p.x+s<0||p.y+s<0||p.x-s>W||p.y-s>H)return;
+
+  ctx.save();
+  ctx.translate(p.x,p.y);
+
+  ctx.fillStyle="rgba(0,0,0,.28)";
+  ctx.beginPath();
+  ctx.ellipse(0,s*.25,s*.30,s*.10,0,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle="#7b4d25";
+  ctx.strokeStyle="#2d2118";
+  ctx.lineWidth=Math.max(1.5,2*camera.zoom);
+  ctx.beginPath();
+  ctx.roundRect(-s*.25,-s*.04,s*.50,s*.31,s*.035);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle="#a66b32";
+  ctx.beginPath();
+  ctx.arc(0,-s*.03,s*.25,Math.PI,Math.PI*2);
+  ctx.lineTo(s*.25,s*.03);
+  ctx.lineTo(-s*.25,s*.03);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle="#e1bd55";
+  ctx.fillRect(-s*.045,-s*.035,s*.09,s*.15);
+  ctx.strokeRect(-s*.045,-s*.035,s*.09,s*.15);
+  ctx.restore();
+}
+
+function collectChestAt(x,y,u){
+  const chest=chests.find(c=>!c.collected&&c.x===x&&c.y===y);
+  if(!chest)return;
+
+  chest.collected=true;
+  playerArmy.coins+=chest.reward;
+
+  for(let i=0;i<18;i++){
+    particles.push({
+      x:x*TILE+TILE/2+rand(-TILE*.22,TILE*.22),
+      y:y*TILE+TILE/2+rand(-TILE*.18,TILE*.18),
+      life:.7,
+      max:.7,
+      chest:true,
+      vx:rand(-35,35),
+      vy:rand(-75,-20)
+    });
+  }
+
+  floatingTexts.push({
+    x,y,
+    text:`+${chest.reward} 🪙`,
+    life:1.4
+  });
+
+  showMessage(`🎁 ¡Has cogido el cofre! +${chest.reward} 🪙`);
+  updateUI();
 }
