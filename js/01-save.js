@@ -3,7 +3,7 @@
 /* Inicio de sesión Google + guardado local/nube. Configura tu proyecto Firebase. */
 const startScreen=document.getElementById("startScreen");
 const googleStatus=document.getElementById("googleStatus");
-const FIREBASE_CONFIG={apiKey:"PEGA_AQUI_TU_API_KEY",authDomain:"TU_PROYECTO.firebaseapp.com",projectId:"TU_PROYECTO",appId:"PEGA_AQUI_TU_APP_ID"};
+const FIREBASE_CONFIG={apiKey:"AIzaSyAOWbwtxXaAe1SK-D--aIlbU6DtoT1pVw0",authDomain:"chess-arena-c7ca1.firebaseapp.com",projectId:"chess-arena-c7ca1",appId:"1:257471638012:web:760545f02d75a4197cea79"};
 let firebaseReady=false, cloudUser=null, saveBusy=false, saveQueued=false;
 const localSaveKey="chessArenaKingdoms_save_v1";
 function hasFirebaseConfig(){return FIREBASE_CONFIG.apiKey!=="PEGA_AQUI_TU_API_KEY"&&FIREBASE_CONFIG.projectId!=="TU_PROYECTO"&&FIREBASE_CONFIG.appId!=="PEGA_AQUI_TU_APP_ID";}
