@@ -1,590 +1,242 @@
 /* =========================================================
-   UNIDADES
+   RATÓN
 ========================================================= */
 
-function drawUnit(u){
+let dragging=false;
+let dragStart={x:0,y:0};
+let camStart={x:0,y:0};
 
-  if(!u.alive)return;
+canvas.addEventListener(
+  "pointerdown",
+  e=>{
 
-  /*
-    Los enemigos no se muestran si están dentro de la niebla
-    ni si están ocultos dentro de un arbusto.
-  */
-  if(
-    u.army!==playerArmy&&
-    !canArmySeeUnit(playerArmy,u)
-  )return;
+    dragging=true;
 
-  /*
-    CORRECCIÓN IMPORTANTE:
-    La unidad se dibuja usando renderX/renderY.
-    Así el movimiento deja de ser teletransporte.
-  */
+    canvas.classList.add("dragging");
 
-  const rx=
-    u.renderX!==undefined
-    ?u.renderX
-    :u.x;
+    dragStart.x=e.clientX;
+    dragStart.y=e.clientY;
 
-  const ry=
-    u.renderY!==undefined
-    ?u.renderY
-    :u.y;
+    camStart.x=camera.x;
+    camStart.y=camera.y;
 
-  const p=worldToScreen(
-    rx*TILE+TILE/2,
-    ry*TILE+TILE/2
-  );
-
-  const s=TILE*.82*camera.zoom;
-
-  if(
-    p.x+s<0||p.y+s<0||
-    p.x-s>W||p.y-s>H
-  )return;
-
-  const friendly=u.army===playerArmy;
-
-  const main=friendly
-    ?"#dfe4e8"
-    :u.army.color;
-
-  const dark=friendly
-    ?"#3d464f"
-    :"#30191e";
-
-  const metal=friendly
-    ?"#9faab3"
-    :"#74252d";
-
-  ctx.save();
-  ctx.translate(p.x,p.y);
-
-  ctx.fillStyle="rgba(0,0,0,.35)";
-
-  ctx.beginPath();
-  ctx.ellipse(
-    0,s*.38,s*.34,s*.12,
-    0,0,Math.PI*2
-  );
-  ctx.fill();
-
-  if(selectedUnit===u){
-
-    ctx.strokeStyle="#e8cf6c";
-    ctx.lineWidth=Math.max(2,3*camera.zoom);
-
-    ctx.beginPath();
-    ctx.arc(0,0,s*.52,0,Math.PI*2);
-    ctx.stroke();
-
-    ctx.fillStyle="rgba(232,207,108,.07)";
-
-    ctx.beginPath();
-    ctx.arc(0,0,s*.55,0,Math.PI*2);
-    ctx.fill();
+    canvas.setPointerCapture(e.pointerId);
   }
+);
 
-  if(u.type==="king")
-    drawKingPiece(main,metal,dark,s);
-  else if(u.type==="pawn")
-    drawPawnPiece(main,metal,dark,s);
-  else if(u.type==="bishop")
-    drawBishopPiece(main,metal,dark,s);
-  else if(u.type==="knight")
-    drawKnightPiece(main,metal,dark,s);
-  else if(u.type==="rook")
-    drawRookPiece(main,metal,dark,s);
-  else if(u.type==="queen")
-    drawQueenPiece(main,metal,dark,s);
+canvas.addEventListener(
+  "pointermove",
+  e=>{
 
-  ctx.restore();
+    if(!dragging)return;
+
+    const dx=e.clientX-dragStart.x;
+    const dy=e.clientY-dragStart.y;
+
+    camera.x=
+      camStart.x-dx/camera.zoom;
+
+    camera.y=
+      camStart.y-dy/camera.zoom;
+
+    clampCamera();
+  }
+);
+
+canvas.addEventListener(
+  "pointerup",
+  e=>{
+
+    const moved=
+      Math.hypot(
+        e.clientX-dragStart.x,
+        e.clientY-dragStart.y
+      );
+
+    dragging=false;
+
+    canvas.classList.remove("dragging");
+
+    if(moved<8){
+      handleClick(
+        e.clientX,
+        e.clientY
+      );
+    }
+  }
+);
+
+canvas.addEventListener(
+  "wheel",
+  e=>{
+
+    e.preventDefault();
+
+    const before=
+      screenToWorld(
+        e.clientX,
+        e.clientY
+      );
+
+    const factor=
+      e.deltaY<0
+      ?1.1
+      :.9;
+
+    camera.zoom=
+      clamp(
+        camera.zoom*factor,
+        .35,
+        2.2
+      );
+
+    const after=
+      screenToWorld(
+        e.clientX,
+        e.clientY
+      );
+
+    camera.x+=before.x-after.x;
+    camera.y+=before.y-after.y;
+
+    clampCamera();
+  },
+  {passive:false}
+);
+
+function clampCamera(){
+
+  const halfW=
+    W/(2*camera.zoom);
+
+  const halfH=
+    H/(2*camera.zoom);
+
+  camera.x=clamp(
+    camera.x,
+    halfW,
+    MAP_W*TILE-halfW
+  );
+
+  camera.y=clamp(
+    camera.y,
+    halfH,
+    MAP_H*TILE-halfH
+  );
 }
 
 /* =========================================================
-   MOVIMIENTO
+   CLICK
 ========================================================= */
 
-function validCell(x,y,ignore=null){
+function handleClick(sx,sy){
 
-  if(!inBounds(x,y))return false;
+  if(gameEnded)return;
 
-  const t=terrain[y][x];
+  const world=screenToWorld(sx,sy);
+  const cell=tileAtWorld(world.x,world.y);
+
+  if(!inBounds(cell.x,cell.y))return;
 
   /*
-    Obstáculos reales:
-    agua y roca no se pueden atravesar.
-    La lava sigue siendo transitable.
+    MOVIMIENTO DIRECTO:
+    ya no hace falta seleccionar una pieza. Al hacer clic en
+    una casilla válida, buscamos automáticamente una pieza del
+    jugador que pueda realizar exactamente ese movimiento.
   */
+  const candidates=[];
 
-  if(
-    t==="water"||
-    t==="stone"||
-    t==="volcanicRock"
-  ){
-    return false;
-  }
+  for(const u of units){
+    if(
+      !u.alive||
+      u.deadAnimating||
+      u.army!==playerArmy||
+      u.moving||
+      u.cooldown>0
+    )continue;
 
-  return !occupied(x,y,ignore);
-}
-
-function isBushCell(x,y){
-
-  if(!inBounds(x,y))return false;
-
-  return terrainDecor[y].some(
-    d=>d.type==="bush"&&d.x===x&&d.y===y
-  );
-}
-
-/*
-  Las unidades dentro de un arbusto quedan ocultas para
-  los ejércitos enemigos. Su propio ejército siempre puede verlas.
-*/
-function isUnitHiddenFromArmy(unit,viewerArmy){
-
-  if(!unit||!unit.alive)return false;
-  if(unit.army===viewerArmy)return false;
-
-  return isBushCell(unit.x,unit.y);
-}
-
-function canArmySeeUnit(viewerArmy,unit){
-
-  if(!unit||!unit.alive||unit.deadAnimating)return false;
-  if(unit.army===viewerArmy)return true;
-
-  if(isUnitHiddenFromArmy(unit,viewerArmy))return false;
-
-  if(viewerArmy===playerArmy){
-    return isVisible(unit.x,unit.y);
-  }
-
-  const viewers=units.filter(
-    u=>u.alive&&!u.deadAnimating&&u.army===viewerArmy
-  );
-
-  for(const viewer of viewers){
-    const vx=viewer.moving?viewer.renderX:viewer.x;
-    const vy=viewer.moving?viewer.renderY:viewer.y;
-    if(Math.hypot(unit.x-vx,unit.y-vy)<=PIECES[viewer.type].vision)
-      return true;
-  }
-
-  return false;
-}
-
-function clearRay(x,y,dx,dy,range,viewerArmy=null){
-
-  const cells=[];
-
-  for(let i=1;i<=range;i++){
-
-    const nx=x+dx*i;
-    const ny=y+dy*i;
-
-    if(!inBounds(nx,ny))break;
-
-    const enemy=units.find(
-      u=>
-        u.alive&&
-        !u.deadAnimating&&
-        u.x===nx&&
-        u.y===ny
+    const move=getMoves(u).find(
+      m=>m.x===cell.x&&m.y===cell.y
     );
 
-    if(enemy){
-
-      if(
-        enemy.army!==viewerArmy &&
-        !isUnitHiddenFromArmy(enemy,viewerArmy)
-      ){
-        cells.push({
-          x:nx,
-          y:ny,
-          capture:true
-        });
-      }
-
-      break;
-    }
-
-    if(validCell(nx,ny)){
-      cells.push({
-        x:nx,
-        y:ny,
-        capture:false
-      });
-    }else{
-      break;
+    if(move){
+      candidates.push({u,move});
     }
   }
 
-  return cells;
-}
+  if(candidates.length){
+    /* Si varias piezas pueden llegar, usamos la más cercana. */
+    candidates.sort((a,b)=>{
+      const da=Math.hypot(a.u.x-cell.x,a.u.y-cell.y);
+      const db=Math.hypot(b.u.x-cell.x,b.u.y-cell.y);
+      return da-db;
+    });
 
-function getMoves(u){
-
-  if(!u||!u.alive||u.moving)return[];
-
-  const moves=[];
-
-  const add=(x,y)=>{
-
-    if(!inBounds(x,y))return;
-
-    const enemy=units.find(
-      e=>
-        e.alive&&
-        !e.deadAnimating&&
-        e.x===x&&
-        e.y===y
-    );
-
-    if(enemy){
-
-      if(
-        enemy.army!==u.army&&
-        !isUnitHiddenFromArmy(enemy,u.army)
-      ){
-        moves.push({
-          x,y,capture:true
-        });
-      }
-
-      return;
-    }
-
-    if(validCell(x,y,u)){
-      moves.push({
-        x,y,capture:false
-      });
-    }
-  };
-
-  if(u.type==="king"){
-
-    for(let dx=-1;dx<=1;dx++){
-      for(let dy=-1;dy<=1;dy++){
-        if(dx||dy)add(u.x+dx,u.y+dy);
-      }
-    }
-
-  }else if(u.type==="pawn"){
-
-    add(u.x+1,u.y);
-    add(u.x-1,u.y);
-    add(u.x,u.y+1);
-    add(u.x,u.y-1);
-
-    for(const [dx,dy] of [
-      [1,1],[1,-1],[-1,1],[-1,-1]
-    ]){
-
-      const enemy=units.find(
-        e=>
-          e.alive&&
-          !e.deadAnimating&&
-          e.x===u.x+dx&&
-          e.y===u.y+dy&&
-          e.army!==u.army
-      );
-
-      if(
-        enemy&&
-        !isUnitHiddenFromArmy(enemy,u.army)
-      ){
-        moves.push({
-          x:u.x+dx,
-          y:u.y+dy,
-          capture:true
-        });
-      }
-    }
-
-  }else if(u.type==="knight"){
-
-    const jumps=[
-      [1,2],[2,1],[-1,2],[-2,1],
-      [1,-2],[2,-1],[-1,-2],[-2,-1]
-    ];
-
-    for(const [dx,dy] of jumps)
-      add(u.x+dx,u.y+dy);
-
-  }else if(u.type==="bishop"){
-
-    for(const [dx,dy] of [
-      [1,1],[1,-1],[-1,1],[-1,-1]
-    ]){
-      moves.push(
-        ...clearRay(
-          u.x,u.y,dx,dy,
-          PIECES.bishop.range,
-          u.army
-        )
-      );
-    }
-
-  }else if(u.type==="rook"){
-
-    for(const [dx,dy] of [
-      [1,0],[-1,0],[0,1],[0,-1]
-    ]){
-      moves.push(
-        ...clearRay(
-          u.x,u.y,dx,dy,
-          PIECES.rook.range,
-          u.army
-        )
-      );
-    }
-
-  }else if(u.type==="queen"){
-
-    for(const [dx,dy] of [
-      [1,0],[-1,0],[0,1],[0,-1],
-      [1,1],[1,-1],[-1,1],[-1,-1]
-    ]){
-      moves.push(
-        ...clearRay(
-          u.x,u.y,dx,dy,
-          PIECES.queen.range,
-          u.army
-        )
-      );
-    }
+    selectedUnit=candidates[0].u;
+    moveUnit(candidates[0].u,candidates[0].move);
+    selectedUnit=null;
+    return;
   }
 
-  return moves;
+  /* Al hacer clic en una pieza ya no se selecciona: el movimiento
+     siempre se inicia desde la casilla destino. */
+  selectedUnit=null;
 }
 
 /* =========================================================
-   MOVIMIENTOS VISIBLES
+   TECLADO
 ========================================================= */
 
-/*
-  Ahora se muestran los movimientos de TODAS las piezas
-  aliadas, no únicamente de la seleccionada.
-*/
+addEventListener(
+  "keydown",
+  e=>{
 
-function drawMoveCells(){
+    keys[e.key.toLowerCase()]=true;
 
-  const friendlyUnits=units.filter(
-    u=>
-      u.alive&&
-      u.army===playerArmy&&
-      !u.moving
-  );
-
-  for(const u of friendlyUnits){
-
-    const moves=getMoves(u);
-
-    for(const m of moves){
-
-      const p=worldToScreen(
-        m.x*TILE,
-        m.y*TILE
-      );
-
-      const s=TILE*camera.zoom;
-
-      /*
-        La selección mantiene un resaltado más fuerte.
-      */
-
-      const selected=(u===selectedUnit);
-
-      ctx.fillStyle=
-        m.capture
-        ?"rgba(220,60,55,.38)"
-        :"rgba(230,208,92,.18)";
-
-      ctx.fillRect(
-        p.x,p.y,s,s
-      );
-
-      ctx.strokeStyle=
-        m.capture
-        ?"rgba(255,105,90,.75)"
-        :"rgba(255,231,115,.48)";
-
-      ctx.lineWidth=Math.max(
-        1,
-        (selected?1.7:1.1)*camera.zoom
-      );
-
-      ctx.strokeRect(
-        p.x,p.y,s,s
-      );
+    if(e.key==="Escape"){
+      selectedUnit=null;
     }
-  }
-}
-
-/* =========================================================
-   CREACIÓN DE UNIDADES
-========================================================= */
-
-function createUnit(type,army,x,y){
-
-  const u={
-    id:Math.random().toString(36).slice(2),
-    type,
-    army,
-    x,
-    y,
 
     /*
-      Posición gráfica independiente de la lógica.
+      SPACE YA NO GENERA REYES.
+      Se mantiene como tecla de selección/despliegue
+      del Peón, que es la pieza inicial alternativa.
     */
-    renderX:x,
-    renderY:y,
 
-    alive:true,
-    moving:false,
-    deadAnimating:false,
-    moveStartX:x,
-    moveStartY:y,
-    moveTargetX:x,
-    moveTargetY:y,
-    moveProgress:0,
-    moveDuration:0,
-    cooldown:0
-  };
+    if(e.code==="Space"){
 
-  units.push(u);
+      e.preventDefault();
 
-  return u;
-}
-
-function randomValidCell(){
-
-  for(let i=0;i<5000;i++){
-
-    const x=Math.floor(
-      Math.random()*MAP_W
-    );
-
-    const y=Math.floor(
-      Math.random()*MAP_H
-    );
-
-    if(validCell(x,y))
-      return{x,y};
-  }
-
-  return{x:2,y:2};
-}
-
-/* =========================================================
-   EJÉRCITOS
-========================================================= */
-
-function createPlayer(){
-
-  const p=randomValidCell();
-
-  createUnit(
-    "king",
-    playerArmy,
-    p.x,p.y
-  );
-
-  /*
-    SOLO UN REY.
-    El Peón está desbloqueado pero no aparece
-    automáticamente.
-  */
-
-  camera.x=p.x*TILE+TILE/2;
-  camera.y=p.y*TILE+TILE/2;
-}
-
-function enemySpawnNearPlayer(){
-
-  const targets=units.filter(u=>
-    u.alive&&
-    !u.deadAnimating&&
-    u.army===playerArmy
-  );
-
-  if(!targets.length)return randomValidCell();
-
-  // Los refuerzos aparecen normalmente a unas 30 casillas
-  // de alguna pieza del jugador, pero sin aparecer encima.
-  for(let attempt=0;attempt<80;attempt++){
-
-    const target=targets[Math.floor(Math.random()*targets.length)];
-    const angle=Math.random()*Math.PI*2;
-    const distance=28+Math.random()*5;
-
-    const x=Math.round(target.x+Math.cos(angle)*distance);
-    const y=Math.round(target.y+Math.sin(angle)*distance);
-
-    if(!validCell(x,y))continue;
-
-    const occupied=units.some(u=>
-      u.alive&&!u.deadAnimating&&u.x===x&&u.y===y
-    );
-
-    if(occupied)continue;
-
-    return{x,y};
-  }
-
-  // Si el mapa no permite un punto exacto, buscamos una casilla
-  // válida que quede lo más cerca posible de las 30 casillas.
-  let best=null;
-  let bestDiff=Infinity;
-
-  for(let i=0;i<180;i++){
-    const pos=randomValidCell();
-    const target=targets[Math.floor(Math.random()*targets.length)];
-    const d=Math.hypot(pos.x-target.x,pos.y-target.y);
-    const diff=Math.abs(d-30);
-
-    if(diff<bestDiff){
-      bestDiff=diff;
-      best=pos;
+      spawnType="pawn";
+      spawnPlayerPiece("pawn");
+      updatePieceButtons();
     }
   }
+);
 
-  return best||randomValidCell();
-}
-
-function createEnemyArmies(){
-
-  armies=[];
-
-  for(let i=0;i<8;i++){
-
-    const army={
-      id:"enemy"+i,
-      name:enemyNames[i],
-      color:enemyColors[i],
-      coins:100,
-      xp:0,
-      level:1,
-      score:0
-    };
-
-    armies.push(army);
-
-    const p=enemySpawnNearPlayer();
-
-    createUnit(
-      "king",
-      army,
-      p.x,p.y
-    );
-
-    const n=enemySpawnNearPlayer();
-
-    createUnit(
-      "pawn",
-      army,
-      n.x,n.y
-    );
+addEventListener(
+  "keyup",
+  e=>{
+    keys[e.key.toLowerCase()]=false;
   }
+);
+
+function updateKeyboard(dt){
+
+  const amount=
+    520*dt/camera.zoom;
+
+  if(keys["w"]||keys["arrowup"])
+    camera.y-=amount;
+
+  if(keys["s"]||keys["arrowdown"])
+    camera.y+=amount;
+
+  if(keys["a"]||keys["arrowleft"])
+    camera.x-=amount;
+
+  if(keys["d"]||keys["arrowright"])
+    camera.x+=amount;
+
+  clampCamera();
 }
