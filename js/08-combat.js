@@ -1,220 +1,424 @@
 /* =========================================================
-   DECORACIÓN
-   SIN CAMBIOS
+   INVOCAR PIEZAS
 ========================================================= */
 
-function drawDecorations(){
+function isUnlocked(type){
+  return playerArmy.level>=UNLOCK[type];
+}
 
-  for(let y=0;y<MAP_H;y++){
+function spawnPlayerPiece(type){
 
-    for(const d of terrainDecor[y]){
+  if(gameEnded)return;
 
-      const p=worldToScreen(
-        d.x*TILE+TILE/2,
-        d.y*TILE+TILE/2
+  /*
+    EL REY NO SE PUEDE GENERAR.
+    Solo existe el Rey inicial.
+  */
+
+  if(type==="king"){
+
+    showMessage(
+      "👑 Solo puede existir un Rey"
+    );
+
+    return;
+  }
+
+  if(!isUnlocked(type)){
+
+    showMessage(
+      `🔒 Se desbloquea en nivel ${UNLOCK[type]}`
+    );
+
+    return;
+  }
+
+  if(playerArmy.coins<COST[type]){
+
+    showMessage(
+      "🪙 No tienes suficientes monedas"
+    );
+
+    return;
+  }
+
+  const king=units.find(
+    u=>
+      u.alive&&
+      u.army===playerArmy&&
+      u.type==="king"
+  );
+
+  /*
+    Si el Rey ha muerto pero aún no se ha acabado
+    la partida, no se generan nuevas piezas.
+  */
+
+  if(!king){
+
+    showMessage(
+      "👑 Tu Rey ya no está en el campo"
+    );
+
+    return;
+  }
+
+  const options=[
+    [1,0],[-1,0],[0,1],[0,-1],
+    [1,1],[1,-1],[-1,1],[-1,-1]
+  ];
+
+  for(const [dx,dy] of options){
+
+    const x=king.x+dx;
+    const y=king.y+dy;
+
+    if(validCell(x,y)){
+
+      playerArmy.coins-=COST[type];
+
+      createUnit(
+        type,
+        playerArmy,
+        x,y
       );
 
-      const s=TILE*camera.zoom*d.scale;
+      showMessage(
+        `⚔️ ${capitalize(type)} desplegado`
+      );
 
-      if(
-        p.x+s<0||p.y+s<0||
-        p.x-s>W||p.y-s>H
-      )continue;
-
-      if(d.type==="tree")drawTree(p.x,p.y,s);
-      else if(d.type==="bush")drawBush(p.x,p.y,s);
-      else if(d.type==="flower")drawFlower(p.x,p.y,s);
-      else if(d.type==="cactus")drawCactus(p.x,p.y,s);
-      else if(d.type==="desertRock")drawDesertRock(p.x,p.y,s);
-      else if(d.type==="crack")drawCrack(p.x,p.y,s);
-      else if(d.type==="ember")drawEmber(p.x,p.y,s);
+      updateUI();
+      return;
     }
   }
-}
 
-function drawTree(x,y,s){
-
-  ctx.fillStyle="rgba(0,0,0,.2)";
-  ctx.beginPath();
-  ctx.ellipse(x,y+s*.35,s*.34,s*.12,0,0,Math.PI*2);
-  ctx.fill();
-
-  ctx.fillStyle="#65452c";
-  ctx.fillRect(x-s*.09,y-s*.15,s*.18,s*.55);
-
-  const grad=ctx.createRadialGradient(
-    x-s*.1,y-s*.2,s*.04,x,y,s*.5
+  showMessage(
+    "No hay espacio libre junto al Rey"
   );
-
-  grad.addColorStop(0,"#70a34b");
-  grad.addColorStop(.7,"#39743d");
-  grad.addColorStop(1,"#214d31");
-
-  ctx.fillStyle=grad;
-
-  ctx.beginPath();
-  ctx.arc(x-s*.2,y-s*.1,s*.3,0,Math.PI*2);
-  ctx.arc(x+s*.15,y-s*.2,s*.35,0,Math.PI*2);
-  ctx.arc(x,y-s*.4,s*.3,0,Math.PI*2);
-  ctx.fill();
 }
 
-function drawBush(x,y,s){
-
-  ctx.fillStyle="#315f39";
-
-  ctx.beginPath();
-  ctx.arc(x-s*.2,y,s*.25,0,Math.PI*2);
-  ctx.arc(x+s*.15,y-s*.04,s*.3,0,Math.PI*2);
-  ctx.arc(x,y-s*.18,s*.27,0,Math.PI*2);
-  ctx.fill();
+function capitalize(s){
+  return s.charAt(0).toUpperCase()+s.slice(1);
 }
 
-function drawFlower(x,y,s){
+/* =========================================================
+   BOTONES
+========================================================= */
 
-  ctx.strokeStyle="#3e753e";
-  ctx.lineWidth=Math.max(1,s*.035);
+const pieceNames={
+  king:"Rey",
+  pawn:"Peón",
+  bishop:"Alfil",
+  knight:"Caballo",
+  rook:"Torre",
+  queen:"Reina"
+};
 
-  ctx.beginPath();
-  ctx.moveTo(x,y);
-  ctx.lineTo(x,y-s*.3);
-  ctx.stroke();
+function updatePieceButtons(){
 
-  ctx.fillStyle="#e5a7c1";
+  const box=document.getElementById("pieces");
+  box.innerHTML="";
 
-  for(let i=0;i<5;i++){
+  for(const type of [
+    "king",
+    "pawn",
+    "bishop",
+    "knight",
+    "rook",
+    "queen"
+  ]){
 
-    const a=i*Math.PI*2/5;
+    const unlocked=isUnlocked(type);
 
-    ctx.beginPath();
-    ctx.arc(
-      x+Math.cos(a)*s*.08,
-      y-s*.31+Math.sin(a)*s*.08,
-      s*.07,0,Math.PI*2
+    const b=document.createElement("button");
+
+    b.className=
+      "pieceBtn"+
+      (!unlocked?" locked":"");
+
+    if(type===spawnType){
+      b.classList.add("selected");
+    }
+
+    const cost=
+      type==="king"
+      ?"Único"
+      :`${COST[type]} 🪙`;
+
+    b.innerHTML=`
+      <div class="pieceIcon">
+        ${PIECES[type].symbol}
+      </div>
+      <div class="pieceName">
+        ${pieceNames[type]}
+      </div>
+      <div class="pieceCost">
+        ${
+          unlocked
+          ?cost
+          :`🔒 Nivel ${UNLOCK[type]}`
+        }
+      </div>
+    `;
+
+    b.onclick=()=>{
+
+      if(type==="king"){
+
+        showMessage(
+          "👑 El Rey es único y no se puede generar"
+        );
+
+        return;
+      }
+
+      if(!unlocked){
+
+        showMessage(
+          `🔒 ${pieceNames[type]} se desbloquea en nivel ${UNLOCK[type]}`
+        );
+
+        return;
+      }
+
+      spawnType=type;
+      spawnPlayerPiece(type);
+      updatePieceButtons();
+    };
+
+    box.appendChild(b);
+  }
+}
+
+/* =========================================================
+   COMBATE
+========================================================= */
+
+function capture(attacker,defender){
+
+  if(
+    !attacker||
+    !defender||
+    !attacker.alive||
+    !defender.alive
+  )return;
+
+  /* Una pieza oculta en arbusto no puede ser atacada por un enemigo. */
+  if(isUnitHiddenFromArmy(defender,attacker.army))return;
+
+  /*
+    EL REY MATA DE UN GOLPE.
+    Para cualquier atacante normal también se resuelve
+    aquí el combate según las reglas actuales.
+  */
+
+  defender.alive=false;
+  defender.deadAnimating=true;
+
+  const reward=
+    KILL_REWARD[defender.type]||10;
+
+  if(attacker.army===playerArmy){
+
+    playerArmy.coins+=reward;
+    playerArmy.score+=reward;
+    playerArmy.xp+=ENEMY_XP;
+
+    floatingTexts.push({
+      x:defender.x,
+      y:defender.y,
+      text:`+${reward} 🪙`,
+      life:1
+    });
+
+    checkPlayerLevel();
+
+    if(defender.type==="king"){
+
+      for(const u of units){
+
+        if(
+          u.alive&&
+          u.army===defender.army
+        ){
+          u.alive=false;
+          u.deadAnimating=true;
+        }
+      }
+
+      playerArmy.score+=100;
+
+      showMessage(
+        `👑 ¡Has derrotado a ${defender.army.name}!`
+      );
+    }
+
+  }else{
+
+    attacker.army.coins+=reward;
+    attacker.army.xp+=ENEMY_XP;
+
+    if(defender.army===playerArmy){
+
+      playerArmy.score=
+        Math.max(0,playerArmy.score-0);
+    }
+  }
+
+  /*
+    Si el Rey del jugador recibe el ataque,
+    pierde una vida.
+  */
+
+  if(
+    defender.army===playerArmy&&
+    defender.type==="king"
+  ){
+
+    playerArmy.lives--;
+
+    if(playerArmy.lives<=0){
+      endGame();
+    }
+  }
+
+  if(selectedUnit===defender){
+    selectedUnit=null;
+  }
+
+  /*
+    No eliminamos inmediatamente el objeto del array.
+    Se conserva para que la animación y las referencias
+    existentes no provoquen errores.
+  */
+
+  setTimeout(()=>{
+
+    defender.deadAnimating=false;
+
+    if(defender.type==="king"){
+
+      if(defender.army===playerArmy){
+        endGame();
+      }
+
+    }
+
+  },180);
+}
+
+/* =========================================================
+   NIVEL
+========================================================= */
+
+function requiredForLevel(level){
+  return level*150;
+}
+
+function checkPlayerLevel(){
+
+  /*
+    CORREGIDO:
+    el coste de cada nivel se calcula dentro del while.
+    Así puede subir varios niveles correctamente.
+  */
+
+  while(
+    playerArmy.xp>=
+    requiredForLevel(playerArmy.level)
+  ){
+
+    const need=
+      requiredForLevel(playerArmy.level);
+
+    playerArmy.xp-=need;
+    playerArmy.level++;
+
+    showMessage(
+      `🎉 ¡Nivel ${playerArmy.level}!`
     );
-    ctx.fill();
-  }
 
-  ctx.fillStyle="#e6c75b";
-  ctx.beginPath();
-  ctx.arc(x,y-s*.31,s*.05,0,Math.PI*2);
-  ctx.fill();
-}
-
-function drawCactus(x,y,s){
-
-  ctx.fillStyle="rgba(0,0,0,.16)";
-  ctx.beginPath();
-  ctx.ellipse(x,y+s*.28,s*.3,s*.1,0,0,Math.PI*2);
-  ctx.fill();
-
-  const grad=ctx.createLinearGradient(
-    x-s*.15,y,x+s*.15,y
-  );
-
-  grad.addColorStop(0,"#3f7040");
-  grad.addColorStop(.5,"#6e9850");
-  grad.addColorStop(1,"#2f5e39");
-
-  ctx.fillStyle=grad;
-
-  ctx.beginPath();
-  ctx.roundRect(
-    x-s*.1,y-s*.45,s*.2,s*.75,s*.09
-  );
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.roundRect(
-    x-s*.32,y-s*.18,s*.2,s*.11,s*.05
-  );
-  ctx.fill();
-
-  ctx.fillRect(x-s*.32,y-s*.28,s*.1,s*.2);
-
-  ctx.beginPath();
-  ctx.roundRect(
-    x+s*.12,y-s*.08,s*.2,s*.11,s*.05
-  );
-  ctx.fill();
-
-  ctx.fillRect(x+s*.22,y-s*.18,s*.1,s*.2);
-
-  ctx.strokeStyle="rgba(225,225,180,.35)";
-  ctx.lineWidth=Math.max(.5,camera.zoom);
-
-  for(let i=0;i<7;i++){
-
-    const yy=y-s*.32+i*s*.09;
-
-    ctx.beginPath();
-    ctx.moveTo(x-s*.07,yy);
-    ctx.lineTo(x-s*.11,yy+s*.025);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(x+s*.07,yy+s*.02);
-    ctx.lineTo(x+s*.11,yy);
-    ctx.stroke();
+    updatePieceButtons();
   }
 }
 
-function drawDesertRock(x,y,s){
+/* =========================================================
+   IA
+========================================================= */
 
-  ctx.fillStyle="rgba(0,0,0,.18)";
-  ctx.beginPath();
-  ctx.ellipse(x,y+s*.23,s*.35,s*.12,0,0,Math.PI*2);
-  ctx.fill();
+function enemyMove(army){
 
-  const grad=ctx.createLinearGradient(
-    x-s*.3,y-s*.3,x+s*.25,y+s*.25
+  const enemyUnits=units.filter(u=>
+    u.alive&&
+    !u.deadAnimating&&
+    u.army===army&&
+    u.type!=="king"&&
+    !u.moving
   );
 
-  grad.addColorStop(0,"#c6aa76");
-  grad.addColorStop(.5,"#947952");
-  grad.addColorStop(1,"#594735");
+  // El Rey enemigo nunca participa en ataques ni se usa para perseguir.
+  if(!enemyUnits.length)return;
 
-  ctx.fillStyle=grad;
+  const playerUnits=units.filter(u=>
+    u.alive&&
+    !u.deadAnimating&&
+    u.army===playerArmy
+  );
 
-  ctx.beginPath();
-  ctx.moveTo(x-s*.36,y+s*.12);
-  ctx.lineTo(x-s*.27,y-s*.16);
-  ctx.lineTo(x-s*.05,y-s*.34);
-  ctx.lineTo(x+s*.24,y-s*.25);
-  ctx.lineTo(x+s*.37,y+s*.05);
-  ctx.lineTo(x+s*.18,y+s*.23);
-  ctx.lineTo(x-s*.18,y+s*.25);
-  ctx.closePath();
-  ctx.fill();
+  if(!playerUnits.length)return;
 
-  ctx.strokeStyle="rgba(255,230,177,.25)";
-  ctx.lineWidth=Math.max(.7,camera.zoom);
+  // El objetivo principal es acercarse al Rey del jugador.
+  const playerKing=playerUnits.find(u=>u.type==="king");
+  const primaryTarget=playerKing||playerUnits[0];
 
-  ctx.beginPath();
-  ctx.moveTo(x-s*.2,y-s*.13);
-  ctx.lineTo(x,y-s*.23);
-  ctx.lineTo(x+s*.16,y-s*.13);
-  ctx.stroke();
-}
+  // 1. Primero: cualquier pieza que pueda capturar al Rey lo intenta.
+  // Nunca lo hace el Rey enemigo porque está excluido arriba.
+  for(const u of enemyUnits){
 
-function drawCrack(x,y,s){
+    if(u.cooldown>0)continue;
 
-  ctx.strokeStyle="rgba(35,30,25,.25)";
-  ctx.lineWidth=Math.max(.7,camera.zoom);
+    const moves=getMoves(u);
+    const captureKing=moves.find(m=>
+      m.capture&&
+      m.x===primaryTarget.x&&
+      m.y===primaryTarget.y
+    );
 
-  ctx.beginPath();
-  ctx.moveTo(x-s*.35,y-s*.2);
-  ctx.lineTo(x-s*.05,y);
-  ctx.lineTo(x-s*.12,y+s*.27);
-  ctx.moveTo(x-s*.05,y);
-  ctx.lineTo(x+s*.28,y-s*.18);
-  ctx.stroke();
-}
+    if(captureKing){
+      moveUnit(u,captureKing);
+      return;
+    }
+  }
 
-function drawEmber(x,y,s){
+  // 2. Si no pueden capturarlo, buscan la mejor casilla para acercarse
+  // al Rey. Así las distintas piezas participan en el ataque.
+  const candidates=[];
 
-  ctx.fillStyle="rgba(255,91,25,.7)";
-  ctx.beginPath();
-  ctx.arc(x,y,s*.06,0,Math.PI*2);
-  ctx.fill();
+  for(const u of enemyUnits){
+
+    if(u.cooldown>0)continue;
+
+    const moves=getMoves(u);
+
+    for(const move of moves){
+
+      const dKing=
+        Math.abs(move.x-primaryTarget.x)+
+        Math.abs(move.y-primaryTarget.y);
+
+      // Las capturas de otras piezas también tienen prioridad.
+      const captureBonus=move.capture?8:0;
+
+      candidates.push({
+        u,
+        move,
+        score:dKing-captureBonus+Math.random()*1.5
+      });
+    }
+  }
+
+  if(!candidates.length)return;
+
+  candidates.sort((a,b)=>a.score-b.score);
+  moveUnit(candidates[0].u,candidates[0].move);
 }
