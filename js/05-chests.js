@@ -22,6 +22,7 @@ function generateChests(){
     chests.push({
       x,y,
       reward:15+Math.floor(Math.random()*36),
+      diamonds:(()=>{const r=Math.random();return r<.70?0:r<.90?1:r<.98?2:3;})(),
       collected:false
     });
   }
@@ -72,6 +73,8 @@ function collectChestAt(x,y,u){
 
   chest.collected=true;
   playerArmy.coins+=chest.reward;
+  const diamondReward=Math.max(0,Number(chest.diamonds)||0);
+  globalDiamonds=Math.max(0,Number(globalDiamonds)||0)+diamondReward;
 
   for(let i=0;i<18;i++){
     particles.push({
@@ -87,10 +90,11 @@ function collectChestAt(x,y,u){
 
   floatingTexts.push({
     x,y,
-    text:`+${chest.reward} 🪙`,
+    text:`+${chest.reward} 🪙${diamondReward?` +${diamondReward} 💎`:``}`,
     life:1.4
   });
 
-  showMessage(`🎁 ¡Has cogido el cofre! +${chest.reward} 🪙`);
+  showMessage(`🎁 ¡Has cogido el cofre! +${chest.reward} 🪙${diamondReward?` +${diamondReward} 💎`:``}`);
+  saveProgress();
   updateUI();
 }
