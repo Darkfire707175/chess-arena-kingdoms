@@ -144,3 +144,138 @@ canvas.dragging{cursor:grabbing}
 .marketClose{display:block;margin:18px auto 0;background:linear-gradient(#e7c96f,#b48b3e);color:#211b10;border-color:#f0d98e}
 @media(max-width:760px){.kingdomGrid{grid-template-columns:1fr 1fr}}
 @media(max-width:520px){.kingdomGrid{grid-template-columns:1fr}.marketHeader{flex-direction:column}}
+
+
+/* =========================================================
+   TIENDA IN-GAME — ESTILO ARCADE
+========================================================= */
+#gameStoreButton{
+  position:fixed;
+  top:14px;
+  right:14px;
+  z-index:25;
+  min-width:118px;
+  height:46px;
+  padding:0 18px;
+  border:2px solid #f2d47c;
+  border-radius:13px;
+  background:linear-gradient(180deg,#3b414b,#20252c);
+  color:#ffe39a;
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:.8px;
+  cursor:pointer;
+  box-shadow:0 7px 22px rgba(0,0,0,.45),inset 0 1px rgba(255,255,255,.12);
+  transition:transform .14s,filter .14s,box-shadow .14s;
+}
+#gameStoreButton:hover{
+  transform:translateY(-2px) scale(1.025);
+  filter:brightness(1.12);
+  box-shadow:0 9px 28px rgba(0,0,0,.55),0 0 18px rgba(242,212,124,.18);
+}
+#gameStoreButton:active{transform:translateY(1px) scale(.99)}
+@media(max-width:600px){
+  #gameStoreButton{top:10px;right:10px;min-width:100px;height:42px;padding:0 12px;font-size:12px}
+}
+
+/* Reorganización arcade de la tienda */
+.marketOverlay{
+  padding:18px;
+  background:rgba(3,6,10,.82);
+  backdrop-filter:blur(8px);
+}
+.marketPanel{
+  width:min(1120px,100%);
+  max-height:min(92vh,900px);
+  padding:0;
+  overflow:hidden;
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 50% -10%,rgba(231,202,120,.12),transparent 38%),
+    linear-gradient(145deg,#252c35,#11151b 72%);
+  border:2px solid rgba(231,202,120,.52);
+  box-shadow:0 30px 100px rgba(0,0,0,.78),inset 0 1px rgba(255,255,255,.08);
+}
+.marketHeader{
+  margin:0;
+  padding:22px 25px 18px;
+  align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.09);
+  background:linear-gradient(180deg,rgba(255,255,255,.045),transparent);
+}
+.marketHeader h2{
+  font-size:clamp(22px,3vw,32px);
+  letter-spacing:.5px;
+}
+.marketHeader p{font-size:12px}
+.marketBalance{
+  min-width:145px;
+  text-align:center;
+  border:2px solid rgba(231,202,120,.38);
+  background:rgba(7,10,14,.72);
+  box-shadow:inset 0 0 18px rgba(231,202,120,.05);
+}
+.kingdomGrid{
+  padding:22px 25px 10px;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+  overflow:auto;
+}
+.kingdomCard{
+  position:relative;
+  min-height:275px;
+  padding:20px 16px 16px;
+  border-radius:18px;
+  background:linear-gradient(180deg,rgba(42,49,59,.86),rgba(12,16,21,.9));
+  border:1px solid rgba(255,255,255,.11);
+  box-shadow:0 9px 24px rgba(0,0,0,.25);
+  transition:transform .16s,border-color .16s,box-shadow .16s;
+}
+.kingdomCard:hover{
+  transform:translateY(-4px);
+  border-color:rgba(231,202,120,.48);
+  box-shadow:0 14px 32px rgba(0,0,0,.42);
+}
+.kingdomCard.active{
+  border:2px solid #e7ca78;
+  box-shadow:0 0 0 1px rgba(231,202,120,.1),0 0 28px rgba(231,202,120,.13);
+}
+.kingdomIcon{
+  width:82px;height:82px;
+  display:flex;align-items:center;justify-content:center;
+  margin:4px 0 14px;
+  border-radius:22px;
+  background:rgba(0,0,0,.28);
+  border:1px solid rgba(255,255,255,.09);
+  font-size:50px;
+  box-shadow:inset 0 0 24px rgba(255,255,255,.035);
+}
+.kingdomCard h3{font-size:18px}
+.kingdomCard p{font-size:12px}
+.kingdomPrice{font-size:14px}
+.kingdomAction{
+  min-width:135px;
+  padding:10px 15px;
+  border:1px solid rgba(231,202,120,.38);
+  background:linear-gradient(180deg,#3b434d,#252b33);
+  border-radius:11px;
+}
+.kingdomAction:hover{transform:translateY(-1px)}
+.kingdomAction.selected{
+  background:linear-gradient(180deg,#536653,#344437);
+  border-color:#9bc49a;
+}
+.marketClose{
+  margin:8px auto 22px;
+  min-width:170px;
+  font-size:13px;
+  box-shadow:0 6px 18px rgba(0,0,0,.3);
+}
+@media(max-width:850px){
+  .kingdomGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px){
+  .marketHeader{padding:18px;align-items:stretch}
+  .marketBalance{width:100%}
+  .kingdomGrid{grid-template-columns:1fr;padding:16px}
+}
