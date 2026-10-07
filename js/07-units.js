@@ -74,7 +74,44 @@ function drawUnit(u){
     :"#74252d";
 
   ctx.save();
-  ctx.translate(p.x,p.y+idle);
+
+  let attackLiftX=0;
+  let attackLiftY=0;
+  let attackRotation=0;
+
+  if(u.attackAnim){
+
+    const at=u.attackAnim;
+    const t=at.progress;
+    const phase=Math.sin(Math.PI*t);
+
+    let dx=at.targetX-at.originX;
+    let dy=at.targetY-at.originY;
+    const len=Math.hypot(dx,dy)||1;
+
+    dx/=len;
+    dy/=len;
+
+    if(at.type==="king"||at.type==="pawn"||at.type==="knight"){
+      attackLiftX=dx*s*.12*phase;
+      attackLiftY=dy*s*.12*phase;
+      attackRotation=at.type==="knight"
+        ?dx*.10*phase
+        :dx*.035*phase;
+    }else if(at.type==="rook"){
+      attackLiftX=Math.sin(Math.PI*2*t)*s*.035;
+      attackRotation=Math.sin(Math.PI*4*t)*.035;
+    }else{
+      attackLiftY=-s*.045*phase;
+      attackRotation=Math.sin(Math.PI*t)*.025;
+    }
+  }
+
+  ctx.translate(
+    p.x+attackLiftX,
+    p.y+idle+attackLiftY
+  );
+  ctx.rotate(attackRotation);
 
   drawPieceAura(
     u.type,
@@ -147,6 +184,14 @@ function drawUnit(u){
     s,
     friendly
   );
+
+  if(u.attackAnim)
+    drawAttackAnimation(
+      u.attackAnim,
+      s,
+      main,
+      friendly
+    );
 
   ctx.restore();
 }
@@ -519,6 +564,14 @@ function createUnit(type,army,x,y){
     moveProgress:0,
     moveDuration:0,
     cooldown:0,
+
+    /*
+      Estado temporal de animación de ataque.
+    */
+    attackAnim:null,
+    attackOriginX:x,
+    attackOriginY:y,
+
     /*
       Marca temporal usada por la mecánica de cofres.
       No altera la vida ni el movimiento de la pieza.
@@ -767,4 +820,257 @@ function createEnemyArmies(){
       n.x,n.y
     );
   }
+}
+
+/* =========================================================
+   ANIMACIONES DE ATAQUE
+========================================================= */
+
+function drawAttackAnimation(at,s,main,friendly){
+
+  const t=at.progress;
+  const easeOut=1-Math.pow(1-t,3);
+  const alpha=
+    t<.72
+    ?Math.min(1,t/.18)
+    :Math.max(0,1-(t-.72)/.28);
+
+  const dxRaw=at.targetX-at.originX;
+  const dyRaw=at.targetY-at.originY;
+  const distance=Math.hypot(dxRaw,dyRaw)||1;
+  const dx=dxRaw/distance;
+  const dy=dyRaw/distance;
+
+  const px=-dy;
+  const py=dx;
+
+  const accent=
+    friendly
+    ?"#f2d47a"
+    :"#e07b58";
+
+  ctx.save();
+  ctx.globalAlpha=alpha;
+
+  /* REY — gran corte de espada */
+  if(at.type==="king"){
+
+    ctx.strokeStyle="#fff8db";
+    ctx.shadowColor=accent;
+    ctx.shadowBlur=s*.15;
+    ctx.lineWidth=Math.max(2,4*camera.zoom);
+
+    ctx.beginPath();
+    ctx.arc(
+      dx*s*.08,
+      dy*s*.08,
+      s*.48,
+      Math.atan2(dy,dx)-1.25,
+      Math.atan2(dy,dx)+.45
+    );
+    ctx.stroke();
+
+    ctx.shadowBlur=0;
+  }
+
+  /* PEÓN — embestida con impacto */
+  if(at.type==="pawn"){
+
+    const push=Math.sin(Math.PI*t);
+
+    ctx.strokeStyle=accent;
+    ctx.lineWidth=Math.max(2,3*camera.zoom);
+
+    ctx.beginPath();
+    ctx.arc(
+      dx*s*.42,
+      dy*s*.42,
+      s*(.13+.18*push),
+      0,Math.PI*2
+    );
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(dx*s*.18+px*s*.16,dy*s*.18+py*s*.16);
+    ctx.lineTo(dx*s*.43+px*s*.16,dy*s*.43+py*s*.16);
+    ctx.moveTo(dx*s*.18-px*s*.16,dy*s*.18-py*s*.16);
+    ctx.lineTo(dx*s*.43-px*s*.16,dy*s*.43-py*s*.16);
+    ctx.stroke();
+  }
+
+  /* ALFIL — descarga diagonal */
+  if(at.type==="bishop"){
+
+    ctx.strokeStyle="#f6e4a3";
+    ctx.shadowColor=accent;
+    ctx.shadowBlur=s*.18;
+    ctx.lineWidth=Math.max(2,3.5*camera.zoom);
+
+    const travel=s*(.18+easeOut*.62);
+
+    ctx.beginPath();
+    ctx.moveTo(-dx*travel,-dy*travel);
+    ctx.lineTo(dx*travel,dy*travel);
+    ctx.stroke();
+
+    ctx.shadowBlur=0;
+
+    ctx.strokeStyle=accent;
+    ctx.lineWidth=Math.max(1,1.7*camera.zoom);
+
+    ctx.beginPath();
+    ctx.moveTo(
+      dx*travel+px*s*.16,
+      dy*travel+py*s*.16
+    );
+    ctx.lineTo(
+      dx*travel-px*s*.16,
+      dy*travel-py*s*.16
+    );
+    ctx.stroke();
+  }
+
+  /* CABALLO — doble estela de carga */
+  if(at.type==="knight"){
+
+    ctx.strokeStyle=accent;
+    ctx.shadowColor=accent;
+    ctx.shadowBlur=s*.14;
+    ctx.lineWidth=Math.max(2,3*camera.zoom);
+
+    const end=s*(.3+easeOut*.42);
+
+    for(const side of [-1,1]){
+
+      ctx.beginPath();
+      ctx.moveTo(
+        -dx*s*.18+px*s*.12*side,
+        -dy*s*.18+py*s*.12*side
+      );
+      ctx.quadraticCurveTo(
+        dx*s*.04+px*s*.2*side,
+        dy*s*.04+py*s*.2*side,
+        dx*end+px*s*.13*side,
+        dy*end+py*s*.13*side
+      );
+      ctx.stroke();
+    }
+
+    ctx.shadowBlur=0;
+  }
+
+  /* TORRE — golpe y onda de choque */
+  if(at.type==="rook"){
+
+    ctx.strokeStyle=accent;
+    ctx.lineWidth=Math.max(2,3.5*camera.zoom);
+
+    const r=s*(.15+easeOut*.58);
+
+    ctx.beginPath();
+    ctx.arc(
+      0,s*.22,
+      r,
+      0,Math.PI*2
+    );
+    ctx.stroke();
+
+    ctx.globalAlpha*=.55;
+
+    for(let i=0;i<4;i++){
+
+      const a=i*Math.PI/2+t*.8;
+      const len=s*(.25+easeOut*.32);
+
+      ctx.beginPath();
+      ctx.moveTo(
+        Math.cos(a)*s*.08,
+        s*.22+Math.sin(a)*s*.08
+      );
+      ctx.lineTo(
+        Math.cos(a)*len,
+        s*.22+Math.sin(a)*len
+      );
+      ctx.stroke();
+    }
+  }
+
+  /* REINA — rayo de energía */
+  if(at.type==="queen"){
+
+    ctx.strokeStyle="#fff4bf";
+    ctx.shadowColor=accent;
+    ctx.shadowBlur=s*.2;
+
+    const start=-s*.08;
+    const end=s*(.28+easeOut*.58);
+
+    ctx.lineWidth=Math.max(
+      2,
+      (2.5+2.5*(1-t))*camera.zoom
+    );
+
+    ctx.beginPath();
+    ctx.moveTo(dx*start,dy*start);
+
+    const wiggle=s*.045*(1-t);
+
+    ctx.quadraticCurveTo(
+      dx*end*.5+px*wiggle,
+      dy*end*.5+py*wiggle,
+      dx*end,
+      dy*end
+    );
+
+    ctx.stroke();
+
+    ctx.fillStyle=accent;
+    ctx.beginPath();
+    ctx.arc(
+      dx*end,
+      dy*end,
+      s*(.045+.08*easeOut),
+      0,Math.PI*2
+    );
+    ctx.fill();
+
+    ctx.shadowBlur=0;
+  }
+
+  /* DESTELLO final de impacto común */
+  if(t>.55){
+
+    const impact=Math.min(1,(t-.55)/.18);
+
+    ctx.globalAlpha=
+      (1-impact)*.8;
+
+    ctx.fillStyle="#fffdf0";
+
+    ctx.beginPath();
+    ctx.arc(
+      dx*s*.38,
+      dy*s*.38,
+      s*(.12+.16*impact),
+      0,Math.PI*2
+    );
+    ctx.fill();
+
+    ctx.globalAlpha=
+      (1-impact)*.65;
+
+    ctx.strokeStyle=accent;
+    ctx.lineWidth=Math.max(1,2*camera.zoom);
+
+    ctx.beginPath();
+    ctx.arc(
+      dx*s*.38,
+      dy*s*.38,
+      s*(.2+.22*impact),
+      0,Math.PI*2
+    );
+    ctx.stroke();
+  }
+
+  ctx.restore();
 }
