@@ -230,13 +230,24 @@ function drawUnit(u){
     friendly
   );
 
-  if(u.attackAnim)
-    drawAttackAnimation(
-      u.attackAnim,
-      s,
-      main,
-      friendly
-    );
+  if(u.attackAnim){
+    /*
+      Blindaje del render:
+      una animación nunca puede detener el bucle completo
+      aunque alguna coordenada temporal sea inválida.
+    */
+    try{
+      drawAttackAnimation(
+        u.attackAnim,
+        s,
+        main,
+        friendly
+      );
+    }catch(error){
+      console.error("Error dibujando ataque:",error);
+      u.attackAnim=null;
+    }
+  }
 
   if(u.hitAnim)
     drawHitReaction(
@@ -1035,15 +1046,32 @@ function drawPhysicalSpear(angle,length,width,accent,hot){
 
 function drawAttackAnimation(at,s,main,friendly){
 
-  const t=at.progress;
+  const tRaw=Number(at.progress);
+  const t=Number.isFinite(tRaw)
+    ?clamp(tRaw,0,1)
+    :0;
+
   const pulse=Math.sin(Math.PI*t);
   const strong=Math.max(
     0,
     Math.sin(Math.PI*Math.min(1,t/.72))
   );
 
-  const dxRaw=at.targetX-at.originX;
-  const dyRaw=at.targetY-at.originY;
+  const ox=Number(at.originX);
+  const oy=Number(at.originY);
+  const tx=Number(at.targetX);
+  const ty=Number(at.targetY);
+
+  const dxRaw=
+    Number.isFinite(tx)&&Number.isFinite(ox)
+    ?tx-ox
+    :0;
+
+  const dyRaw=
+    Number.isFinite(ty)&&Number.isFinite(oy)
+    ?ty-oy
+    :0;
+
   const len=Math.hypot(dxRaw,dyRaw)||1;
   const dx=dxRaw/len;
   const dy=dyRaw/len;
