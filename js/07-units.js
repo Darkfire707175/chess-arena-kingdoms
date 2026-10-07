@@ -1047,6 +1047,7 @@ function drawAttackAnimation(at,s,main,friendly){
   const len=Math.hypot(dxRaw,dyRaw)||1;
   const dx=dxRaw/len;
   const dy=dyRaw/len;
+  const angle=Math.atan2(dy,dx);
   const px=-dy;
   const py=dx;
 
