@@ -127,15 +127,30 @@ function updateAttackAnimations(dt){
   for(const u of units){
 
     if(u.attackAnim){
-      u.attackAnim.progress=
-        Math.min(
-          1,
-          u.attackAnim.progress+
-          (dt*1000)/u.attackAnim.duration
-        );
 
-      if(u.attackAnim.progress>=1)
+      const duration=Number(u.attackAnim.duration);
+
+      if(!Number.isFinite(duration)||duration<=0){
         u.attackAnim=null;
+      }else{
+
+        const current=Number(u.attackAnim.progress);
+
+        u.attackAnim.progress=
+          Number.isFinite(current)
+          ?Math.min(
+            1,
+            Math.max(
+              0,
+              current+
+              (dt*1000)/duration
+            )
+          )
+          :0;
+
+        if(u.attackAnim.progress>=1)
+          u.attackAnim=null;
+      }
     }
 
     if(u.hitAnim){
