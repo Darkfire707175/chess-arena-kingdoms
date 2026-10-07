@@ -22,7 +22,7 @@ function generateChests(){
     chests.push({
       x,y,
       reward:15+Math.floor(Math.random()*36),
-      diamonds:(()=>{const r=Math.random();return r<.70?0:r<.90?1:r<.98?2:3;})(),
+      diamonds:(()=>{const r=Math.random();return r<.45?3:r<.70?4:r<.87?5:r<.96?6:7;})(),
       collected:false
     });
   }
