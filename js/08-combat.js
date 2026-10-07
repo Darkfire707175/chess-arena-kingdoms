@@ -214,7 +214,8 @@ function startAttackAnimation(attacker,defender){
     targetX:defender?.x??attacker.x,
     targetY:defender?.y??attacker.y,
     originX:attacker.attackOriginX??attacker.x,
-    originY:attacker.attackOriginY??attacker.y
+    originY:attacker.attackOriginY??attacker.y,
+    didKill:!!defender
   };
 }
 
