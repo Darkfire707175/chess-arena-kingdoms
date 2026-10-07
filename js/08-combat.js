@@ -198,23 +198,26 @@ function startAttackAnimation(attacker,defender){
 
   if(!attacker)return;
 
+  const durations={
+    king:680,
+    pawn:590,
+    bishop:760,
+    knight:620,
+    rook:780,
+    queen:820
+  };
+
   attacker.attackAnim={
     type:attacker.type,
     progress:0,
-    duration:
-      attacker.type==="king"?360:
-      attacker.type==="pawn"?300:
-      attacker.type==="bishop"?430:
-      attacker.type==="knight"?340:
-      attacker.type==="rook"?460:
-      440,
+    duration:durations[attacker.type]||650,
     targetX:defender?.x??attacker.x,
     targetY:defender?.y??attacker.y,
     originX:attacker.attackOriginX??attacker.x,
-    originY:attacker.attackOriginY??attacker.y,
-    impact:false
+    originY:attacker.attackOriginY??attacker.y
   };
 }
+
 
 function capture(attacker,defender){
 
@@ -235,6 +238,18 @@ function capture(attacker,defender){
   */
 
   startAttackAnimation(attacker,defender);
+
+  /*
+    La víctima permanece visible durante el impacto para que
+    el golpe se pueda leer claramente antes de desaparecer.
+  */
+  defender.hitAnim={
+    progress:0,
+    duration:560,
+    originX:defender.x,
+    originY:defender.y,
+    attackerType:attacker.type
+  };
 
   defender.alive=false;
   defender.deadAnimating=true;
@@ -328,7 +343,7 @@ function capture(attacker,defender){
 
     }
 
-  },180);
+  },620);
 }
 
 /* =========================================================
