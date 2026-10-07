@@ -93,7 +93,6 @@ async function signInGoogle(){
   }
 }
 
-const startCrown=document.querySelector(".startCrown");
 const adminZone=document.getElementById("adminZone");
 const adminCodeInput=document.getElementById("adminCodeInput");
 const adminCodeButton=document.getElementById("adminCodeButton");
@@ -129,15 +128,16 @@ if(adminCodeButton)adminCodeButton.addEventListener("click",redeemAdminCode);
 if(adminCodeInput)adminCodeInput.addEventListener("keydown",e=>{if(e.key==="Enter")redeemAdminCode();});
 if(adminBackButton)adminBackButton.addEventListener("click",closeAdminZone);
 
-const adminHotspot=document.createElement("button");
-adminHotspot.type="button";
-adminHotspot.className="adminHotspot";
-adminHotspot.setAttribute("aria-label","");
-adminHotspot.title="";
-if(startCrown&&startCrown.parentElement){
-  startCrown.parentElement.appendChild(adminHotspot);
-  adminHotspot.addEventListener("click",openAdminZone);
-}
+let adminKeySequence="";
+document.addEventListener("keydown",e=>{
+  if(e.ctrlKey||e.altKey||e.metaKey)return;
+  if(e.target instanceof HTMLInputElement||e.target instanceof HTMLTextAreaElement||e.target.isContentEditable)return;
+  const key=e.key.toLowerCase();
+  if(!["p","i","y","u"].includes(key)){adminKeySequence="";return;}
+  adminKeySequence+=key;
+  if(adminKeySequence==="piyu"){adminKeySequence="";openAdminZone();return;}
+  if(!"piyu".startsWith(adminKeySequence))adminKeySequence=key==="p"?"p":"";
+});
 
 const googleButton=document.getElementById("googleButton");
 if(googleButton)googleButton.addEventListener("click",signInGoogle);
