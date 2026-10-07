@@ -56,6 +56,11 @@ canvas.addEventListener(
 
     if(e.button===2){
       dragging=false;
+      /*
+        La cámara conserva exactamente la posición donde la dejaste.
+        No se recentra automáticamente en el Rey al soltar el botón derecho.
+        Para volver al Rey hay que pulsar ESPACIO.
+      */
       cameraFree=false;
       canvas.classList.remove("dragging");
       if(canvas.hasPointerCapture(e.pointerId))
