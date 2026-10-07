@@ -612,3 +612,275 @@ function drawQueenPiece(main,metal,dark,s){
   ctx.arc(s*.24,-s*.27,s*.08,0,Math.PI*2);
   ctx.fill();
 }
+
+
+/* =========================================================
+   ACABADO VISUAL DE UNIDADES
+   Detalles extra sin sustituir los diseños base.
+========================================================= */
+
+function drawPieceAura(type,main,s,friendly){
+
+  const pulse=
+    .88+
+    Math.sin(performance.now()/520)*.12;
+
+  ctx.save();
+
+  ctx.globalAlpha=
+    (friendly?.11:.075)*pulse;
+
+  ctx.shadowColor=main;
+  ctx.shadowBlur=s*.22;
+
+  ctx.strokeStyle=main;
+  ctx.lineWidth=Math.max(
+    1,
+    camera.zoom*1.25
+  );
+
+  ctx.beginPath();
+
+  if(type==="king"||type==="queen"){
+    ctx.arc(
+      0,s*.33,
+      s*.34,
+      Math.PI*.12,
+      Math.PI*.88
+    );
+  }else{
+    ctx.ellipse(
+      0,s*.35,
+      s*.29,s*.09,
+      0,0,Math.PI*2
+    );
+  }
+
+  ctx.stroke();
+
+  ctx.globalAlpha=
+    (friendly?.045:.03)*pulse;
+
+  const g=ctx.createRadialGradient(
+    0,s*.18,s*.02,
+    0,s*.18,s*.56
+  );
+
+  g.addColorStop(0,main);
+  g.addColorStop(1,"rgba(0,0,0,0)");
+
+  ctx.fillStyle=g;
+  ctx.beginPath();
+  ctx.ellipse(
+    0,s*.18,
+    s*.42,s*.5,
+    0,0,Math.PI*2
+  );
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawPieceFinishing(type,main,metal,dark,s,friendly){
+
+  ctx.save();
+  ctx.lineJoin="round";
+  ctx.lineCap="round";
+
+  const gold=
+    friendly
+    ?" #ead078".trim()
+    :"#d4a957";
+
+  /*
+    REY — emblema de mando y joyas de corona.
+  */
+  if(type==="king"){
+
+    ctx.fillStyle=gold;
+
+    for(const [x,y,r] of [
+      [-s*.12,-s*.735,s*.035],
+      [0,-s*.775,s*.042],
+      [s*.12,-s*.735,s*.035]
+    ]){
+      ctx.beginPath();
+      ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fill();
+    }
+
+    ctx.strokeStyle="rgba(255,255,255,.28)";
+    ctx.lineWidth=Math.max(1,camera.zoom);
+
+    ctx.beginPath();
+    ctx.moveTo(-s*.17,-s*.29);
+    ctx.lineTo(-s*.08,-s*.22);
+    ctx.moveTo(s*.17,-s*.29);
+    ctx.lineTo(s*.08,-s*.22);
+    ctx.stroke();
+  }
+
+  /*
+    REINA — diadema de piedras y medallón central.
+  */
+  if(type==="queen"){
+
+    for(const [x,y,r,a] of [
+      [-s*.14,-s*.70,s*.028,0],
+      [0,-s*.78,s*.035,0],
+      [s*.14,-s*.70,s*.028,0]
+    ]){
+      ctx.globalAlpha=.96;
+      ctx.fillStyle=
+        a===1
+        ?"rgba(235,245,255,.95)"
+        :gold;
+      ctx.beginPath();
+      ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle=gold;
+    ctx.beginPath();
+    ctx.arc(0,s*.02,s*.045,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.strokeStyle="rgba(255,255,255,.22)";
+    ctx.lineWidth=Math.max(1,camera.zoom);
+
+    ctx.beginPath();
+    ctx.moveTo(-s*.2,-s*.25);
+    ctx.lineTo(-s*.08,-s*.15);
+    ctx.moveTo(s*.2,-s*.25);
+    ctx.lineTo(s*.08,-s*.15);
+    ctx.stroke();
+  }
+
+  /*
+    ALFIL — foco del báculo y marca diagonal.
+  */
+  if(type==="bishop"){
+
+    ctx.shadowColor=gold;
+    ctx.shadowBlur=s*.08;
+    ctx.fillStyle=gold;
+
+    ctx.beginPath();
+    ctx.arc(s*.25,-s*.42,s*.095,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.shadowBlur=0;
+    ctx.strokeStyle="rgba(255,255,255,.25)";
+    ctx.lineWidth=Math.max(1,camera.zoom);
+
+    ctx.beginPath();
+    ctx.moveTo(-s*.14,-s*.05);
+    ctx.lineTo(s*.12,s*.20);
+    ctx.stroke();
+  }
+
+  /*
+    CABALLO — visor más definido y cresta.
+  */
+  if(type==="knight"){
+
+    ctx.fillStyle="#171b20";
+
+    ctx.beginPath();
+    ctx.roundRect(
+      s*.08,-s*.64,
+      s*.18,s*.045,
+      s*.018
+    );
+    ctx.fill();
+
+    ctx.fillStyle=gold;
+
+    for(let i=0;i<3;i++){
+      ctx.beginPath();
+      ctx.moveTo(
+        -s*.04+i*s*.05,
+        -s*.86+i*s*.035
+      );
+      ctx.lineTo(
+        -s*.12+i*s*.06,
+        -s*(.98-i*.03)
+      );
+      ctx.lineTo(
+        s*.01+i*s*.045,
+        -s*.86+i*s*.035
+      );
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    ctx.strokeStyle="rgba(255,255,255,.2)";
+    ctx.lineWidth=Math.max(1,camera.zoom);
+
+    ctx.beginPath();
+    ctx.moveTo(-s*.14,-s*.18);
+    ctx.lineTo(s*.12,-s*.05);
+    ctx.stroke();
+  }
+
+  /*
+    TORRE — núcleo de defensa y placas reforzadas.
+  */
+  if(type==="rook"){
+
+    ctx.fillStyle=gold;
+
+    ctx.beginPath();
+    ctx.arc(0,s*.05,s*.055,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.strokeStyle="rgba(255,255,255,.22)";
+    ctx.lineWidth=Math.max(1,camera.zoom);
+
+    for(const y of [-.2,.02,.23]){
+      ctx.beginPath();
+      ctx.moveTo(-s*.18,s*y);
+      ctx.lineTo(s*.18,s*y);
+      ctx.stroke();
+    }
+  }
+
+  /*
+    PEÓN — pequeño escudo y remate de explorador.
+  */
+  if(type==="pawn"){
+
+    ctx.strokeStyle=gold;
+    ctx.lineWidth=Math.max(1,camera.zoom*1.1);
+
+    ctx.beginPath();
+    ctx.moveTo(0,s*.02);
+    ctx.lineTo(-s*.09,s*.11);
+    ctx.lineTo(0,s*.23);
+    ctx.lineTo(s*.09,s*.11);
+    ctx.closePath();
+    ctx.stroke();
+
+    ctx.fillStyle=gold;
+    ctx.beginPath();
+    ctx.arc(0,-s*.70,s*.028,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  /*
+    Brillo común de la silueta superior.
+  */
+  ctx.strokeStyle="rgba(255,255,255,.14)";
+  ctx.lineWidth=Math.max(.7,camera.zoom*.8);
+
+  ctx.beginPath();
+  ctx.arc(
+    0,-s*.36,
+    s*.12,
+    Math.PI*1.08,
+    Math.PI*1.82
+  );
+  ctx.stroke();
+
+  ctx.restore();
+}
