@@ -85,7 +85,7 @@ let playerArmy={
 let camera={
   x:MAP_W*TILE/2,
   y:MAP_H*TILE/2,
-  zoom:.85
+  zoom:1.08
 };
 
 let selectedUnit=null;
