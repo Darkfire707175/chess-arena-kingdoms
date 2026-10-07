@@ -147,6 +147,7 @@ let lastTime=performance.now();
 let enemyTimer=0;
 let recruitTimer=0;
 let progressionTimer=0;
+let volcanicKills=0;
 
 const keys={};
 
