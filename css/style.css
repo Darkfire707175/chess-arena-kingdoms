@@ -711,3 +711,102 @@ canvas.dragging{cursor:grabbing}
   .startDivider{width:88vw}
   .forgeButton{min-width:90vw;padding:17px 15px;font-size:16px}
 }
+
+
+/* =========================================================
+   FONDOS DINÁMICOS DE LA PANTALLA DE INICIO
+========================================================= */
+.startSceneLayer{
+  position:absolute;inset:0;z-index:1;opacity:0;pointer-events:none;
+  transition:opacity 1.8s ease;background-color:#0a0d12;
+}
+.startSceneLayer.active{opacity:1}
+.startSceneLayerA{opacity:1}
+.startSceneLayer[data-scene="forest"]{
+  background:
+    radial-gradient(ellipse at 50% 55%,rgba(94,139,72,.28),transparent 34%),
+    radial-gradient(ellipse at 20% 38%,rgba(36,78,45,.75),transparent 32%),
+    radial-gradient(ellipse at 82% 42%,rgba(28,66,38,.72),transparent 34%),
+    linear-gradient(180deg,#07151a 0%,#102d24 45%,#07100d 100%);
+}
+.startSceneLayer[data-scene="desert"]{
+  background:
+    radial-gradient(ellipse at 50% 48%,rgba(232,181,87,.35),transparent 28%),
+    radial-gradient(ellipse at 15% 67%,rgba(184,119,44,.65),transparent 30%),
+    radial-gradient(ellipse at 88% 61%,rgba(157,91,30,.7),transparent 31%),
+    linear-gradient(180deg,#211713 0%,#704526 45%,#1a0e09 100%);
+}
+.startSceneLayer[data-scene="volcanic"]{
+  background:
+    radial-gradient(ellipse at 50% 58%,rgba(236,78,23,.5),transparent 24%),
+    radial-gradient(ellipse at 20% 45%,rgba(76,27,24,.8),transparent 35%),
+    radial-gradient(ellipse at 82% 42%,rgba(84,27,20,.8),transparent 34%),
+    linear-gradient(180deg,#09090d 0%,#241417 45%,#0b0707 100%);
+}
+.startSceneLayer[data-scene="ice"]{
+  background:
+    radial-gradient(ellipse at 50% 43%,rgba(194,231,255,.38),transparent 25%),
+    radial-gradient(ellipse at 18% 55%,rgba(83,139,175,.7),transparent 34%),
+    radial-gradient(ellipse at 84% 50%,rgba(70,124,165,.7),transparent 35%),
+    linear-gradient(180deg,#07111c 0%,#18374b 46%,#081017 100%);
+}
+.startSceneLayer[data-scene="shadows"]{
+  background:
+    radial-gradient(ellipse at 50% 48%,rgba(103,72,151,.22),transparent 24%),
+    radial-gradient(ellipse at 14% 47%,rgba(24,35,38,.9),transparent 34%),
+    radial-gradient(ellipse at 88% 48%,rgba(29,24,44,.9),transparent 34%),
+    linear-gradient(180deg,#05060b 0%,#151221 48%,#050509 100%);
+}
+.startSceneLayer[data-scene="void"]{
+  background:
+    radial-gradient(circle at 50% 38%,rgba(108,87,255,.38),transparent 18%),
+    radial-gradient(circle at 20% 35%,rgba(28,178,255,.22),transparent 18%),
+    radial-gradient(circle at 82% 46%,rgba(197,56,255,.2),transparent 20%),
+    linear-gradient(180deg,#050515 0%,#11113a 45%,#03030b 100%);
+}
+.startSceneLayer::before{
+  content:"";position:absolute;inset:0;opacity:.72;
+  background:
+    radial-gradient(ellipse at 50% 64%,transparent 0 24%,rgba(0,0,0,.42) 58%,rgba(0,0,0,.8) 100%),
+    linear-gradient(180deg,rgba(0,0,0,.15),transparent 42%,rgba(0,0,0,.6));
+}
+.startSceneLayer[data-scene="forest"]::after{
+  content:"";position:absolute;inset:auto 0 0;height:48%;
+  background:
+    linear-gradient(72deg,transparent 0 8%,rgba(3,15,10,.82) 8% 13%,transparent 13% 20%,rgba(3,15,10,.78) 20% 25%,transparent 25% 32%,rgba(3,15,10,.82) 32% 38%,transparent 38% 48%,rgba(3,15,10,.8) 48% 54%,transparent 54% 66%,rgba(3,15,10,.82) 66% 72%,transparent 72% 81%,rgba(3,15,10,.8) 81% 87%,transparent 87%);
+  filter:blur(2px);
+}
+.startSceneLayer[data-scene="desert"]::after{
+  content:"";position:absolute;inset:auto -5% 0;height:38%;
+  background:
+    radial-gradient(ellipse at 20% 90%,rgba(232,185,92,.32),transparent 36%),
+    radial-gradient(ellipse at 75% 90%,rgba(217,153,61,.28),transparent 38%);
+}
+.startSceneLayer[data-scene="volcanic"]::after{
+  content:"";position:absolute;left:50%;bottom:8%;width:60%;height:42%;transform:translateX(-50%);
+  background:linear-gradient(145deg,transparent 38%,rgba(22,10,10,.96) 39% 70%,transparent 71%);
+  clip-path:polygon(0 100%,22% 62%,37% 70%,52% 25%,65% 62%,82% 48%,100% 100%);
+}
+.startSceneLayer[data-scene="ice"]::after{
+  content:"";position:absolute;left:50%;bottom:4%;width:80%;height:40%;transform:translateX(-50%);
+  background:linear-gradient(150deg,transparent 36%,rgba(196,228,244,.22) 37% 55%,transparent 56%);
+  clip-path:polygon(0 100%,18% 52%,33% 75%,51% 25%,67% 69%,83% 43%,100% 100%);
+}
+.startSceneLayer[data-scene="shadows"]::after{
+  content:"";position:absolute;inset:auto 0 0;height:52%;
+  background:
+    radial-gradient(ellipse at 16% 100%,rgba(5,8,9,.96),transparent 40%),
+    radial-gradient(ellipse at 85% 100%,rgba(5,8,9,.96),transparent 40%),
+    linear-gradient(90deg,rgba(4,7,8,.8),transparent 28%,transparent 72%,rgba(4,7,8,.8));
+}
+.startSceneLayer[data-scene="void"]::after{
+  content:"✦   ·       ✧        ·   ✦        ·       ✧";
+  position:absolute;inset:16% 10% auto;color:rgba(214,202,255,.75);
+  font:28px Georgia,serif;letter-spacing:20px;text-align:center;
+  text-shadow:0 0 16px rgba(151,125,255,.9);
+  animation:voidStars 4s ease-in-out infinite alternate;
+}
+@keyframes voidStars{
+  from{opacity:.35;transform:translateY(0)}
+  to{opacity:.9;transform:translateY(-8px)}
+}
