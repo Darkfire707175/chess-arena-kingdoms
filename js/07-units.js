@@ -123,25 +123,18 @@ function drawUnit(u){
     dx/=len;
     dy/=len;
 
-    if(at.type==="king"){
-      attackLiftX=dx*s*.34*phase;
-      attackLiftY=dy*s*.34*phase;
-      attackRotation=dx*.14*phase;
-    }else if(at.type==="pawn"){
-      attackLiftX=dx*s*.42*phase;
-      attackLiftY=dy*s*.42*phase;
-      attackRotation=dx*.08*phase;
-    }else if(at.type==="knight"){
-      attackLiftX=dx*s*.52*phase;
-      attackLiftY=dy*s*.52*phase;
-      attackRotation=dx*.18*phase;
+    if(at.type==="king"||at.type==="pawn"||at.type==="knight"){
+      attackLiftX=dx*s*.12*phase;
+      attackLiftY=dy*s*.12*phase;
+      attackRotation=at.type==="knight"
+        ?dx*.10*phase
+        :dx*.035*phase;
     }else if(at.type==="rook"){
-      attackLiftX=dx*s*.18*phase;
-      attackLiftY=dy*s*.18*phase;
-      attackRotation=Math.sin(Math.PI*3*t)*.07;
+      attackLiftX=Math.sin(Math.PI*2*t)*s*.035;
+      attackRotation=Math.sin(Math.PI*4*t)*.035;
     }else{
-      attackLiftY=-s*.12*phase;
-      attackRotation=Math.sin(Math.PI*2*t)*.06;
+      attackLiftY=-s*.045*phase;
+      attackRotation=Math.sin(Math.PI*t)*.025;
     }
   }
 
@@ -875,11 +868,11 @@ function createEnemyArmies(){
 function drawAttackAnimation(at,s,main,friendly){
 
   const t=at.progress;
-  const phase=Math.sin(Math.PI*t);
-  const impactPhase=
-    t<.48
-    ?0
-    :Math.sin(Math.PI*Math.min(1,(t-.48)/.52));
+  const pulse=Math.sin(Math.PI*t);
+  const strong=Math.max(
+    0,
+    Math.sin(Math.PI*Math.min(1,t/.72))
+  );
 
   const dxRaw=at.targetX-at.originX;
   const dyRaw=at.targetY-at.originY;
@@ -889,229 +882,168 @@ function drawAttackAnimation(at,s,main,friendly){
   const px=-dy;
   const py=dx;
 
-  const angle=Math.atan2(dy,dx);
-  const accent=friendly?"#f7d75f":"#ff684f";
-  const hot=friendly?"#fffbd6":"#ffe0bd";
-  const white="#ffffff";
+  const accent=friendly?"#f5d66f":"#e35e54";
+  const hot=friendly?"#fff6bd":"#ffd0a1";
 
   ctx.save();
   ctx.globalCompositeOperation="lighter";
 
   /*
-    Destello de preparación: la pieza "carga" el ataque.
+    REY — espada enorme + arco de corte.
   */
-  if(t<.28){
-
-    const charge=Math.sin(
-      Math.PI*(t/.28)
-    );
-
-    ctx.globalAlpha=.15+.55*charge;
-
-    ctx.fillStyle=hot;
-    ctx.shadowColor=accent;
-    ctx.shadowBlur=s*(.35+.5*charge);
-
-    ctx.beginPath();
-    ctx.arc(
-      0,-s*.28,
-      s*(.10+.18*charge),
-      0,Math.PI*2
-    );
-    ctx.fill();
-
-    for(let i=0;i<6;i++){
-
-      const a=angle+i*Math.PI/3;
-      const r1=s*.18;
-      const r2=s*(.35+.2*charge);
-
-      ctx.strokeStyle=accent;
-      ctx.lineWidth=Math.max(1.5,2.5*camera.zoom);
-
-      ctx.beginPath();
-      ctx.moveTo(
-        Math.cos(a)*r1,
-        Math.sin(a)*r1
-      );
-      ctx.lineTo(
-        Math.cos(a)*r2,
-        Math.sin(a)*r2
-      );
-      ctx.stroke();
-    }
-  }
-
-  /* REY — salto + corte gigante */
   if(at.type==="king"){
 
-    const reach=s*(.65+1.05*phase);
-    const slashR=s*(.55+.28*phase);
-
-    ctx.shadowColor=accent;
-    ctx.shadowBlur=s*.42;
-
-    ctx.strokeStyle=white;
-    ctx.lineWidth=Math.max(4,7*camera.zoom);
-
-    ctx.beginPath();
-    ctx.arc(
-      dx*s*.08,
-      dy*s*.08,
-      slashR,
-      angle-1.65,
-      angle+.55
-    );
-    ctx.stroke();
-
-    ctx.strokeStyle=accent;
-    ctx.lineWidth=Math.max(3,10*camera.zoom);
-
-    ctx.beginPath();
-    ctx.arc(
-      dx*s*.08,
-      dy*s*.08,
-      slashR*.94,
-      angle-1.6,
-      angle+.48
-    );
-    ctx.stroke();
+    const reach=s*(.22+.72*pulse);
 
     ctx.strokeStyle=hot;
-    ctx.lineWidth=Math.max(2,4*camera.zoom);
+    ctx.shadowColor=accent;
+    ctx.shadowBlur=s*.22;
+    ctx.lineWidth=Math.max(3,5*camera.zoom);
 
     ctx.beginPath();
     ctx.moveTo(
-      -px*s*.35,
-      -py*s*.35
+      -px*s*.25-dx*s*.05,
+      -py*s*.25-dy*s*.05
     );
     ctx.lineTo(
-      dx*reach,
-      dy*reach
+      px*s*.05+dx*reach,
+      py*s*.05+dy*reach
     );
-    ctx.stroke();
-  }
-
-  /* PEÓN — carga cometa + choque */
-  if(at.type==="pawn"){
-
-    const travel=s*(.5+1.15*phase);
-    const burst=s*(.18+.42*impactPhase);
-
-    ctx.shadowColor=accent;
-    ctx.shadowBlur=s*.3;
-
-    ctx.strokeStyle=hot;
-    ctx.lineWidth=Math.max(3,6*camera.zoom);
-
-    ctx.beginPath();
-    ctx.moveTo(-dx*s*.3,-dy*s*.3);
-    ctx.lineTo(dx*travel,dy*travel);
     ctx.stroke();
 
     ctx.strokeStyle=accent;
+    ctx.lineWidth=Math.max(3,7*camera.zoom);
+    ctx.beginPath();
+    ctx.arc(
+      dx*s*.14,
+      dy*s*.14,
+      s*(.34+.16*pulse),
+      Math.atan2(dy,dx)-1.35,
+      Math.atan2(dy,dx)+.38
+    );
+    ctx.stroke();
+  }
+
+  /*
+    PEÓN — embestida, golpe y cruz de impacto.
+  */
+  if(at.type==="pawn"){
+
+    const travel=s*(.2+.62*pulse);
+    const r=s*(.16+.25*pulse);
+
+    ctx.strokeStyle=accent;
+    ctx.shadowColor=accent;
+    ctx.shadowBlur=s*.16;
+    ctx.lineWidth=Math.max(2.5,4*camera.zoom);
+
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.lineTo(dx*travel,dy*travel);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(dx*travel,dy*travel,r,0,Math.PI*2);
+    ctx.stroke();
+
     ctx.lineWidth=Math.max(2,3*camera.zoom);
-
-    for(let i=0;i<7;i++){
-
-      const off=(i-3)*s*.08;
-
+    for(const side of [-1,1]){
       ctx.beginPath();
       ctx.moveTo(
-        -dx*s*(.35+i*.07)+px*off,
-        -dy*s*(.35+i*.07)+py*off
+        dx*travel+px*s*.12*side,
+        dy*travel+py*s*.12*side
       );
       ctx.lineTo(
-        -dx*s*.08+px*off*.35,
-        -dy*s*.08+py*off*.35
+        dx*(travel+s*.18)+px*s*.05*side,
+        dy*(travel+s*.18)+py*s*.05*side
       );
       ctx.stroke();
-    }
-
-    if(t>.48){
-
-      ctx.beginPath();
-      ctx.arc(
-        dx*s*.74,
-        dy*s*.74,
-        burst,
-        0,Math.PI*2
-      );
-      ctx.stroke();
-
-      ctx.fillStyle="rgba(255,240,175,.45)";
-      ctx.beginPath();
-      ctx.arc(
-        dx*s*.74,
-        dy*s*.74,
-        burst*.48,
-        0,Math.PI*2
-      );
-      ctx.fill();
     }
   }
 
-  /* ALFIL — portal + tres rayos diagonales */
+  /*
+    ALFIL — tres cortes diagonales de energía.
+  */
   if(at.type==="bishop"){
 
-    const reach=s*(.65+1.45*phase);
+    const reach=s*(.35+1.05*strong);
 
     ctx.shadowColor=accent;
-    ctx.shadowBlur=s*.5;
+    ctx.shadowBlur=s*.28;
 
-    for(let i=-2;i<=2;i++){
+    for(let i=-1;i<=1;i++){
 
-      ctx.strokeStyle=
-        i===0
-        ?white
-        :(i%2===0?accent:"rgba(255,213,120,.8)");
-
+      ctx.strokeStyle=i===0?hot:accent;
       ctx.lineWidth=Math.max(
-        1.8,
-        (i===0?7:3)*camera.zoom
+        2,
+        (i===0?4.5:2.2)*camera.zoom
       );
-
-      const offset=i*s*.11;
 
       ctx.beginPath();
       ctx.moveTo(
-        -dx*reach*.6+px*offset,
-        -dy*reach*.6+py*offset
+        -dx*reach*.55+px*s*.13*i,
+        -dy*reach*.55+py*s*.13*i
       );
       ctx.lineTo(
-        dx*reach+px*offset,
-        dy*reach+py*offset
+        dx*reach+px*s*.13*i,
+        dy*reach+py*s*.13*i
       );
       ctx.stroke();
     }
+  }
 
+  /*
+    CABALLO — carga con estela gruesa y líneas de velocidad.
+  */
+  if(at.type==="knight"){
+
+    const travel=s*(.35+.8*pulse);
+
+    ctx.shadowColor=accent;
+    ctx.shadowBlur=s*.2;
     ctx.strokeStyle=hot;
     ctx.lineWidth=Math.max(3,5*camera.zoom);
 
     ctx.beginPath();
-    ctx.arc(
-      dx*reach,
-      dy*reach,
-      s*(.2+.3*impactPhase),
-      0,Math.PI*2
-    );
+    ctx.moveTo(-dx*s*.5,-dy*s*.5);
+    ctx.lineTo(dx*travel,dy*travel);
     ctx.stroke();
+
+    for(let i=0;i<5;i++){
+
+      const offset=(i-2)*s*.11;
+      const tail=s*(.25+i*.07);
+
+      ctx.strokeStyle=i===2?accent:"rgba(255,230,170,.75)";
+      ctx.lineWidth=Math.max(1.3,2.4*camera.zoom);
+
+      ctx.beginPath();
+      ctx.moveTo(
+        -dx*tail+px*offset,
+        -dy*tail+py*offset
+      );
+      ctx.lineTo(
+        -dx*s*.08+px*offset*.4,
+        -dy*s*.08+py*offset*.4
+      );
+      ctx.stroke();
+    }
   }
 
-  /* CABALLO — supercarga y estela */
-  if(at.type==="knight"){
+  /*
+    TORRE — martillazo pesado y una onda de choque enorme.
+  */
+  if(at.type==="rook"){
 
-    const travel=s*(.7+1.15*phase);
-
-    ctx.shadowColor=accent;
-    ctx.shadowBlur=s*.38;
+    const r=s*(.12+1.1*strong);
 
     ctx.strokeStyle=hot;
-    ctx.lineWidth=Math.max(4,7*camera.zoom);
+    ctx.shadowColor=accent;
+    ctx.shadowBlur=s*.25;
+    ctx.lineWidth=Math.max(3,5*camera.zoom);
 
     ctx.beginPath();
-    ctx.moveTo(-dx*s*.6,-dy*s*.6);
-    ctx.lineTo(dx*travel,dy*travel);
+    ctx.arc(0,s*.22,r,0,Math.PI*2);
     ctx.stroke();
 
     ctx.strokeStyle=accent;
@@ -1119,129 +1051,62 @@ function drawAttackAnimation(at,s,main,friendly){
 
     for(let i=0;i<10;i++){
 
-      const off=(i-5)*s*.065;
-      const tail=s*(.35+i*.08);
+      const a=i*Math.PI*2/10+t*.9;
+      const inner=s*.14;
+      const outer=s*(.38+.55*strong);
 
       ctx.beginPath();
       ctx.moveTo(
-        -dx*tail+px*off,
-        -dy*tail+py*off
+        Math.cos(a)*inner,
+        s*.22+Math.sin(a)*inner
       );
       ctx.lineTo(
-        -dx*s*.05+px*off*.25,
-        -dy*s*.05+py*off*.25
+        Math.cos(a)*outer,
+        s*.22+Math.sin(a)*outer
       );
       ctx.stroke();
     }
 
-    if(t>.5){
-
-      ctx.strokeStyle=white;
-      ctx.lineWidth=Math.max(2,4*camera.zoom);
-
-      ctx.beginPath();
-      ctx.arc(
-        dx*s*.7,
-        dy*s*.7,
-        s*(.15+.38*impactPhase),
-        0,Math.PI*2
-      );
-      ctx.stroke();
-    }
+    ctx.fillStyle="rgba(255,245,190,.4)";
+    ctx.beginPath();
+    ctx.arc(0,s*.22,s*(.2+.25*strong),0,Math.PI*2);
+    ctx.fill();
   }
 
-  /* TORRE — martillazo + doble onda sísmica */
-  if(at.type==="rook"){
-
-    const r1=s*(.25+1.05*impactPhase);
-    const r2=s*(.18+.72*impactPhase);
-
-    ctx.shadowColor=accent;
-    ctx.shadowBlur=s*.5;
-
-    ctx.strokeStyle=hot;
-    ctx.lineWidth=Math.max(4,7*camera.zoom);
-
-    ctx.beginPath();
-    ctx.arc(
-      dx*s*.7,
-      dy*s*.7,
-      r1,
-      0,Math.PI*2
-    );
-    ctx.stroke();
-
-    ctx.strokeStyle=accent;
-    ctx.lineWidth=Math.max(2,4*camera.zoom);
-
-    ctx.beginPath();
-    ctx.arc(
-      dx*s*.7,
-      dy*s*.7,
-      r2,
-      0,Math.PI*2
-    );
-    ctx.stroke();
-
-    for(let i=0;i<12;i++){
-
-      const a=i*Math.PI*2/12+t*.8;
-      const inner=s*.12;
-      const outer=s*(.55+.7*impactPhase);
-
-      ctx.beginPath();
-      ctx.moveTo(
-        dx*s*.7+Math.cos(a)*inner,
-        dy*s*.7+Math.sin(a)*inner
-      );
-      ctx.lineTo(
-        dx*s*.7+Math.cos(a)*outer,
-        dy*s*.7+Math.sin(a)*outer
-      );
-      ctx.stroke();
-    }
-  }
-
-  /* REINA — rayo masivo + núcleo explosivo */
+  /*
+    REINA — gran rayo + orbe de energía.
+  */
   if(at.type==="queen"){
 
-    const reach=s*(.65+1.7*phase);
-    const coreR=s*(.12+.26*impactPhase);
+    const reach=s*(.4+1.45*strong);
+    const width=s*(.035+.045*(1-t));
 
     ctx.shadowColor=accent;
-    ctx.shadowBlur=s*.65;
+    ctx.shadowBlur=s*.35;
 
-    for(let i=-3;i<=3;i++){
-
-      const offset=i*s*.06;
+    for(let i=-2;i<=2;i++){
 
       ctx.strokeStyle=
         i===0
-        ?white
-        :"rgba(244,191,87,.85)";
+        ?hot
+        :"rgba(240,185,85,.7)";
 
       ctx.lineWidth=Math.max(
-        1.8,
-        (i===0?9:3)*camera.zoom
+        1.5,
+        (i===0?6:2.2)*camera.zoom
       );
 
-      const bend=
-        Math.sin(
-          t*Math.PI*6+i
-        )*s*.11*(1-t*.4);
+      const wobble=
+        Math.sin(t*Math.PI*5+i)*s*.055*(1-t);
 
       ctx.beginPath();
       ctx.moveTo(
-        dx*s*.05+px*offset,
-        dy*s*.05+py*offset
+        dx*s*.06+px*i*width,
+        dy*s*.06+py*i*width
       );
       ctx.lineTo(
-        dx*reach*.48+px*offset+bend,
-        dy*reach*.48+py*offset+bend
-      );
-      ctx.lineTo(
-        dx*reach+px*offset,
-        dy*reach+py*offset
+        dx*reach+px*i*width+wobble,
+        dy*reach+py*i*width+wobble
       );
       ctx.stroke();
     }
@@ -1251,103 +1116,64 @@ function drawAttackAnimation(at,s,main,friendly){
     ctx.arc(
       dx*reach,
       dy*reach,
-      coreR,
+      s*(.08+.16*strong),
       0,Math.PI*2
     );
     ctx.fill();
 
     ctx.strokeStyle=accent;
-    ctx.lineWidth=Math.max(3,5*camera.zoom);
+    ctx.lineWidth=Math.max(2,3*camera.zoom);
     ctx.beginPath();
     ctx.arc(
       dx*reach,
       dy*reach,
-      coreR*1.8,
+      s*(.16+.25*strong),
       0,Math.PI*2
     );
     ctx.stroke();
-
-    if(t>.55){
-
-      ctx.globalAlpha=.75*(1-t);
-
-      ctx.strokeStyle=white;
-      ctx.lineWidth=Math.max(1.5,3*camera.zoom);
-
-      for(let i=0;i<8;i++){
-
-        const a=i*Math.PI/4+t;
-        const rr=s*(.3+.6*impactPhase);
-
-        ctx.beginPath();
-        ctx.moveTo(
-          dx*reach+Math.cos(a)*s*.05,
-          dy*reach+Math.sin(a)*s*.05
-        );
-        ctx.lineTo(
-          dx*reach+Math.cos(a)*rr,
-          dy*reach+Math.sin(a)*rr
-        );
-        ctx.stroke();
-      }
-    }
   }
 
-  /* IMPACTO GIGANTE COMÚN */
-  if(t>.46){
+  /*
+    FLASH + estrella de impacto común.
+  */
+  if(t>.42){
 
-    const k=(t-.46)/.54;
-    const fade=Math.max(0,1-k);
-    const ix=dx*s*(.7+.25*impactPhase);
-    const iy=dy*s*(.7+.25*impactPhase);
+    const k=Math.min(1,(t-.42)/.28);
+    const fade=1-k;
+    const ix=dx*s*(.45+.35*strong);
+    const iy=dy*s*(.45+.35*strong);
+    const radius=s*(.12+.32*k);
 
-    ctx.globalAlpha=.95*fade;
+    ctx.globalAlpha=fade;
 
     ctx.fillStyle=hot;
     ctx.shadowColor=accent;
-    ctx.shadowBlur=s*.55;
+    ctx.shadowBlur=s*.3;
 
     ctx.beginPath();
-    ctx.arc(
-      ix,
-      iy,
-      s*(.16+.45*k),
-      0,Math.PI*2
-    );
+    ctx.arc(ix,iy,radius,0,Math.PI*2);
     ctx.fill();
 
     ctx.strokeStyle=accent;
-    ctx.lineWidth=Math.max(2,4*camera.zoom);
+    ctx.lineWidth=Math.max(2,3.5*camera.zoom);
 
-    for(let i=0;i<12;i++){
+    for(let i=0;i<8;i++){
 
-      const a=i*Math.PI*2/12;
-      const inner=s*.12;
-      const outer=s*(.5+.65*k);
+      const a=i*Math.PI/4;
+      const r1=s*.12;
+      const r2=s*(.38+.3*k);
 
       ctx.beginPath();
       ctx.moveTo(
-        ix+Math.cos(a)*inner,
-        iy+Math.sin(a)*inner
+        ix+Math.cos(a)*r1,
+        iy+Math.sin(a)*r1
       );
       ctx.lineTo(
-        ix+Math.cos(a)*outer,
-        iy+Math.sin(a)*outer
+        ix+Math.cos(a)*r2,
+        iy+Math.sin(a)*r2
       );
       ctx.stroke();
     }
-
-    ctx.strokeStyle=white;
-    ctx.lineWidth=Math.max(1.5,3*camera.zoom);
-
-    ctx.beginPath();
-    ctx.arc(
-      ix,
-      iy,
-      s*(.25+.55*k),
-      0,Math.PI*2
-    );
-    ctx.stroke();
   }
 
   ctx.restore();
