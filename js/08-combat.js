@@ -235,6 +235,19 @@ function capture(attacker,defender){
   if(isUnitHiddenFromArmy(defender,attacker.army))return;
 
   /*
+    SOMBRAS:
+    antes de matar al Rey, intenta salvarlo mediante
+    el intercambio con otra pieza aliada.
+  */
+  if(
+    defender.army===playerArmy&&
+    defender.type==="king"&&
+    tryShadowRescue(defender,attacker)
+  ){
+    return;
+  }
+
+  /*
     EL REY MATA DE UN GOLPE.
     Para cualquier atacante normal también se resuelve
     aquí el combate según las reglas actuales.
@@ -266,6 +279,16 @@ function capture(attacker,defender){
     playerArmy.score+=reward;
     playerArmy.xp+=ENEMY_XP;
     addAccountXP(ENEMY_XP);
+
+    if(
+      selectedKingdom==="volcanic"||
+      selectedKingdom==="void"
+    ){
+      volcanicKills++;
+      attacker.cooldown=getUnitCooldown(attacker);
+    }
+
+    applyIceFreeze(defender);
 
     floatingTexts.push({
       x:defender.x,
@@ -396,7 +419,8 @@ function enemyMove(army){
     !u.deadAnimating&&
     u.army===army&&
     u.type!=="king"&&
-    !u.moving
+    !u.moving&&
+    !isUnitFrozen(u)
   );
 
   if(!enemyUnits.length)return;
