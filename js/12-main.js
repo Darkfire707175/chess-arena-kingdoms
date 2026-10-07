@@ -3,6 +3,10 @@
 ========================================================= */
 
 function updateBrawlCamera(dt){
+  /* Mientras el jugador mueve la cámara con botón derecho,
+     el seguimiento automático queda temporalmente pausado. */
+  if(cameraFree)return;
+
   const focus=selectedUnit&&selectedUnit.alive
     ?selectedUnit
     :units.find(u=>u.alive&&u.army===playerArmy&&u.type==="king");
@@ -12,11 +16,13 @@ function updateBrawlCamera(dt){
   const fx=(focus.renderX!==undefined?focus.renderX:focus.x)*TILE+TILE/2;
   const fy=(focus.renderY!==undefined?focus.renderY:focus.y)*TILE+TILE/2;
 
-  /* Cámara tipo Brawl Stars: el personaje queda cerca del centro
-     y la cámara se desplaza suavemente, sin perspectiva 3D. */
+  /* Seguimiento suave tipo Brawl Stars. */
   const follow=1-Math.pow(.001,Math.min(dt,.05));
+
   camera.x+=(fx-camera.x)*follow;
   camera.y+=(fy-camera.y)*follow;
+
+  clampCamera();
 }
 
 function render(){
