@@ -48,12 +48,40 @@ function initFirebase(){
 function safeArmy(a){return {id:a.id,name:a.name,color:a.color,coins:a.coins,xp:a.xp,level:a.level,lives:a.lives,score:a.score};}
 function saveSnapshot(){
   const armyList=[playerArmy,...armies].filter((a,i,arr)=>arr.indexOf(a)===i);
-  return {version:1,savedAt:Date.now(),diamonds:Math.max(0,Number(globalDiamonds)||0),prodigiousStartMode:!!prodigiousStartMode,player:safeArmy(playerArmy),armies:armyList.map(safeArmy),units:units.map(u=>({id:u.id,type:u.type,armyId:u.army?.id,x:u.x,y:u.y,renderX:u.renderX,renderY:u.renderY,alive:u.alive,moving:u.moving,deadAnimating:u.deadAnimating,moveStartX:u.moveStartX,moveStartY:u.moveStartY,moveTargetX:u.moveTargetX,moveTargetY:u.moveTargetY,moveProgress:u.moveProgress,moveDuration:u.moveDuration,cooldown:u.cooldown})),spawnType,gameEnded};
+  return {version:1,savedAt:Date.now(),diamonds:Math.max(0,Number(globalDiamonds)||0),prodigiousStartMode:!!prodigiousStartMode,accountLevel:Math.max(1,Number(accountLevel)||1),accountXp:Math.max(0,Number(accountXp)||0),player:safeArmy(playerArmy),armies:armyList.map(safeArmy),units:units.map(u=>({id:u.id,type:u.type,armyId:u.army?.id,x:u.x,y:u.y,renderX:u.renderX,renderY:u.renderY,alive:u.alive,moving:u.moving,deadAnimating:u.deadAnimating,moveStartX:u.moveStartX,moveStartY:u.moveStartY,moveTargetX:u.moveTargetX,moveTargetY:u.moveTargetY,moveProgress:u.moveProgress,moveDuration:u.moveDuration,cooldown:u.cooldown})),spawnType,gameEnded};
 }
 function restoreSnapshot(d){
   if(!d||d.version!==1||!d.player||!Array.isArray(d.units))return false;
   globalDiamonds=Math.max(0,Number(d.diamonds)||0);
   prodigiousStartMode=!!d.prodigiousStartMode;
+
+  /* Compatibilidad con guardados anteriores:
+     el antiguo nivel de partida se toma como nivel de cuenta. */
+  const fallbackAccountLevel=
+    Math.max(
+      1,
+      Math.floor(Number(d.player?.level)||1)
+    );
+
+  accountLevel=
+    Math.max(
+      1,
+      Math.floor(
+        Number(d.accountLevel)||fallbackAccountLevel
+      )
+    );
+
+  accountXp=
+    Math.max(
+      0,
+      Number(d.accountXp)||0
+    );
+
+  while(accountXp>=accountXpRequired(accountLevel)){
+    accountXp-=accountXpRequired(accountLevel);
+    accountLevel++;
+  }
+
   const armyMap=new Map();for(const a of (d.armies||[]))armyMap.set(a.id,{...a});
   playerArmy=armyMap.get("player")||{...d.player};Object.assign(playerArmy,d.player);playerArmy.id="player";
   armies=Array.from(armyMap.values()).filter(a=>a.id!=="player");
@@ -82,7 +110,7 @@ function restartGame(){
     color:"#dce2e7",
     coins:prodigiousStartMode?1000000:100,
     xp:0,
-    level:1,
+    level:getStartingGameLevel(),
     lives:3,
     score:0
   };
@@ -172,6 +200,16 @@ function redeemAdminCode(){
     updateUI();
     if(typeof renderKingdomMarket==="function")renderKingdomMarket();
     adminStatus.textContent="✓ +100000 💎 añadidos al reino.";
+    adminCodeInput.value="";
+    return;
+  }
+
+  if(code==="yf"){
+    addAccountXP(100000);
+    saveProgress();
+    updateUI();
+    adminStatus.textContent=
+      "✓ +100000 XP de cuenta añadidos.";
     adminCodeInput.value="";
     return;
   }
