@@ -81,7 +81,6 @@ function collectChestAt(x,y,u){
   */
   if(u&&u.army===playerArmy){
     u.revealedUntil=Date.now()+5000;
-    showMessage("⚠️ ¡UBICACIÓN REVELADA! Los enemigos han detectado tu pieza.");
   }
 
   playerArmy.coins+=chest.reward;
@@ -106,7 +105,7 @@ function collectChestAt(x,y,u){
     life:1.4
   });
 
-  showMessage(`🎁 ¡Has cogido el cofre! +${chest.reward} 🪙${diamondReward?` +${diamondReward} 💎`:``}`);
+  showMessage(`🎁 ¡Has cogido el cofre! +${chest.reward} 🪙${diamondReward?` +${diamondReward} 💎`:``} · ⚠️ ¡UBICACIÓN REVELADA!`);
   saveProgress();
   updateUI();
 }
