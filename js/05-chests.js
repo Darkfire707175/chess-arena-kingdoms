@@ -12,7 +12,7 @@ function chestCellFree(x,y){
 
 function generateChests(){
   chests=[];
-  const wanted=18;
+  const wanted=30;
   let attempts=0;
   while(chests.length<wanted&&attempts<12000){
     attempts++;
