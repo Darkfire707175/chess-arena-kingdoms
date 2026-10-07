@@ -50,6 +50,14 @@ function moveUnit(u,target){
   u.moveTargetX=target.x;
   u.moveTargetY=target.y;
 
+  /*
+    Guardamos desde qué dirección se realizó el ataque.
+    La animación usa estos datos para orientar el corte,
+    la carga o el proyectil.
+  */
+  u.attackOriginX=oldX;
+  u.attackOriginY=oldY;
+
   u.moveProgress=0;
 
   /*
