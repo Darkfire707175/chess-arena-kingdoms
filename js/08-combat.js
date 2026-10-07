@@ -356,7 +356,6 @@ function enemyMove(army){
     !u.moving
   );
 
-  // El Rey enemigo nunca participa en ataques ni se usa para perseguir.
   if(!enemyUnits.length)return;
 
   const playerUnits=units.filter(u=>
@@ -367,31 +366,99 @@ function enemyMove(army){
 
   if(!playerUnits.length)return;
 
-  // El objetivo principal es acercarse al Rey del jugador.
-  const playerKing=playerUnits.find(u=>u.type==="king");
-  const primaryTarget=playerKing||playerUnits[0];
+  /*
+    LA IA NO CONOCE LA POSICIÓN DEL JUGADOR POR DEFECTO.
+    Solo puede perseguir una pieza si realmente la detecta
+    con la visión de una de sus unidades o si esa pieza
+    está temporalmente revelada por un cofre.
+  */
+  const detectedTargets=playerUnits.filter(u=>
+    canArmySeeUnit(army,u)
+  );
 
-  // 1. Primero: cualquier pieza que pueda capturar al Rey lo intenta.
-  // Nunca lo hace el Rey enemigo porque está excluido arriba.
+  /*
+    Si no ha detectado ninguna pieza, sigue recorriendo
+    el mapa de forma autónoma en lugar de ir hacia el Rey.
+  */
+  if(!detectedTargets.length){
+
+    const roamingCandidates=[];
+
+    for(const u of enemyUnits){
+
+      if(u.cooldown>0)continue;
+
+      const moves=getMoves(u);
+
+      for(const move of moves){
+
+        roamingCandidates.push({
+          u,
+          move,
+          score:Math.random()
+        });
+      }
+    }
+
+    if(!roamingCandidates.length)return;
+
+    roamingCandidates.sort((a,b)=>a.score-b.score);
+
+    moveUnit(
+      roamingCandidates[0].u,
+      roamingCandidates[0].move
+    );
+
+    return;
+  }
+
+  /*
+    Hay una pieza detectada.
+    Se persigue la pieza visible/revelada más cercana.
+  */
+  let primaryTarget=detectedTargets[0];
+  let bestDistance=Infinity;
+
+  for(const target of detectedTargets){
+
+    const d=Math.hypot(
+      target.x-primaryTarget.x,
+      target.y-primaryTarget.y
+    );
+
+    if(d<bestDistance){
+      bestDistance=d;
+      primaryTarget=target;
+    }
+  }
+
+  /*
+    Primero se intenta capturar directamente al objetivo
+    detectado.
+  */
   for(const u of enemyUnits){
 
     if(u.cooldown>0)continue;
 
     const moves=getMoves(u);
-    const captureKing=moves.find(m=>
+
+    const directCapture=moves.find(m=>
       m.capture&&
       m.x===primaryTarget.x&&
       m.y===primaryTarget.y
     );
 
-    if(captureKing){
-      moveUnit(u,captureKing);
+    if(directCapture){
+      moveUnit(u,directCapture);
       return;
     }
   }
 
-  // 2. Si no pueden capturarlo, buscan la mejor casilla para acercarse
-  // al Rey. Así las distintas piezas participan en el ataque.
+  /*
+    Si todavía no puede capturarlo, se acerca a su posición
+    conocida. No recibe información mágica sobre las demás
+    piezas del jugador.
+  */
   const candidates=[];
 
   for(const u of enemyUnits){
@@ -402,17 +469,16 @@ function enemyMove(army){
 
     for(const move of moves){
 
-      const dKing=
+      const distance=
         Math.abs(move.x-primaryTarget.x)+
         Math.abs(move.y-primaryTarget.y);
 
-      // Las capturas de otras piezas también tienen prioridad.
       const captureBonus=move.capture?8:0;
 
       candidates.push({
         u,
         move,
-        score:dKing-captureBonus+Math.random()*1.5
+        score:distance-captureBonus+Math.random()*1.5
       });
     }
   }
@@ -420,5 +486,9 @@ function enemyMove(army){
   if(!candidates.length)return;
 
   candidates.sort((a,b)=>a.score-b.score);
-  moveUnit(candidates[0].u,candidates[0].move);
+
+  moveUnit(
+    candidates[0].u,
+    candidates[0].move
+  );
 }
