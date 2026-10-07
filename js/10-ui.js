@@ -2,6 +2,38 @@
    UI
 ========================================================= */
 
+function updateAccountProgressUI(){
+
+  const levelEl=document.getElementById("accountLevel");
+  const xpEl=document.getElementById("accountXPText");
+  const fillEl=document.getElementById("accountXPFill");
+
+  if(!levelEl||!xpEl||!fillEl)return;
+
+  const level=
+    Math.max(1,Math.floor(Number(accountLevel)||1));
+
+  const current=
+    Math.max(0,Number(accountXp)||0);
+
+  const required=
+    Math.max(1,accountXpRequired(level));
+
+  const percent=
+    Math.min(
+      100,
+      Math.max(
+        0,
+        current/required*100
+      )
+    );
+
+  levelEl.textContent=level;
+  xpEl.textContent=
+    Math.floor(current)+" / "+required+" XP";
+  fillEl.style.width=percent+"%";
+}
+
 function updateUI(){
 
   document.getElementById("level")
@@ -18,6 +50,8 @@ function updateUI(){
 
   document.getElementById("score")
     .textContent=playerArmy.score;
+
+  updateAccountProgressUI();
 
   const list=document.getElementById(
     "rankingList"
