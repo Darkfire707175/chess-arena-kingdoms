@@ -199,25 +199,24 @@ function startAttackAnimation(attacker,defender){
   if(!attacker)return;
 
   const durations={
-    king:680,
-    pawn:590,
-    bishop:760,
-    knight:620,
-    rook:780,
-    queen:820
+    king:920,
+    pawn:820,
+    bishop:980,
+    knight:860,
+    rook:1080,
+    queen:1120
   };
 
   attacker.attackAnim={
     type:attacker.type,
     progress:0,
-    duration:durations[attacker.type]||650,
+    duration:durations[attacker.type]||900,
     targetX:defender?.x??attacker.x,
     targetY:defender?.y??attacker.y,
     originX:attacker.attackOriginX??attacker.x,
     originY:attacker.attackOriginY??attacker.y
   };
 }
-
 
 function capture(attacker,defender){
 
