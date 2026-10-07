@@ -30,11 +30,21 @@
     <div class="startEmber startEmber4"></div>
   </div>
 
-  <button class="startCornerButton startGoogleButton" id="googleButton" type="button" aria-label="Iniciar sesión con Google">
-    <span class="googleG">G</span>
-    <span>INICIAR SESIÓN</span>
-    <small>CON GOOGLE</small>
-  </button>
+  <div class="startProfileArea" aria-label="Cuenta y progreso">
+    <button class="startCornerButton startGoogleButton" id="googleButton" type="button" aria-label="Iniciar sesión con Google">
+      <span class="googleG">G</span>
+      <span>INICIAR SESIÓN</span>
+      <small>CON GOOGLE</small>
+    </button>
+
+    <div id="accountProgress" class="startAccountProgress" aria-label="Nivel de cuenta y experiencia">
+      <div class="accountLevelLabel">🏆 NIVEL <b id="accountLevel">1</b></div>
+      <div class="accountXPTrack">
+        <div id="accountXPFill" class="accountXPFill"></div>
+      </div>
+      <div id="accountXPText" class="accountXPText">0 / 150 XP</div>
+    </div>
+  </div>
 
   <button class="startCornerButton startMarketButton" id="marketButton" type="button" aria-label="Abrir tienda">
     <span>🏪</span>
