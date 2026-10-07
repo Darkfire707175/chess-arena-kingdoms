@@ -48,7 +48,7 @@ function initFirebase(){
 function safeArmy(a){return {id:a.id,name:a.name,color:a.color,coins:a.coins,xp:a.xp,level:a.level,lives:a.lives,score:a.score};}
 function saveSnapshot(){
   const armyList=[playerArmy,...armies].filter((a,i,arr)=>arr.indexOf(a)===i);
-  return {version:1,savedAt:Date.now(),diamonds:Math.max(0,Number(globalDiamonds)||0),prodigiousStartMode:!!prodigiousStartMode,accountLevel:Math.max(1,Number(accountLevel)||1),accountXp:Math.max(0,Number(accountXp)||0),player:safeArmy(playerArmy),armies:armyList.map(safeArmy),units:units.map(u=>({id:u.id,type:u.type,armyId:u.army?.id,x:u.x,y:u.y,renderX:u.renderX,renderY:u.renderY,alive:u.alive,moving:u.moving,deadAnimating:u.deadAnimating,moveStartX:u.moveStartX,moveStartY:u.moveStartY,moveTargetX:u.moveTargetX,moveTargetY:u.moveTargetY,moveProgress:u.moveProgress,moveDuration:u.moveDuration,cooldown:u.cooldown})),spawnType,gameEnded};
+  return {version:1,savedAt:Date.now(),diamonds:Math.max(0,Number(globalDiamonds)||0),prodigiousStartMode:!!prodigiousStartMode,accountLevel:Math.max(1,Number(accountLevel)||1),accountXp:Math.max(0,Number(accountXp)||0),volcanicKills:Math.max(0,Number(volcanicKills)||0),kingdoms:typeof kingdomProgressSnapshot==="function"?kingdomProgressSnapshot():{unlockedKingdoms:["green"],selectedKingdom:"green"},player:safeArmy(playerArmy),armies:armyList.map(safeArmy),units:units.map(u=>({id:u.id,type:u.type,armyId:u.army?.id,x:u.x,y:u.y,renderX:u.renderX,renderY:u.renderY,alive:u.alive,moving:u.moving,deadAnimating:u.deadAnimating,moveStartX:u.moveStartX,moveStartY:u.moveStartY,moveTargetX:u.moveTargetX,moveTargetY:u.moveTargetY,moveProgress:u.moveProgress,moveDuration:u.moveDuration,cooldown:u.cooldown,frozenUntil:u.frozenUntil||0})),spawnType,gameEnded};
 }
 function restoreSnapshot(d){
   if(!d||d.version!==1||!d.player||!Array.isArray(d.units))return false;
@@ -77,6 +77,18 @@ function restoreSnapshot(d){
       Number(d.accountXp)||0
     );
 
+  volcanicKills=
+    Math.max(
+      0,
+      Number(d.volcanicKills)||0
+    );
+
+  if(typeof restoreKingdomProgress==="function"){
+    restoreKingdomProgress(d.kingdoms||d);
+  }else{
+    window.pendingKingdomProgress=d.kingdoms||d;
+  }
+
   while(accountXp>=accountXpRequired(accountLevel)){
     accountXp-=accountXpRequired(accountLevel);
     accountLevel++;
@@ -85,7 +97,7 @@ function restoreSnapshot(d){
   const armyMap=new Map();for(const a of (d.armies||[]))armyMap.set(a.id,{...a});
   playerArmy=armyMap.get("player")||{...d.player};Object.assign(playerArmy,d.player);playerArmy.id="player";
   armies=Array.from(armyMap.values()).filter(a=>a.id!=="player");
-  units=d.units.filter(u=>u&&typeof u.x==="number"&&typeof u.y==="number"&&armyMap.has(u.armyId)).map(u=>({...u,army:armyMap.get(u.armyId)}));
+  units=d.units.filter(u=>u&&typeof u.x==="number"&&typeof u.y==="number"&&armyMap.has(u.armyId)).map(u=>({...u,army:armyMap.get(u.armyId),frozenUntil:Number(u.frozenUntil)||0}));
   spawnType=d.spawnType||"pawn";gameEnded=!!d.gameEnded;selectedUnit=null;
   let king=units.find(u=>u.army===playerArmy&&u.type==="king"&&u.alive&&!u.deadAnimating);
   if(!king){playerArmy.lives=Math.max(1,Number(playerArmy.lives)||3);gameEnded=false;createPlayer();king=units.find(u=>u.army===playerArmy&&u.type==="king"&&u.alive&&!u.deadAnimating);}
@@ -122,6 +134,7 @@ function restartGame(){
   enemyTimer=0;
   recruitTimer=0;
   progressionTimer=0;
+  volcanicKills=0;
   lastTime=performance.now();
 
   generateTerrain();
