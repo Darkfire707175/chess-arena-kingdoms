@@ -94,15 +94,6 @@ async function signInGoogle(){
 }
 
 const startCrown=document.querySelector(".startCrown");
-const adminHotspot=document.createElement("button");
-adminHotspot.type="button";
-adminHotspot.className="adminHotspot";
-adminHotspot.setAttribute("aria-label","");
-adminHotspot.title="";
-if(startCrown&&startCrown.parentElement){
-  startCrown.parentElement.appendChild(adminHotspot);
-  adminHotspot.addEventListener("click",openAdminZone);
-}
 const adminZone=document.getElementById("adminZone");
 const adminCodeInput=document.getElementById("adminCodeInput");
 const adminCodeButton=document.getElementById("adminCodeButton");
@@ -137,6 +128,16 @@ function redeemAdminCode(){
 if(adminCodeButton)adminCodeButton.addEventListener("click",redeemAdminCode);
 if(adminCodeInput)adminCodeInput.addEventListener("keydown",e=>{if(e.key==="Enter")redeemAdminCode();});
 if(adminBackButton)adminBackButton.addEventListener("click",closeAdminZone);
+
+const adminHotspot=document.createElement("button");
+adminHotspot.type="button";
+adminHotspot.className="adminHotspot";
+adminHotspot.setAttribute("aria-label","");
+adminHotspot.title="";
+if(startCrown&&startCrown.parentElement){
+  startCrown.parentElement.appendChild(adminHotspot);
+  adminHotspot.addEventListener("click",openAdminZone);
+}
 
 const googleButton=document.getElementById("googleButton");
 if(googleButton)googleButton.addEventListener("click",signInGoogle);
