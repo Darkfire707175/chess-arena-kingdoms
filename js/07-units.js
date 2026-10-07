@@ -146,6 +146,15 @@ function isUnitHiddenFromArmy(unit,viewerArmy){
   if(!unit||!unit.alive)return false;
   if(unit.army===viewerArmy)return false;
 
+  /*
+    Una pieza que acaba de recoger un cofre queda revelada
+    temporalmente incluso si está dentro de un arbusto.
+  */
+  if(
+    viewerArmy!==playerArmy&&
+    Number(unit.revealedUntil||0)>Date.now()
+  )return false;
+
   return isBushCell(unit.x,unit.y);
 }
 
@@ -153,6 +162,15 @@ function canArmySeeUnit(viewerArmy,unit){
 
   if(!unit||!unit.alive||unit.deadAnimating)return false;
   if(unit.army===viewerArmy)return true;
+
+  /*
+    Revelación temporal por cofre: todos los enemigos
+    conocen la ubicación actual de esta pieza.
+  */
+  if(
+    viewerArmy!==playerArmy&&
+    Number(unit.revealedUntil||0)>Date.now()
+  )return true;
 
   if(isUnitHiddenFromArmy(unit,viewerArmy))return false;
 
@@ -450,7 +468,12 @@ function createUnit(type,army,x,y){
     moveTargetY:y,
     moveProgress:0,
     moveDuration:0,
-    cooldown:0
+    cooldown:0,
+    /*
+      Marca temporal usada por la mecánica de cofres.
+      No altera la vida ni el movimiento de la pieza.
+    */
+    revealedUntil:0
   };
 
   units.push(u);
