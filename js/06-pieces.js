@@ -884,3 +884,352 @@ function drawPieceFinishing(type,main,metal,dark,s,friendly){
 
   ctx.restore();
 }
+
+
+/* =========================================================
+   REDISEÑO VISIBLE DE PERSONAJES
+   Elementos grandes para que cada pieza tenga una identidad
+   propia de videojuego y no parezca un símbolo de ajedrez.
+========================================================= */
+
+function drawCharacterBackPiece(type,main,metal,dark,s,friendly){
+
+  ctx.save();
+  ctx.lineJoin="round";
+  ctx.lineCap="round";
+
+  const accent = friendly ? "#ead27d" : "#e0a04e";
+  const steel = friendly ? "#aab5bf" : "#8f303c";
+
+  if(type==="king"){
+    /* Espada real a la espalda. */
+    ctx.translate(s*.25,s*.02);
+    ctx.rotate(.18);
+
+    ctx.strokeStyle="#17191d";
+    ctx.lineWidth=Math.max(3,3.8*camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(0,s*.3);
+    ctx.lineTo(0,-s*.78);
+    ctx.stroke();
+
+    ctx.strokeStyle=steel;
+    ctx.lineWidth=Math.max(2,2.6*camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(0,s*.25);
+    ctx.lineTo(0,-s*.72);
+    ctx.stroke();
+
+    ctx.strokeStyle=accent;
+    ctx.lineWidth=Math.max(2,2.8*camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(-s*.11,-s*.55);
+    ctx.lineTo(s*.11,-s*.55);
+    ctx.stroke();
+
+    ctx.fillStyle=accent;
+    ctx.beginPath();
+    ctx.moveTo(0,-s*.84);
+    ctx.lineTo(s*.08,-s*.68);
+    ctx.lineTo(-s*.08,-s*.68);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  if(type==="queen"){
+    /* Báculo/scepter detrás de la reina. */
+    ctx.translate(s*.33,s*.02);
+    ctx.rotate(.12);
+
+    ctx.strokeStyle="#17191d";
+    ctx.lineWidth=Math.max(3,3.6*camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(0,s*.34);
+    ctx.lineTo(0,-s*.82);
+    ctx.stroke();
+
+    ctx.strokeStyle=accent;
+    ctx.lineWidth=Math.max(1.7,2.2*camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(0,s*.3);
+    ctx.lineTo(0,-s*.76);
+    ctx.stroke();
+
+    ctx.fillStyle=accent;
+    ctx.beginPath();
+    ctx.arc(0,-s*.86,s*.09,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle=steel;
+    ctx.beginPath();
+    ctx.moveTo(0,-s*.95);
+    ctx.lineTo(s*.07,-s*.86);
+    ctx.lineTo(0,-s*.77);
+    ctx.lineTo(-s*.07,-s*.86);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  if(type==="bishop"){
+    /* Gran báculo diagonal, mucho más visible. */
+    ctx.strokeStyle="#17191d";
+    ctx.lineWidth=Math.max(4,4.5*camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(s*.18,s*.34);
+    ctx.lineTo(-s*.12,-s*.78);
+    ctx.stroke();
+
+    ctx.strokeStyle=accent;
+    ctx.lineWidth=Math.max(2,2.4*camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(s*.18,s*.34);
+    ctx.lineTo(-s*.12,-s*.78);
+    ctx.stroke();
+
+    ctx.strokeStyle=steel;
+    ctx.lineWidth=Math.max(3,3.5*camera.zoom);
+    ctx.beginPath();
+    ctx.arc(-s*.12,-s*.8,s*.11,Math.PI*.1,Math.PI*1.75);
+    ctx.stroke();
+  }
+
+  if(type==="knight"){
+    /* Lanza a la espalda para reforzar la silueta de caballero. */
+    ctx.translate(-s*.26,0);
+    ctx.rotate(-.12);
+
+    ctx.strokeStyle="#17191d";
+    ctx.lineWidth=Math.max(3,3.8*camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(0,s*.38);
+    ctx.lineTo(0,-s*.8);
+    ctx.stroke();
+
+    ctx.strokeStyle=steel;
+    ctx.lineWidth=Math.max(2,2.4*camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(0,s*.32);
+    ctx.lineTo(0,-s*.74);
+    ctx.stroke();
+
+    ctx.fillStyle=accent;
+    ctx.beginPath();
+    ctx.moveTo(0,-s*.9);
+    ctx.lineTo(s*.08,-s*.75);
+    ctx.lineTo(0,-s*.68);
+    ctx.lineTo(-s*.08,-s*.75);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  if(type==="rook"){
+    /* Estructura/bandera defensiva detrás de la torre. */
+    ctx.strokeStyle="#17191d";
+    ctx.lineWidth=Math.max(4,4.4*camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(-s*.34,s*.35);
+    ctx.lineTo(-s*.34,-s*.83);
+    ctx.stroke();
+
+    ctx.strokeStyle=steel;
+    ctx.lineWidth=Math.max(2,2.6*camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(-s*.34,s*.3);
+    ctx.lineTo(-s*.34,-s*.78);
+    ctx.stroke();
+
+    ctx.fillStyle=accent;
+    ctx.beginPath();
+    ctx.moveTo(-s*.34,-s*.8);
+    ctx.lineTo(-s*.05,-s*.7);
+    ctx.lineTo(-s*.34,-s*.59);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  if(type==="pawn"){
+    /* Lanza corta y escudo lateral. */
+    ctx.strokeStyle="#17191d";
+    ctx.lineWidth=Math.max(3,3.4*camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(-s*.29,s*.35);
+    ctx.lineTo(-s*.29,-s*.72);
+    ctx.stroke();
+
+    ctx.strokeStyle=accent;
+    ctx.lineWidth=Math.max(1.7,2.1*camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(-s*.29,s*.3);
+    ctx.lineTo(-s*.29,-s*.66);
+    ctx.stroke();
+
+    ctx.fillStyle=accent;
+    ctx.beginPath();
+    ctx.moveTo(-s*.29,-s*.79);
+    ctx.lineTo(-s*.21,-s*.65);
+    ctx.lineTo(-s*.37,-s*.65);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawCharacterFrontPiece(type,main,metal,dark,s,friendly){
+
+  ctx.save();
+  ctx.lineJoin="round";
+  ctx.lineCap="round";
+
+  const accent = friendly ? "#f1d57b" : "#d98e42";
+  const bright = friendly ? "#f8fbff" : "#f3c36d";
+
+  if(type==="king"){
+    /* Pauldrons enormes + gema de mando. */
+    const g=metalGradient(main,metal,dark,s);
+    ctx.fillStyle=g;
+    pieceStroke();
+
+    for(const side of [-1,1]){
+      ctx.beginPath();
+      ctx.ellipse(
+        side*s*.29,-s*.17,
+        s*.17,s*.125,
+        0,0,Math.PI*2
+      );
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    ctx.fillStyle=accent;
+    ctx.beginPath();
+    ctx.arc(0,-s*.35,s*.052,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.strokeStyle="rgba(255,255,255,.5)";
+    ctx.lineWidth=Math.max(1,camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(-s*.27,-s*.18);
+    ctx.lineTo(-s*.16,-s*.1);
+    ctx.moveTo(s*.27,-s*.18);
+    ctx.lineTo(s*.16,-s*.1);
+    ctx.stroke();
+  }
+
+  if(type==="queen"){
+    /* Gran gema central y collar ornamental. */
+    ctx.fillStyle=accent;
+    ctx.beginPath();
+    ctx.moveTo(0,s*.02);
+    ctx.lineTo(s*.075,s*.11);
+    ctx.lineTo(0,s*.2);
+    ctx.lineTo(-s*.075,s*.11);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle="rgba(255,255,255,.42)";
+    ctx.lineWidth=Math.max(1.2,camera.zoom);
+    ctx.beginPath();
+    ctx.arc(0,-s*.45,s*.21,Math.PI*.18,Math.PI*.82);
+    ctx.stroke();
+
+    for(const x of [-.16,0,.16]){
+      ctx.fillStyle=bright;
+      ctx.beginPath();
+      ctx.arc(s*x,-s*.67,s*.026,0,Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  if(type==="bishop"){
+    /* Medallón grande y foco luminoso. */
+    ctx.fillStyle=accent;
+    ctx.beginPath();
+    ctx.arc(0,s*.02,s*.07,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.shadowColor=accent;
+    ctx.shadowBlur=s*.13;
+    ctx.fillStyle=bright;
+    ctx.beginPath();
+    ctx.arc(s*.25,-s*.42,s*.055,0,Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur=0;
+  }
+
+  if(type==="knight"){
+    /* Visera reforzada + placa del cuello. */
+    ctx.fillStyle="#15191e";
+    ctx.beginPath();
+    ctx.roundRect(
+      s*.04,-s*.56,
+      s*.23,s*.09,
+      s*.025
+    );
+    ctx.fill();
+
+    ctx.strokeStyle=bright;
+    ctx.lineWidth=Math.max(1.3,camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(-s*.12,-s*.2);
+    ctx.lineTo(s*.15,-s*.06);
+    ctx.stroke();
+
+    ctx.fillStyle=accent;
+    ctx.beginPath();
+    ctx.arc(s*.26,-s*.18,s*.045,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  if(type==="rook"){
+    /* Núcleo de energía frontal y placas más profundas. */
+    ctx.fillStyle="#11161a";
+    ctx.beginPath();
+    ctx.roundRect(-s*.11,-s*.02,s*.22,s*.22,s*.035);
+    ctx.fill();
+
+    const glow=ctx.createRadialGradient(
+      0,s*.08,0,
+      0,s*.08,s*.16
+    );
+    glow.addColorStop(0,bright);
+    glow.addColorStop(.42,accent);
+    glow.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=glow;
+    ctx.beginPath();
+    ctx.arc(0,s*.08,s*.16,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.strokeStyle=bright;
+    ctx.lineWidth=Math.max(1,camera.zoom);
+    for(const y of [-.2,0,.2]){
+      ctx.beginPath();
+      ctx.moveTo(-s*.2,s*y);
+      ctx.lineTo(s*.2,s*y);
+      ctx.stroke();
+    }
+  }
+
+  if(type==="pawn"){
+    /* Escudo claramente visible en el torso. */
+    ctx.fillStyle="rgba(10,14,18,.58)";
+    ctx.strokeStyle=accent;
+    ctx.lineWidth=Math.max(1.4,camera.zoom);
+
+    ctx.beginPath();
+    ctx.moveTo(0,-s*.04);
+    ctx.lineTo(s*.13,s*.08);
+    ctx.lineTo(0,s*.26);
+    ctx.lineTo(-s*.13,s*.08);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle=bright;
+    ctx.beginPath();
+    ctx.arc(0,s*.08,s*.025,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
