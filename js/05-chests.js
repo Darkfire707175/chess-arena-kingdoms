@@ -72,6 +72,18 @@ function collectChestAt(x,y,u){
   if(!chest)return;
 
   chest.collected=true;
+
+  /*
+    Al recoger un cofre, la pieza que lo ha recogido
+    queda revelada temporalmente para TODOS los ejércitos.
+    La IA puede reaccionar a esta posición aunque antes
+    no supiera dónde estaba.
+  */
+  if(u&&u.army===playerArmy){
+    u.revealedUntil=Date.now()+5000;
+    showMessage("⚠️ ¡UBICACIÓN REVELADA! Los enemigos han detectado tu pieza.");
+  }
+
   playerArmy.coins+=chest.reward;
   const diamondReward=Math.max(0,Number(chest.diamonds)||0);
   globalDiamonds=Math.max(0,Number(globalDiamonds)||0)+diamondReward;
