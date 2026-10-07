@@ -3,6 +3,8 @@
 ========================================================= */
 
 function isUnlocked(type){
+  if(type==="king")return true;
+  if(type==="pawn")return true;
   return playerArmy.level>=UNLOCK[type];
 }
 
@@ -263,6 +265,7 @@ function capture(attacker,defender){
     playerArmy.coins+=reward;
     playerArmy.score+=reward;
     playerArmy.xp+=ENEMY_XP;
+    addAccountXP(ENEMY_XP);
 
     floatingTexts.push({
       x:defender.x,
