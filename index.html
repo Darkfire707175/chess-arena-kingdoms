@@ -14,6 +14,7 @@
     <h1 class="startTitle">CHESS ARENA</h1>
     <p class="startSubtitle">Kingdoms · Forja tu reino</p>
     <button class="startButton" id="playButton" type="button">⚔ JUGAR</button>
+    <button class="startButton" id="marketButton" type="button">🏪 MERCADO</button>
     <button class="startButton" id="googleButton" type="button"><span class="googleG">G</span>Conectar con Google</button>
     <p id="googleStatus" aria-live="polite">Puedes jugar sin conectar una cuenta.</p>
     <p class="startFoot">EXPLORA · RECLUTA · CONQUISTA</p>
@@ -42,6 +43,20 @@
 
 <div id="message"></div>
 
+<div id="kingdomMarket" class="marketOverlay" style="display:none">
+  <div class="marketPanel">
+    <div class="marketHeader">
+      <div>
+        <h2>🏪 MERCADO DEL REINO</h2>
+        <p>Desbloquea reinos permanentemente con tus diamantes.</p>
+      </div>
+      <div class="marketBalance">💎 <b id="marketDiamonds">0</b></div>
+    </div>
+    <div id="kingdomGrid" class="kingdomGrid"></div>
+    <button id="closeMarket" class="marketClose" type="button">← VOLVER</button>
+  </div>
+</div>
+
 <div id="gameOver">
   <div class="gameOverBox">
     <h1>Tu reino ha caído</h1>
@@ -65,5 +80,6 @@
 <script defer src="js/10-ui.js"></script>
 <script defer src="js/11-input.js"></script>
 <script defer src="js/12-main.js"></script>
+<script defer src="js/13-kingdoms.js"></script>
 </body>
 </html>
