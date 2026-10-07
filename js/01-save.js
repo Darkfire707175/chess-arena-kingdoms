@@ -62,6 +62,56 @@ function restoreSnapshot(d){
   if(king){camera.x=(king.moving?king.renderX:king.x)*TILE+TILE/2;camera.y=(king.moving?king.renderY:king.y)*TILE+TILE/2;}
   updatePieceButtons();updateUI();render();return true;
 }
+function restartGame(){
+  /*
+    Reinicio REAL de la partida:
+    no recarga el guardado anterior y conserva los diamantes
+    de administración/reinos ya desbloqueados.
+  */
+  units=[];
+  armies=[];
+  chests=[];
+  particles=[];
+  floatingTexts=[];
+
+  playerArmy={
+    id:"player",
+    name:"Tu Reino",
+    color:"#dce2e7",
+    coins:100,
+    xp:0,
+    level:1,
+    lives:3,
+    score:0
+  };
+
+  selectedUnit=null;
+  spawnType="pawn";
+  gameEnded=false;
+
+  enemyTimer=0;
+  recruitTimer=0;
+  progressionTimer=0;
+  lastTime=performance.now();
+
+  generateTerrain();
+  generateChests();
+  createPlayer();
+  createEnemyArmies();
+
+  const gameOver=document.getElementById("gameOver");
+  if(gameOver)gameOver.style.display="none";
+
+  startScreen.style.display="none";
+
+  updatePieceButtons();
+  updateUI();
+  render();
+  saveProgress();
+
+  showMessage("👑 Nuevo reino creado. El Rey ha aparecido en una zona segura.");
+}
+
 function saveProgress(){
   if(typeof playerArmy==="undefined"||!playerArmy)return;
   try{const data=saveSnapshot();localStorage.setItem(localSaveKey,JSON.stringify(data));}catch(e){console.warn("No se pudo guardar localmente",e);}
