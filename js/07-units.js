@@ -83,6 +83,15 @@ function drawUnit(u){
     friendly
   );
 
+  drawCharacterBackPiece(
+    u.type,
+    main,
+    metal,
+    dark,
+    s,
+    friendly
+  );
+
   ctx.fillStyle="rgba(0,0,0,.35)";
 
   ctx.beginPath();
@@ -122,6 +131,15 @@ function drawUnit(u){
     drawQueenPiece(main,metal,dark,s);
 
   drawPieceFinishing(
+    u.type,
+    main,
+    metal,
+    dark,
+    s,
+    friendly
+  );
+
+  drawCharacterFrontPiece(
     u.type,
     main,
     metal,
