@@ -2,8 +2,6 @@
    MOVIMIENTO ANIMADO REAL
 ========================================================= */
 
-let cleanupTimer=0;
-
 function moveUnit(u,target){
 
   if(
@@ -260,30 +258,6 @@ function update(dt){
           u.cooldown-dt
         );
     }
-
-    if(
-      u.frozenUntil&&
-      Number(u.frozenUntil)<=Date.now()
-    ){
-      u.frozenUntil=0;
-    }
-  }
-
-  /*
-    Limpiamos unidades derrotadas después de sus animaciones.
-    Esto evita que la partida se vuelva cada vez más pesada.
-  */
-  cleanupTimer+=dt;
-
-  if(cleanupTimer>=8){
-    cleanupTimer=0;
-
-    units=units.filter(u=>
-      u.alive||
-      u.deadAnimating||
-      u.hitAnim||
-      u.moving
-    );
   }
 
   enemyTimer+=dt;
@@ -435,7 +409,7 @@ function isVisible(x,y){
       y-uy
     );
 
-    if(d<=getUnitVision(u))
+    if(d<=PIECES[u.type].vision)
       return true;
   }
 
