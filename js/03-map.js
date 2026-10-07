@@ -25,6 +25,12 @@ function dist(a,b){
 }
 
 function worldToScreen(x,y){
+  /*
+    VISTA BRAWL:
+    cámara cenital/ortográfica, sin perspectiva 3D.
+    Todo el mundo mantiene la misma escala y la cámara sigue
+    suavemente al personaje.
+  */
   return {
     x:(x-camera.x)*camera.zoom+W/2,
     y:(y-camera.y)*camera.zoom+H/2
