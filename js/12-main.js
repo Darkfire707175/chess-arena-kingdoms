@@ -37,6 +37,7 @@ function loop(now){
 
   updateKeyboard(dt);
   update(dt);
+  updateAttackAnimations(dt);
   render();
   updateUI();
 
