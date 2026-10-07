@@ -9,7 +9,8 @@ function moveUnit(u,target){
     !u.alive||
     u.deadAnimating||
     u.moving||
-    u.cooldown>0
+    u.cooldown>0||
+    isUnitFrozen(u)
   )return;
 
   /*
@@ -209,7 +210,7 @@ function updateMovement(u,dt){
     u.moving=false;
 
     u.cooldown=
-      PIECES[u.type].cooldown;
+      getUnitCooldown(u);
 
     const enemy=u.pendingEnemy;
 
