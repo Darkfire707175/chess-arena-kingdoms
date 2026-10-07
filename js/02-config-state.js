@@ -63,6 +63,50 @@ const KILL_REWARD={
 const ENEMY_XP=33;
 
 /* =========================================================
+   PROGRESIÓN DE CUENTA
+   El nivel de cuenta es permanente entre partidas.
+========================================================= */
+const ACCOUNT_XP_BASE=150;
+
+let accountLevel=1;
+let accountXp=0;
+
+function accountXpRequired(level=accountLevel){
+  return Math.max(
+    ACCOUNT_XP_BASE,
+    Math.round(level*ACCOUNT_XP_BASE)
+  );
+}
+
+function getStartingGameLevel(){
+  /*
+    Cada nueva partida comienza con el 25% del nivel de cuenta.
+    Se mantiene como mínimo nivel 1 para que las piezas básicas
+    sigan disponibles al empezar.
+  */
+  return Math.max(
+    1,
+    accountLevel*.25
+  );
+}
+
+function addAccountXP(amount){
+  const gain=Math.max(0,Number(amount)||0);
+  if(!gain)return;
+
+  accountXp+=gain;
+
+  while(accountXp>=accountXpRequired(accountLevel)){
+    accountXp-=accountXpRequired(accountLevel);
+    accountLevel++;
+  }
+
+  if(typeof updateAccountProgressUI==="function"){
+    updateAccountProgressUI();
+  }
+}
+
+/* =========================================================
    ESTADO
 ========================================================= */
 
@@ -77,7 +121,7 @@ let playerArmy={
   color:"#dce2e7",
   coins:100,
   xp:0,
-  level:1,
+  level:getStartingGameLevel(),
   lives:3,
   score:0
 };
