@@ -36,7 +36,23 @@ function drawUnit(u){
     ry*TILE+TILE/2
   );
 
-  const s=TILE*.82*camera.zoom;
+  const s=TILE*.86*camera.zoom;
+
+  /*
+    Animación de reposo muy sutil para dar vida a las unidades
+    sin alterar su posición lógica en el tablero.
+  */
+  const idleSeed=
+    String(u.id||"").split("").reduce(
+      (n,c)=>n+c.charCodeAt(0),
+      0
+    );
+
+  const idle=
+    !u.moving
+    ?Math.sin(performance.now()/650+idleSeed)*s*.018
+    :0;
+
 
   if(
     p.x+s<0||p.y+s<0||
@@ -58,7 +74,14 @@ function drawUnit(u){
     :"#74252d";
 
   ctx.save();
-  ctx.translate(p.x,p.y);
+  ctx.translate(p.x,p.y+idle);
+
+  drawPieceAura(
+    u.type,
+    main,
+    s,
+    friendly
+  );
 
   ctx.fillStyle="rgba(0,0,0,.35)";
 
@@ -97,6 +120,15 @@ function drawUnit(u){
     drawRookPiece(main,metal,dark,s);
   else if(u.type==="queen")
     drawQueenPiece(main,metal,dark,s);
+
+  drawPieceFinishing(
+    u.type,
+    main,
+    metal,
+    dark,
+    s,
+    friendly
+  );
 
   ctx.restore();
 }
