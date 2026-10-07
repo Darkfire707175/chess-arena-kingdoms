@@ -531,6 +531,12 @@ function createUnit(type,army,x,y){
   return u;
 }
 
+/* =========================================================
+   SPAWN SEGURO
+========================================================= */
+
+const SAFE_PLAYER_DISTANCE=18;
+
 function randomValidCell(){
 
   for(let i=0;i<5000;i++){
@@ -548,6 +554,109 @@ function randomValidCell(){
   }
 
   return{x:2,y:2};
+}
+
+function isSafeFromPlayer(x,y,minDistance=SAFE_PLAYER_DISTANCE){
+
+  const targets=units.filter(u=>
+    u.alive&&
+    !u.deadAnimating&&
+    u.army===playerArmy
+  );
+
+  if(!targets.length)return true;
+
+  for(const target of targets){
+
+    const d=Math.hypot(
+      x-target.x,
+      y-target.y
+    );
+
+    if(d<minDistance)
+      return false;
+  }
+
+  return true;
+}
+
+function randomSafeEnemyCell(){
+
+  const targets=units.filter(u=>
+    u.alive&&
+    !u.deadAnimating&&
+    u.army===playerArmy
+  );
+
+  if(!targets.length)
+    return randomValidCell();
+
+  /*
+    Primero intentamos encontrar una casilla completamente segura.
+    No usamos un simple "randomValidCell" de reserva, porque eso
+    podría volver a poner un enemigo cerca del Rey.
+  */
+  for(let i=0;i<12000;i++){
+
+    const x=Math.floor(Math.random()*MAP_W);
+    const y=Math.floor(Math.random()*MAP_H);
+
+    if(!validCell(x,y))continue;
+
+    const occupied=units.some(u=>
+      u.alive&&
+      !u.deadAnimating&&
+      u.x===x&&
+      u.y===y
+    );
+
+    if(occupied)continue;
+
+    if(isSafeFromPlayer(x,y))
+      return{x,y};
+  }
+
+  /*
+    Segundo intento: elegimos la casilla válida que maximiza
+    la distancia respecto a la pieza del jugador más cercana.
+  */
+  let best=null;
+  let bestDistance=-Infinity;
+
+  for(let i=0;i<2500;i++){
+
+    const candidate=randomValidCell();
+
+    const occupied=units.some(u=>
+      u.alive&&
+      !u.deadAnimating&&
+      u.x===candidate.x&&
+      u.y===candidate.y
+    );
+
+    if(occupied)continue;
+
+    let nearest=Infinity;
+
+    for(const target of targets){
+
+      nearest=Math.min(
+        nearest,
+        Math.hypot(
+          candidate.x-target.x,
+          candidate.y-target.y
+        )
+      );
+    }
+
+    if(nearest>bestDistance){
+
+      bestDistance=nearest;
+      best=candidate;
+    }
+  }
+
+  return best||randomValidCell();
 }
 
 /* =========================================================
@@ -582,48 +691,46 @@ function enemySpawnNearPlayer(){
     u.army===playerArmy
   );
 
-  if(!targets.length)return randomValidCell();
+  if(!targets.length)
+    return randomSafeEnemyCell();
 
-  // Los refuerzos aparecen normalmente a unas 30 casillas
-  // de alguna pieza del jugador, pero sin aparecer encima.
-  for(let attempt=0;attempt<80;attempt++){
+  /*
+    Los enemigos/refuerzos aparecen preferiblemente a 28–33
+    casillas del jugador y NUNCA dentro del radio de seguridad.
+  */
+  for(let attempt=0;attempt<120;attempt++){
 
-    const target=targets[Math.floor(Math.random()*targets.length)];
+    const target=
+      targets[Math.floor(Math.random()*targets.length)];
+
     const angle=Math.random()*Math.PI*2;
     const distance=28+Math.random()*5;
 
-    const x=Math.round(target.x+Math.cos(angle)*distance);
-    const y=Math.round(target.y+Math.sin(angle)*distance);
+    const x=Math.round(
+      target.x+Math.cos(angle)*distance
+    );
+
+    const y=Math.round(
+      target.y+Math.sin(angle)*distance
+    );
 
     if(!validCell(x,y))continue;
 
     const occupied=units.some(u=>
-      u.alive&&!u.deadAnimating&&u.x===x&&u.y===y
+      u.alive&&
+      !u.deadAnimating&&
+      u.x===x&&
+      u.y===y
     );
 
     if(occupied)continue;
 
+    if(!isSafeFromPlayer(x,y))continue;
+
     return{x,y};
   }
 
-  // Si el mapa no permite un punto exacto, buscamos una casilla
-  // válida que quede lo más cerca posible de las 30 casillas.
-  let best=null;
-  let bestDiff=Infinity;
-
-  for(let i=0;i<180;i++){
-    const pos=randomValidCell();
-    const target=targets[Math.floor(Math.random()*targets.length)];
-    const d=Math.hypot(pos.x-target.x,pos.y-target.y);
-    const diff=Math.abs(d-30);
-
-    if(diff<bestDiff){
-      bestDiff=diff;
-      best=pos;
-    }
-  }
-
-  return best||randomValidCell();
+  return randomSafeEnemyCell();
 }
 
 function createEnemyArmies(){
