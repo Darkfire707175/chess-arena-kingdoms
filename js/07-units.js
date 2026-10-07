@@ -256,6 +256,35 @@ function drawUnit(u){
       friendly
     );
 
+  if(isUnitFrozen(u)){
+    ctx.save();
+    ctx.globalAlpha=.72;
+    ctx.fillStyle="rgba(180,225,255,.20)";
+    ctx.strokeStyle="rgba(210,240,255,.9)";
+    ctx.lineWidth=Math.max(2,2.5*camera.zoom);
+
+    ctx.beginPath();
+    ctx.arc(0,0,s*.52,0,Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+
+    for(let i=0;i<6;i++){
+      const a=i*Math.PI*2/6+performance.now()/1700;
+      ctx.beginPath();
+      ctx.moveTo(
+        Math.cos(a)*s*.20,
+        Math.sin(a)*s*.20
+      );
+      ctx.lineTo(
+        Math.cos(a)*s*.48,
+        Math.sin(a)*s*.48
+      );
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
   ctx.restore();
 }
 
@@ -343,7 +372,7 @@ function canArmySeeUnit(viewerArmy,unit){
   for(const viewer of viewers){
     const vx=viewer.moving?viewer.renderX:viewer.x;
     const vy=viewer.moving?viewer.renderY:viewer.y;
-    if(Math.hypot(unit.x-vx,unit.y-vy)<=PIECES[viewer.type].vision)
+    if(Math.hypot(unit.x-vx,unit.y-vy)<=getUnitVision(viewer))
       return true;
   }
 
@@ -634,6 +663,11 @@ function createUnit(type,army,x,y){
     attackAnim:null,
     attackOriginX:x,
     attackOriginY:y,
+
+    /*
+      Congelación temporal del Reino de Hielo.
+    */
+    frozenUntil:0,
 
     /*
       Marca temporal usada por la mecánica de cofres.
