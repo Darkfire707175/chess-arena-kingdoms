@@ -98,6 +98,31 @@ function moveUnit(u,target){
 }
 
 /* =========================================================
+   ANIMACIONES DE ATAQUE
+========================================================= */
+
+function updateAttackAnimation(u,dt){
+
+  if(!u.attackAnim)return;
+
+  u.attackAnim.progress+=
+    (dt*1000)/u.attackAnim.duration;
+
+  if(u.attackAnim.progress>=1){
+    u.attackAnim.progress=1;
+    u.attackAnim=null;
+  }
+}
+
+function updateAttackAnimations(dt){
+
+  for(const u of units){
+    if(u.attackAnim)
+      updateAttackAnimation(u,dt);
+  }
+}
+
+/* =========================================================
    ACTUALIZACIÓN
 ========================================================= */
 
