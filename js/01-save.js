@@ -97,7 +97,12 @@ function restoreSnapshot(d){
   const armyMap=new Map();for(const a of (d.armies||[]))armyMap.set(a.id,{...a});
   playerArmy=armyMap.get("player")||{...d.player};Object.assign(playerArmy,d.player);playerArmy.id="player";
   armies=Array.from(armyMap.values()).filter(a=>a.id!=="player");
-  units=d.units.filter(u=>u&&typeof u.x==="number"&&typeof u.y==="number"&&armyMap.has(u.armyId)).map(u=>({...u,army:armyMap.get(u.armyId),frozenUntil:Number(u.frozenUntil)||0}));
+  units=d.units.filter(u=>u&&typeof u.x==="number"&&typeof u.y==="number"&&armyMap.has(u.armyId)&&(
+    u.alive||
+    u.deadAnimating||
+    u.moving||
+    u.hitAnim
+  )).map(u=>({...u,army:armyMap.get(u.armyId),frozenUntil:Number(u.frozenUntil)||0}));
   spawnType=d.spawnType||"pawn";gameEnded=!!d.gameEnded;selectedUnit=null;
   let king=units.find(u=>u.army===playerArmy&&u.type==="king"&&u.alive&&!u.deadAnimating);
   if(!king){playerArmy.lives=Math.max(1,Number(playerArmy.lives)||3);gameEnded=false;createPlayer();king=units.find(u=>u.army===playerArmy&&u.type==="king"&&u.alive&&!u.deadAnimating);}
