@@ -279,3 +279,233 @@ canvas.dragging{cursor:grabbing}
   .marketBalance{width:100%}
   .kingdomGrid{grid-template-columns:1fr;padding:16px}
 }
+
+
+/* =========================================================
+   NUEVA PANTALLA DE INICIO — ARCADE / CHESS ARENA
+========================================================= */
+#startScreen{
+  position:fixed;
+  inset:0;
+  z-index:200;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#f7f1df;
+  background:
+    radial-gradient(circle at 50% 44%,rgba(104,82,38,.24),transparent 28%),
+    radial-gradient(circle at 50% 100%,rgba(171,105,28,.13),transparent 42%),
+    linear-gradient(180deg,#080b10 0%,#10151c 48%,#07090d 100%);
+  font-family:Georgia,'Times New Roman',serif;
+}
+#startScreen::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.78),transparent 28%,transparent 72%,rgba(0,0,0,.78)),
+    linear-gradient(180deg,rgba(0,0,0,.2),transparent 45%,rgba(0,0,0,.72));
+  pointer-events:none;
+}
+#startScreen::after{
+  content:"";
+  position:absolute;
+  inset:7%;
+  border:1px solid rgba(231,202,120,.13);
+  box-shadow:inset 0 0 90px rgba(0,0,0,.45);
+  pointer-events:none;
+}
+.startBackdrop{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+}
+.startArena{
+  position:absolute;
+  left:50%;
+  bottom:-31%;
+  width:min(1100px,105vw);
+  height:68%;
+  transform:translateX(-50%) perspective(700px) rotateX(58deg);
+  transform-origin:center bottom;
+  opacity:.55;
+  background:
+    linear-gradient(45deg,rgba(231,202,120,.055) 25%,transparent 25%,transparent 75%,rgba(231,202,120,.055) 75%),
+    linear-gradient(45deg,rgba(231,202,120,.055) 25%,transparent 25%,transparent 75%,rgba(231,202,120,.055) 75%);
+  background-position:0 0,38px 38px;
+  background-size:76px 76px;
+  border:1px solid rgba(231,202,120,.08);
+  box-shadow:0 -35px 90px rgba(0,0,0,.75);
+}
+.startGlow{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(35px);
+}
+.startGlowA{
+  width:420px;height:420px;left:calc(50% - 210px);top:20%;
+  background:rgba(231,202,120,.08);
+}
+.startGlowB{
+  width:600px;height:260px;left:calc(50% - 300px);bottom:-90px;
+  background:rgba(201,91,24,.07);
+}
+.startHero{
+  position:relative;
+  z-index:3;
+  width:min(820px,90vw);
+  padding:30px 24px 34px;
+  text-align:center;
+}
+.startCrown{
+  margin-bottom:2px;
+  font-size:clamp(58px,8vw,92px);
+  line-height:.9;
+  color:#f0d37a;
+  text-shadow:0 5px 0 #8b6725,0 12px 30px rgba(0,0,0,.8),0 0 35px rgba(240,211,122,.16);
+}
+.startTitle{
+  margin:16px 0 0;
+  font-size:clamp(38px,7vw,76px);
+  line-height:.9;
+  letter-spacing:clamp(2px,.7vw,8px);
+  color:#f2d47f;
+  text-shadow:0 5px 0 #76551f,0 10px 25px rgba(0,0,0,.9);
+}
+.startKingdomTitle{
+  margin-top:9px;
+  font:900 clamp(20px,3.3vw,34px)/1 Arial,Helvetica,sans-serif;
+  letter-spacing:clamp(7px,1.5vw,15px);
+  color:#f4f0e4;
+  text-shadow:0 4px 15px #000;
+}
+.startDivider{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  width:min(590px,82vw);
+  margin:24px auto 22px;
+  color:#aeb3b6;
+  font:900 10px Arial,Helvetica,sans-serif;
+  letter-spacing:3px;
+}
+.startDivider span{
+  flex:1;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(231,202,120,.5));
+}
+.startDivider span:last-child{
+  background:linear-gradient(90deg,rgba(231,202,120,.5),transparent);
+}
+.forgeButton{
+  position:relative;
+  min-width:min(520px,84vw);
+  min-height:78px;
+  padding:18px 30px;
+  border:2px solid #f2d47f;
+  border-radius:15px;
+  cursor:pointer;
+  background:
+    linear-gradient(180deg,#f0d47d 0%,#c79c49 48%,#8c6527 100%);
+  color:#1a160e;
+  font:900 clamp(16px,2.2vw,24px) Arial,Helvetica,sans-serif;
+  letter-spacing:1.2px;
+  text-shadow:0 1px rgba(255,255,255,.25);
+  box-shadow:
+    0 9px 0 #4d3618,
+    0 17px 35px rgba(0,0,0,.65),
+    0 0 30px rgba(240,212,125,.13),
+    inset 0 2px rgba(255,255,255,.45);
+  transition:transform .12s,filter .12s,box-shadow .12s;
+}
+.forgeButton:hover{
+  transform:translateY(-3px);
+  filter:brightness(1.08);
+  box-shadow:
+    0 12px 0 #4d3618,
+    0 22px 40px rgba(0,0,0,.7),
+    0 0 38px rgba(240,212,125,.22),
+    inset 0 2px rgba(255,255,255,.5);
+}
+.forgeButton:active{
+  transform:translateY(5px);
+  box-shadow:0 4px 0 #4d3618,0 9px 20px rgba(0,0,0,.6),inset 0 2px rgba(255,255,255,.35);
+}
+.forgeIcon{
+  margin-right:10px;
+  font-size:1.1em;
+}
+.startCornerButton{
+  position:absolute;
+  z-index:5;
+  top:24px;
+  min-height:54px;
+  border:1px solid rgba(231,202,120,.55);
+  border-radius:13px;
+  cursor:pointer;
+  box-shadow:0 8px 25px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.1);
+  transition:transform .14s,filter .14s;
+}
+.startCornerButton:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.1);
+}
+.startGoogleButton{
+  left:24px;
+  min-width:205px;
+  padding:8px 15px;
+  display:grid;
+  grid-template-columns:30px 1fr;
+  grid-template-rows:1fr 1fr;
+  column-gap:7px;
+  align-items:center;
+  text-align:left;
+  background:rgba(18,22,28,.93);
+  color:#f4f0e5;
+  font:900 12px/1 Arial,Helvetica,sans-serif;
+  letter-spacing:.7px;
+}
+.startGoogleButton .googleG{
+  grid-row:1 / 3;
+  margin:0;
+  font-size:25px;
+  text-align:center;
+  color:#4285f4;
+  text-shadow:0 1px 4px rgba(0,0,0,.25);
+}
+.startGoogleButton small{
+  color:#aaaeb2;
+  font:700 9px Arial,Helvetica,sans-serif;
+  letter-spacing:1.1px;
+}
+.startMarketButton{
+  right:24px;
+  min-width:145px;
+  padding:0 19px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  background:rgba(18,22,28,.93);
+  color:#f2d47f;
+  font:900 13px Arial,Helvetica,sans-serif;
+  letter-spacing:1px;
+}
+.startMarketButton span:first-child{font-size:20px}
+.googleStatusStart{
+  min-height:16px;
+  margin:20px 0 0;
+  color:#8d949a;
+  font:11px/1.4 Arial,Helvetica,sans-serif;
+}
+@media(max-width:650px){
+  .startCornerButton{top:14px}
+  .startGoogleButton{left:14px;min-width:175px}
+  .startMarketButton{right:14px;min-width:110px;padding:0 12px}
+  .startGoogleButton span:not(.googleG){font-size:10px}
+  .startHero{padding-top:65px}
+  .startDivider{margin-top:18px}
+  .forgeButton{min-height:68px;padding:15px 18px}
+}
