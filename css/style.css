@@ -705,7 +705,7 @@ canvas.dragging{cursor:grabbing}
   .startGoogleButton{grid-template-rows:1fr}
   .startGoogleButton span:not(.googleG){align-self:center}
   .startHero{padding-top:70px}
-  .startCrown{font-size:72px}
+  .startCrown{font-size:72px;cursor:pointer;pointer-events:auto}
   .startTitle{font-size:48px;letter-spacing:3px}
   .startKingdomTitle{font-size:22px;letter-spacing:7px}
   .startDivider{width:88vw}
