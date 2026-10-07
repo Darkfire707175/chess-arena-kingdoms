@@ -123,15 +123,26 @@ function drawUnit(u){
     dx/=len;
     dy/=len;
 
-    if(at.type==="king"||at.type==="pawn"||at.type==="knight"){
-      attackLiftX=dx*s*.12*phase;
-      attackLiftY=dy*s*.12*phase;
-      attackRotation=at.type==="knight"
-        ?dx*.10*phase
-        :dx*.035*phase;
+    if(at.type==="king"){
+      attackLiftX=dx*s*.16*phase;
+      attackLiftY=dy*s*.16*phase;
+      attackRotation=dx*.045*phase;
+    }else if(at.type==="pawn"){
+      attackLiftX=dx*s*.13*phase;
+      attackLiftY=dy*s*.13*phase;
+      attackRotation=dx*.035*phase;
+    }else if(at.type==="knight"){
+      attackLiftX=dx*s*.24*phase;
+      attackLiftY=dy*s*.24*phase;
+      attackRotation=dx*.08*phase;
     }else if(at.type==="rook"){
-      attackLiftX=Math.sin(Math.PI*2*t)*s*.035;
-      attackRotation=Math.sin(Math.PI*4*t)*.035;
+      /*
+        La Torre sube y cae como una pieza pesada.
+        El pico de la curva representa el salto antes
+        del aplastamiento.
+      */
+      attackLiftY=-s*.30*phase;
+      attackRotation=Math.sin(Math.PI*2*t)*.035;
     }else{
       attackLiftY=-s*.045*phase;
       attackRotation=Math.sin(Math.PI*t)*.025;
@@ -144,6 +155,8 @@ function drawUnit(u){
   );
   ctx.rotate(attackRotation+hitRotation);
   ctx.scale(hitScale,hitScale);
+
+  drawTowerMovementDust(u,s);
 
   drawPieceAura(
     u.type,
@@ -865,6 +878,161 @@ function createEnemyArmies(){
    ANIMACIONES DE ATAQUE
 ========================================================= */
 
+function drawTowerMovementDust(u,s){
+
+  if(!u||u.type!=="rook"||!u.moving)return;
+
+  const t=clamp(u.moveProgress,0,1);
+  const dx=u.moveTargetX-u.moveStartX;
+  const dy=u.moveTargetY-u.moveStartY;
+  const len=Math.hypot(dx,dy)||1;
+  const nx=-dx/len;
+  const ny=-dy/len;
+
+  ctx.save();
+  ctx.globalAlpha=.36;
+  ctx.globalCompositeOperation="source-over";
+
+  for(let i=0;i<8;i++){
+
+    const phase=
+      (t*2.2+i*.31)%1;
+
+    const side=
+      (i%2===0?1:-1);
+
+    const spread=
+      s*(.08+phase*.28);
+
+    const px=nx*spread+(-dy/len)*side*s*.10;
+    const py=ny*spread+(dx/len)*side*s*.10;
+
+    const radius=s*(.025+.045*(1-phase));
+
+    ctx.fillStyle=
+      i%3===0
+      ?"rgba(214,193,153,.48)"
+      :"rgba(174,154,122,.32)";
+
+    ctx.beginPath();
+    ctx.arc(
+      px,
+      py+s*.24,
+      radius,
+      0,
+      Math.PI*2
+    );
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawPhysicalSword(angle,length,width,accent,hot){
+
+  ctx.save();
+  ctx.rotate(angle);
+
+  /* Empuñadura */
+  ctx.strokeStyle="#17191d";
+  ctx.lineWidth=Math.max(3,4*camera.zoom);
+  ctx.beginPath();
+  ctx.moveTo(-swordGripLength(width),0);
+  ctx.lineTo(0,0);
+  ctx.stroke();
+
+  ctx.strokeStyle="#7b5a2b";
+  ctx.lineWidth=Math.max(2,2.6*camera.zoom);
+  ctx.beginPath();
+  ctx.moveTo(-swordGripLength(width),0);
+  ctx.lineTo(0,0);
+  ctx.stroke();
+
+  /* Guarda */
+  ctx.strokeStyle=accent;
+  ctx.lineWidth=Math.max(3,4*camera.zoom);
+  ctx.beginPath();
+  ctx.moveTo(-width*1.8,-width*1.1);
+  ctx.lineTo(width*1.8,width*1.1);
+  ctx.stroke();
+
+  /* Hoja */
+  const blade=ctx.createLinearGradient(
+    0,-width*2,
+    length,width*2
+  );
+
+  blade.addColorStop(0,"#aab2b9");
+  blade.addColorStop(.45,hot);
+  blade.addColorStop(.72,"#d5dce0");
+  blade.addColorStop(1,"#7f8a93");
+
+  ctx.fillStyle=blade;
+  ctx.strokeStyle="#1c2227";
+  ctx.lineWidth=Math.max(1.5,2*camera.zoom);
+
+  ctx.beginPath();
+  ctx.moveTo(0,-width*.75);
+  ctx.lineTo(length-width*.15,-width*.30);
+  ctx.lineTo(length+width*.08,0);
+  ctx.lineTo(length-width*.15,width*.30);
+  ctx.lineTo(0,width*.75);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  /* Filo luminoso */
+  ctx.strokeStyle="rgba(255,255,255,.72)";
+  ctx.lineWidth=Math.max(.9,1.4*camera.zoom);
+  ctx.beginPath();
+  ctx.moveTo(width*.08,-width*.35);
+  ctx.lineTo(length-width*.12,0);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function swordGripLength(width){
+  return Math.max(width*3.2,width*1.8);
+}
+
+function drawPhysicalSpear(angle,length,width,accent,hot){
+
+  ctx.save();
+  ctx.rotate(angle);
+
+  /* Asta */
+  ctx.strokeStyle="#3b2c1b";
+  ctx.lineWidth=Math.max(3,4.2*camera.zoom);
+  ctx.beginPath();
+  ctx.moveTo(-length*.45,0);
+  ctx.lineTo(length,0);
+  ctx.stroke();
+
+  ctx.strokeStyle="#bc8b43";
+  ctx.lineWidth=Math.max(1,1.5*camera.zoom);
+  ctx.beginPath();
+  ctx.moveTo(-length*.45,0);
+  ctx.lineTo(length,0);
+  ctx.stroke();
+
+  /* Punta */
+  ctx.fillStyle=hot;
+  ctx.strokeStyle=accent;
+  ctx.lineWidth=Math.max(1.2,1.8*camera.zoom);
+
+  ctx.beginPath();
+  ctx.moveTo(length+.12*width,0);
+  ctx.lineTo(length-width*2.2,-width*2.3);
+  ctx.lineTo(length-width*1.1,0);
+  ctx.lineTo(length-width*2.2,width*2.3);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.restore();
+}
+
 function drawAttackAnimation(at,s,main,friendly){
 
   const t=at.progress;
@@ -889,75 +1057,108 @@ function drawAttackAnimation(at,s,main,friendly){
   ctx.globalCompositeOperation="lighter";
 
   /*
-    REY — espada enorme + arco de corte.
+    REY — espada física y corte.
   */
   if(at.type==="king"){
 
-    const reach=s*(.22+.72*pulse);
-
-    ctx.strokeStyle=hot;
-    ctx.shadowColor=accent;
-    ctx.shadowBlur=s*.22;
-    ctx.lineWidth=Math.max(3,5*camera.zoom);
-
-    ctx.beginPath();
-    ctx.moveTo(
-      -px*s*.25-dx*s*.05,
-      -py*s*.25-dy*s*.05
+    const swing=Math.min(
+      1,
+      Math.max(
+        0,
+        (t-.08)/.72
+      )
     );
-    ctx.lineTo(
-      px*s*.05+dx*reach,
-      py*s*.05+dy*reach
-    );
-    ctx.stroke();
 
+    const swordAngle=
+      angle-1.35+swing*2.15;
+
+    const swordLen=
+      s*(.62+.16*Math.sin(Math.PI*swing));
+
+    ctx.globalAlpha=
+      t<.08
+      ?0
+      :Math.min(1,(t-.08)/.10);
+
+    drawPhysicalSword(
+      swordAngle,
+      swordLen,
+      s*.075,
+      accent,
+      hot
+    );
+
+    /*
+      Estela secundaria muy fina: la espada física sigue
+      siendo el elemento principal.
+    */
+    ctx.globalAlpha*=.45;
     ctx.strokeStyle=accent;
-    ctx.lineWidth=Math.max(3,7*camera.zoom);
+    ctx.lineWidth=Math.max(2,3*camera.zoom);
     ctx.beginPath();
     ctx.arc(
-      dx*s*.14,
-      dy*s*.14,
-      s*(.34+.16*pulse),
-      Math.atan2(dy,dx)-1.35,
-      Math.atan2(dy,dx)+.38
+      0,
+      0,
+      s*.48,
+      swordAngle-.55,
+      swordAngle+.25
     );
     ctx.stroke();
   }
 
   /*
-    PEÓN — embestida, golpe y cruz de impacto.
+    PEÓN — lanza física y estocada.
   */
   if(at.type==="pawn"){
 
-    const travel=s*(.2+.62*pulse);
-    const r=s*(.16+.25*pulse);
+    const thrust=
+      Math.min(
+        1,
+        Math.max(
+          0,
+          (t-.10)/.56
+        )
+      );
 
-    ctx.strokeStyle=accent;
-    ctx.shadowColor=accent;
-    ctx.shadowBlur=s*.16;
-    ctx.lineWidth=Math.max(2.5,4*camera.zoom);
+    const spearLen=
+      s*(.48+.72*thrust);
 
-    ctx.beginPath();
-    ctx.moveTo(0,0);
-    ctx.lineTo(dx*travel,dy*travel);
-    ctx.stroke();
+    ctx.globalAlpha=
+      t<.08
+      ?0
+      :1;
 
-    ctx.beginPath();
-    ctx.arc(dx*travel,dy*travel,r,0,Math.PI*2);
-    ctx.stroke();
+    drawPhysicalSpear(
+      angle,
+      spearLen,
+      s*.042,
+      accent,
+      hot
+    );
 
-    ctx.lineWidth=Math.max(2,3*camera.zoom);
-    for(const side of [-1,1]){
+    /* Pequeño impulso visual de la punta. */
+    if(t>.48){
+
+      const tip=spearLen;
+      ctx.globalAlpha=Math.min(
+        1,
+        (t-.48)/.12
+      );
+
+      ctx.fillStyle=hot;
+      ctx.shadowColor=accent;
+      ctx.shadowBlur=s*.18;
+
       ctx.beginPath();
-      ctx.moveTo(
-        dx*travel+px*s*.12*side,
-        dy*travel+py*s*.12*side
+      ctx.arc(
+        Math.cos(angle)*tip,
+        Math.sin(angle)*tip,
+        s*.065,
+        0,
+        Math.PI*2
       );
-      ctx.lineTo(
-        dx*(travel+s*.18)+px*s*.05*side,
-        dy*(travel+s*.18)+py*s*.05*side
-      );
-      ctx.stroke();
+      ctx.fill();
+      ctx.shadowBlur=0;
     }
   }
 
@@ -993,84 +1194,165 @@ function drawAttackAnimation(at,s,main,friendly){
   }
 
   /*
-    CABALLO — carga con estela gruesa y líneas de velocidad.
+    CABALLO — carga de caballero con espada física.
   */
   if(at.type==="knight"){
 
-    const travel=s*(.35+.8*pulse);
+    const charge=
+      Math.min(
+        1,
+        Math.max(
+          0,
+          (t-.05)/.68
+        )
+      );
 
-    ctx.shadowColor=accent;
-    ctx.shadowBlur=s*.2;
+    const swordAngle=
+      angle-.95+charge*1.65;
+
+    const swordLen=
+      s*(.58+.18*Math.sin(Math.PI*charge));
+
+    ctx.globalAlpha=
+      t<.05
+      ?0
+      :1;
+
+    drawPhysicalSword(
+      swordAngle,
+      swordLen,
+      s*.065,
+      accent,
+      hot
+    );
+
+    /* Estela de velocidad de la carga. */
+    ctx.globalAlpha=.55;
     ctx.strokeStyle=hot;
-    ctx.lineWidth=Math.max(3,5*camera.zoom);
+    ctx.lineWidth=Math.max(2,3*camera.zoom);
 
-    ctx.beginPath();
-    ctx.moveTo(-dx*s*.5,-dy*s*.5);
-    ctx.lineTo(dx*travel,dy*travel);
-    ctx.stroke();
+    for(let i=0;i<4;i++){
 
-    for(let i=0;i<5;i++){
-
-      const offset=(i-2)*s*.11;
-      const tail=s*(.25+i*.07);
-
-      ctx.strokeStyle=i===2?accent:"rgba(255,230,170,.75)";
-      ctx.lineWidth=Math.max(1.3,2.4*camera.zoom);
+      const tail=s*(.35+i*.10);
 
       ctx.beginPath();
       ctx.moveTo(
-        -dx*tail+px*offset,
-        -dy*tail+py*offset
+        -dx*tail+px*s*.06*i,
+        -dy*tail+py*s*.06*i
       );
       ctx.lineTo(
-        -dx*s*.08+px*offset*.4,
-        -dy*s*.08+py*offset*.4
+        -dx*s*.10+px*s*.02*i,
+        -dy*s*.10+py*s*.02*i
       );
       ctx.stroke();
     }
   }
 
   /*
-    TORRE — martillazo pesado y una onda de choque enorme.
+    TORRE — caída pesada para aplastar.
   */
   if(at.type==="rook"){
 
-    const r=s*(.12+1.1*strong);
+    const impact=
+      Math.min(
+        1,
+        Math.max(
+          0,
+          (t-.48)/.52
+        )
+      );
 
-    ctx.strokeStyle=hot;
-    ctx.shadowColor=accent;
-    ctx.shadowBlur=s*.25;
-    ctx.lineWidth=Math.max(3,5*camera.zoom);
+    /*
+      Golpes de polvo durante la bajada.
+    */
+    ctx.globalAlpha=.85;
 
-    ctx.beginPath();
-    ctx.arc(0,s*.22,r,0,Math.PI*2);
-    ctx.stroke();
+    for(let i=0;i<8;i++){
 
-    ctx.strokeStyle=accent;
-    ctx.lineWidth=Math.max(2,3*camera.zoom);
+      const a=i*Math.PI/4+t*.7;
+      const radius=s*(.16+impact*.58);
+      const px2=Math.cos(a)*radius;
+      const py2=Math.sin(a)*radius+s*.18;
 
-    for(let i=0;i<10;i++){
-
-      const a=i*Math.PI*2/10+t*.9;
-      const inner=s*.14;
-      const outer=s*(.38+.55*strong);
+      ctx.fillStyle=
+        i%2
+        ?"rgba(177,157,124,.38)"
+        :"rgba(220,202,163,.52)";
 
       ctx.beginPath();
-      ctx.moveTo(
-        Math.cos(a)*inner,
-        s*.22+Math.sin(a)*inner
+      ctx.arc(
+        px2,
+        py2,
+        s*(.025+.045*impact),
+        0,
+        Math.PI*2
       );
-      ctx.lineTo(
-        Math.cos(a)*outer,
-        s*.22+Math.sin(a)*outer
-      );
-      ctx.stroke();
+      ctx.fill();
     }
 
-    ctx.fillStyle="rgba(255,245,190,.4)";
-    ctx.beginPath();
-    ctx.arc(0,s*.22,s*(.2+.25*strong),0,Math.PI*2);
-    ctx.fill();
+    /*
+      La onda expansiva aparece SOLO cuando realmente se
+      ha producido una muerte.
+    */
+    if(at.didKill&&t>.58){
+
+      const k=
+        Math.min(
+          1,
+          Math.max(
+            0,
+            (t-.58)/.42
+          )
+        );
+
+      const radius=
+        s*(.12+1.05*k);
+
+      ctx.globalAlpha=
+        (1-k)*.9;
+
+      ctx.strokeStyle=hot;
+      ctx.shadowColor=accent;
+      ctx.shadowBlur=s*.25;
+      ctx.lineWidth=Math.max(
+        3,
+        5*camera.zoom
+      );
+
+      ctx.beginPath();
+      ctx.arc(
+        0,
+        s*.20,
+        radius,
+        0,
+        Math.PI*2
+      );
+      ctx.stroke();
+
+      ctx.strokeStyle=accent;
+      ctx.lineWidth=Math.max(
+        2,
+        3*camera.zoom
+      );
+
+      for(let i=0;i<10;i++){
+
+        const a=i*Math.PI*2/10;
+        const inner=s*.14;
+        const outer=s*(.38+.65*k);
+
+        ctx.beginPath();
+        ctx.moveTo(
+          Math.cos(a)*inner,
+          s*.20+Math.sin(a)*inner
+        );
+        ctx.lineTo(
+          Math.cos(a)*outer,
+          s*.20+Math.sin(a)*outer
+        );
+        ctx.stroke();
+      }
+    }
   }
 
   /*
