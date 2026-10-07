@@ -32,18 +32,24 @@ function getUnitVision(unit){
 
   const base=PIECES[unit.type]?.vision||0;
 
-  return (
-    selectedKingdom==="desert"||
-    selectedKingdom==="void"
-  )
-    ?base+2
-    :base;
+  if(
+    unit.army===playerArmy&&
+    (selectedKingdom==="desert"||selectedKingdom==="void")
+  ){
+    return base+2;
+  }
+
+  return base;
 }
 
 function getUnitCooldown(unit){
   if(!unit||!unit.type)return 0;
 
   const base=PIECES[unit.type]?.cooldown||0;
+
+  if(unit.army!==playerArmy){
+    return base;
+  }
 
   if(
     selectedKingdom!=="volcanic"&&
@@ -185,6 +191,17 @@ function renderKingdomMarket(){
   if(!balance||!grid)return;
   balance.textContent=globalDiamonds;
   grid.innerHTML="";
+  unlockedKingdoms=[
+    ...new Set(
+      ["green",...unlockedKingdoms]
+        .filter(id=>KINGDOMS.some(k=>k.id===id))
+    )
+  ];
+
+  if(!unlockedKingdoms.includes(selectedKingdom)){
+    selectedKingdom="green";
+  }
+
   KINGDOMS.forEach(k=>{
     const unlocked=unlockedKingdoms.includes(k.id);
     const card=document.createElement("article");
@@ -196,12 +213,17 @@ function renderKingdomMarket(){
     else if(unlocked){button.textContent="ELEGIR";}
     else{button.textContent=k.price+" 💎";button.disabled=globalDiamonds<k.price;}
     button.addEventListener("click",()=>{
-      if(unlocked) selectedKingdom=k.id;
-      else{
-        if(globalDiamonds<k.price)return;
-        globalDiamonds-=k.price;
-        unlockedKingdoms.push(k.id);
+      if(unlocked){
         selectedKingdom=k.id;
+      }else{
+        if(unlockedKingdoms.includes(k.id)){
+          selectedKingdom=k.id;
+        }else{
+          if(globalDiamonds<k.price)return;
+          globalDiamonds-=k.price;
+          unlockedKingdoms.push(k.id);
+          selectedKingdom=k.id;
+        }
       }
       saveProgress();
       renderKingdomMarket();
