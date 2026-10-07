@@ -222,17 +222,46 @@ addEventListener(
     }
 
     /*
-      SPACE YA NO GENERA REYES.
-      Se mantiene como tecla de selección/despliegue
-      del Peón, que es la pieza inicial alternativa.
+      CONTROLES RÁPIDOS:
+      ESPACIO = centrar la cámara en el Rey.
+      1-5 = desplegar la pieza correspondiente.
     */
 
     if(e.code==="Space"){
 
       e.preventDefault();
 
-      spawnType="pawn";
-      spawnPlayerPiece("pawn");
+      const king=units.find(u=>
+        u.alive&&
+        !u.deadAnimating&&
+        u.army===playerArmy&&
+        u.type==="king"
+      );
+
+      if(king){
+        camera.x=(king.renderX!==undefined?king.renderX:king.x)*TILE+TILE/2;
+        camera.y=(king.renderY!==undefined?king.renderY:king.y)*TILE+TILE/2;
+        cameraFree=false;
+        clampCamera();
+      }
+
+      return;
+    }
+
+    const quickPieces={
+      "1":"pawn",
+      "2":"bishop",
+      "3":"knight",
+      "4":"rook",
+      "5":"queen"
+    };
+
+    const quickType=quickPieces[e.key];
+
+    if(quickType){
+      e.preventDefault();
+      spawnType=quickType;
+      spawnPlayerPiece(quickType);
       updatePieceButtons();
     }
   }
