@@ -194,6 +194,28 @@ function updatePieceButtons(){
    COMBATE
 ========================================================= */
 
+function startAttackAnimation(attacker,defender){
+
+  if(!attacker)return;
+
+  attacker.attackAnim={
+    type:attacker.type,
+    progress:0,
+    duration:
+      attacker.type==="king"?360:
+      attacker.type==="pawn"?300:
+      attacker.type==="bishop"?430:
+      attacker.type==="knight"?340:
+      attacker.type==="rook"?460:
+      440,
+    targetX:defender?.x??attacker.x,
+    targetY:defender?.y??attacker.y,
+    originX:attacker.attackOriginX??attacker.x,
+    originY:attacker.attackOriginY??attacker.y,
+    impact:false
+  };
+}
+
 function capture(attacker,defender){
 
   if(
@@ -211,6 +233,8 @@ function capture(attacker,defender){
     Para cualquier atacante normal también se resuelve
     aquí el combate según las reglas actuales.
   */
+
+  startAttackAnimation(attacker,defender);
 
   defender.alive=false;
   defender.deadAnimating=true;
