@@ -32,18 +32,24 @@ function getUnitVision(unit){
 
   const base=PIECES[unit.type]?.vision||0;
 
-  return (
-    selectedKingdom==="desert"||
-    selectedKingdom==="void"
-  )
-    ?base+2
-    :base;
+  if(
+    unit.army===playerArmy&&
+    (selectedKingdom==="desert"||selectedKingdom==="void")
+  ){
+    return base+2;
+  }
+
+  return base;
 }
 
 function getUnitCooldown(unit){
   if(!unit||!unit.type)return 0;
 
   const base=PIECES[unit.type]?.cooldown||0;
+
+  if(unit.army!==playerArmy){
+    return base;
+  }
 
   if(
     selectedKingdom!=="volcanic"&&
@@ -173,13 +179,32 @@ function applyIceFreeze(deadEnemy){
 }
 
 function restoreKingdomProgress(d){
-  unlockedKingdoms=Array.isArray(d&&d.unlockedKingdoms)?d.unlockedKingdoms:["green"];
-  if(!unlockedKingdoms.includes("green"))unlockedKingdoms.unshift("green");
+  const saved=Array.isArray(d&&d.unlockedKingdoms)
+    ?d.unlockedKingdoms
+    :["green"];
+
+  const validIds=new Set(KINGDOMS.map(k=>k.id));
+
+  unlockedKingdoms=[
+    ...new Set(
+      ["green",...saved]
+        .filter(id=>validIds.has(id))
+    )
+  ];
+
   selectedKingdom=d&&d.selectedKingdom||"green";
-  if(!unlockedKingdoms.includes(selectedKingdom))selectedKingdom="green";
+
+  if(!unlockedKingdoms.includes(selectedKingdom)){
+    selectedKingdom="green";
+  }
 }
 
 function renderKingdomMarket(){
+  restoreKingdomProgress({
+    unlockedKingdoms,
+    selectedKingdom
+  });
+
   const balance=document.getElementById("marketDiamonds");
   const grid=document.getElementById("kingdomGrid");
   if(!balance||!grid)return;
