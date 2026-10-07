@@ -73,7 +73,7 @@ function getUnitCooldown(unit){
   return base*(1-reduction);
 }
 
-const ICE_FREEZE_DURATION=3000;
+const ICE_FREEZE_DURATION=2000;
 
 function isUnitFrozen(unit){
   return Boolean(
@@ -175,7 +175,23 @@ function applyIceFreeze(deadEnemy){
   frozen.frozenUntil=
     Date.now()+ICE_FREEZE_DURATION;
 
-  showMessage("❄️ ¡Un enemigo ha quedado congelado!");
+  /*
+    La congelación es inmediata: si la pieza estaba
+    desplazándose, se detiene en su casilla actual.
+  */
+  if(frozen.moving){
+    frozen.moving=false;
+    frozen.moveProgress=1;
+    frozen.renderX=frozen.x;
+    frozen.renderY=frozen.y;
+    frozen.moveStartX=frozen.x;
+    frozen.moveStartY=frozen.y;
+    frozen.moveTargetX=frozen.x;
+    frozen.moveTargetY=frozen.y;
+    frozen.pendingEnemy=null;
+  }
+
+  showMessage("❄️ ¡Un enemigo ha quedado congelado durante 2 segundos!");
 }
 
 function restoreKingdomProgress(d){
