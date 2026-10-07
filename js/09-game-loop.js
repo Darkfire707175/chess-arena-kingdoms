@@ -125,8 +125,31 @@ function updateAttackAnimation(u,dt){
 function updateAttackAnimations(dt){
 
   for(const u of units){
-    if(u.attackAnim)
-      updateAttackAnimation(u,dt);
+
+    if(u.attackAnim){
+      u.attackAnim.progress=
+        Math.min(
+          1,
+          u.attackAnim.progress+
+          (dt*1000)/u.attackAnim.duration
+        );
+
+      if(u.attackAnim.progress>=1)
+        u.attackAnim=null;
+    }
+
+    if(u.hitAnim){
+
+      u.hitAnim.progress=
+        Math.min(
+          1,
+          u.hitAnim.progress+
+          (dt*1000)/u.hitAnim.duration
+        );
+
+      if(u.hitAnim.progress>=1)
+        u.hitAnim=null;
+    }
   }
 }
 
