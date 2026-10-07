@@ -9,15 +9,35 @@
 <body>
 
 <div id="startScreen" role="dialog" aria-label="Pantalla de inicio">
-  <div class="startPanel">
+  <div class="startBackdrop" aria-hidden="true">
+    <div class="startGlow startGlowA"></div>
+    <div class="startGlow startGlowB"></div>
+    <div class="startArena"></div>
+  </div>
+
+  <button class="startCornerButton startGoogleButton" id="googleButton" type="button" aria-label="Iniciar sesión con Google">
+    <span class="googleG">G</span>
+    <span>INICIAR SESIÓN</span>
+    <small>CON GOOGLE</small>
+  </button>
+
+  <button class="startCornerButton startMarketButton" id="marketButton" type="button" aria-label="Abrir tienda">
+    <span>🏪</span>
+    <span>TIENDA</span>
+  </button>
+
+  <div class="startHero">
     <div class="startCrown">♛</div>
     <h1 class="startTitle">CHESS ARENA</h1>
-    <p class="startSubtitle">Kingdoms · Forja tu reino</p>
-    <button class="startButton" id="playButton" type="button">⚔ JUGAR</button>
-    <button class="startButton" id="marketButton" type="button">🏪 MERCADO</button>
-    <button class="startButton" id="googleButton" type="button"><span class="googleG">G</span>Conectar con Google</button>
-    <p id="googleStatus" aria-live="polite">Puedes jugar sin conectar una cuenta.</p>
-    <p class="startFoot">EXPLORA · RECLUTA · CONQUISTA</p>
+    <div class="startKingdomTitle">KINGDOMS</div>
+    <div class="startDivider"><span></span><b>FORJA TU LEYENDA</b><span></span></div>
+
+    <button class="forgeButton" id="playButton" type="button">
+      <span class="forgeIcon">⚔</span>
+      <span>FORJA TU PROPIO REINO</span>
+    </button>
+
+    <p id="googleStatus" class="googleStatusStart" aria-live="polite">Puedes jugar sin conectar una cuenta.</p>
   </div>
 </div>
 
