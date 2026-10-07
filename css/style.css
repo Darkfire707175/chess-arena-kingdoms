@@ -509,3 +509,205 @@ canvas.dragging{cursor:grabbing}
   .startDivider{margin-top:18px}
   .forgeButton{min-height:68px;padding:15px 18px}
 }
+
+
+/* =========================================================
+   PANTALLA INICIAL FULLSCREEN — PORTADA DE VIDEOJUEGO
+========================================================= */
+#startScreen{
+  isolation:isolate;
+  padding:0;
+  align-items:center;
+  justify-content:center;
+  min-height:100dvh;
+  background:#05070a;
+}
+#startScreen::before{
+  z-index:1;
+  background:
+    radial-gradient(circle at 50% 42%,transparent 0 20%,rgba(0,0,0,.08) 42%,rgba(0,0,0,.72) 100%),
+    linear-gradient(90deg,rgba(0,0,0,.78),transparent 20%,transparent 80%,rgba(0,0,0,.78));
+}
+#startScreen::after{
+  z-index:6;
+  inset:0;
+  border:0;
+  box-shadow:inset 0 0 130px rgba(0,0,0,.8);
+}
+.startBackdrop{
+  z-index:0;
+}
+.startSky{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(ellipse at 50% 36%,rgba(91,78,48,.34),transparent 27%),
+    radial-gradient(ellipse at 50% 76%,rgba(180,92,24,.11),transparent 30%),
+    linear-gradient(180deg,#06080d 0%,#111821 38%,#0a0d12 72%,#030406 100%);
+}
+.startArena{
+  left:50%;
+  bottom:-42%;
+  width:120vw;
+  height:86%;
+  opacity:.72;
+  transform:translateX(-50%) perspective(900px) rotateX(59deg);
+  background:
+    linear-gradient(45deg,rgba(231,202,120,.085) 25%,transparent 25%,transparent 75%,rgba(231,202,120,.085) 75%),
+    linear-gradient(45deg,rgba(231,202,120,.085) 25%,transparent 25%,transparent 75%,rgba(231,202,120,.085) 75%),
+    radial-gradient(ellipse at center,rgba(231,202,120,.12),transparent 55%);
+  background-position:0 0,72px 72px,center;
+  background-size:144px 144px,144px 144px,100% 100%;
+  border:0;
+  box-shadow:0 -40px 110px rgba(0,0,0,.9);
+}
+.startVignette{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse at center,transparent 28%,rgba(0,0,0,.3) 68%,rgba(0,0,0,.8) 100%);
+}
+.startHero{
+  z-index:5;
+  width:100%;
+  height:100dvh;
+  max-width:none;
+  padding:8vh 5vw 9vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.startCrown{
+  font-size:clamp(70px,10vw,150px);
+  margin:0 0 1vh;
+  color:#f5d67d;
+  text-shadow:0 7px 0 #785520,0 15px 50px #000,0 0 55px rgba(245,214,125,.25);
+  animation:startCrownFloat 4s ease-in-out infinite;
+}
+@keyframes startCrownFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-7px)}
+}
+.startTitle{
+  margin:0;
+  font-size:clamp(48px,8vw,118px);
+  line-height:.88;
+  letter-spacing:clamp(3px,1vw,13px);
+  color:#f3d37a;
+  text-shadow:0 7px 0 #76531c,0 14px 35px #000,0 0 45px rgba(243,211,122,.18);
+}
+.startKingdomTitle{
+  margin-top:clamp(12px,2vh,22px);
+  font-size:clamp(25px,3.8vw,58px);
+  letter-spacing:clamp(9px,2vw,24px);
+  text-shadow:0 5px 18px #000;
+}
+.startDivider{
+  width:min(850px,72vw);
+  margin:clamp(25px,4vh,42px) auto clamp(22px,3vh,34px);
+  font-size:clamp(9px,.8vw,13px);
+}
+.forgeButton{
+  min-width:min(650px,76vw);
+  min-height:clamp(76px,9vh,105px);
+  padding:20px 42px;
+  border-radius:18px;
+  font-size:clamp(17px,2vw,29px);
+  box-shadow:
+    0 11px 0 #4d3618,
+    0 22px 50px rgba(0,0,0,.72),
+    0 0 45px rgba(240,212,125,.16),
+    inset 0 2px rgba(255,255,255,.5);
+}
+.startWorldDecor{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  overflow:hidden;
+}
+.startPiece{
+  position:absolute;
+  bottom:5vh;
+  color:rgba(215,184,102,.8);
+  font-family:Georgia,'Times New Roman',serif;
+  line-height:1;
+  filter:drop-shadow(0 16px 20px rgba(0,0,0,.9));
+  text-shadow:0 3px 0 rgba(73,48,15,.8),0 0 28px rgba(231,202,120,.15);
+}
+.startPieceLeft{
+  left:5vw;
+  font-size:clamp(130px,19vw,310px);
+  transform:rotate(-3deg);
+}
+.startPieceLeftPawn{
+  left:22vw;
+  bottom:7vh;
+  font-size:clamp(65px,9vw,145px);
+  opacity:.45;
+  transform:rotate(3deg);
+}
+.startPieceRight{
+  right:5vw;
+  font-size:clamp(140px,20vw,320px);
+  transform:rotate(3deg);
+}
+.startPieceRightPawn{
+  right:23vw;
+  bottom:8vh;
+  font-size:clamp(65px,9vw,145px);
+  opacity:.42;
+  transform:rotate(-3deg);
+}
+.startEmber{
+  position:absolute;
+  width:4px;height:4px;
+  border-radius:50%;
+  background:#e9bd65;
+  box-shadow:0 0 10px 3px rgba(224,146,47,.4);
+  animation:startEmberFloat 5s linear infinite;
+}
+.startEmber1{left:31%;bottom:19%;animation-delay:-1s}
+.startEmber2{left:68%;bottom:25%;animation-delay:-3s}
+.startEmber3{left:42%;bottom:31%;animation-delay:-4s}
+.startEmber4{left:76%;bottom:17%;animation-delay:-2s}
+@keyframes startEmberFloat{
+  0%{opacity:0;transform:translateY(30px)}
+  20%{opacity:.8}
+  100%{opacity:0;transform:translateY(-150px) translateX(25px)}
+}
+.startCornerButton{
+  z-index:8;
+  top:26px;
+}
+.startGoogleButton{
+  left:28px;
+}
+.startMarketButton{
+  right:28px;
+}
+.googleStatusStart{
+  margin-top:24px;
+}
+@media(max-width:800px){
+  .startHero{padding-left:3vw;padding-right:3vw}
+  .startPieceLeft,.startPieceRight{opacity:.48}
+  .startPieceLeftPawn,.startPieceRightPawn{display:none}
+  .startGoogleButton{left:14px}
+  .startMarketButton{right:14px}
+}
+@media(max-width:520px){
+  .startCornerButton{top:12px}
+  .startGoogleButton{left:10px;min-width:150px}
+  .startMarketButton{right:10px;min-width:92px}
+  .startGoogleButton small{display:none}
+  .startGoogleButton{grid-template-rows:1fr}
+  .startGoogleButton span:not(.googleG){align-self:center}
+  .startHero{padding-top:70px}
+  .startCrown{font-size:72px}
+  .startTitle{font-size:48px;letter-spacing:3px}
+  .startKingdomTitle{font-size:22px;letter-spacing:7px}
+  .startDivider{width:88vw}
+  .forgeButton{min-width:90vw;padding:17px 15px;font-size:16px}
+}
