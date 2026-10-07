@@ -3,41 +3,44 @@
 ========================================================= */
 
 let dragging=false;
+let cameraFree=false;
 let dragStart={x:0,y:0};
 let camStart={x:0,y:0};
 
 canvas.addEventListener(
   "pointerdown",
   e=>{
+    if(e.button===2){
+      dragging=true;
+      cameraFree=true;
+      canvas.classList.add("dragging");
+      dragStart.x=e.clientX;
+      dragStart.y=e.clientY;
+      camStart.x=camera.x;
+      camStart.y=camera.y;
+      canvas.setPointerCapture(e.pointerId);
+      e.preventDefault();
+      return;
+    }
 
-    dragging=true;
-
-    canvas.classList.add("dragging");
-
-    dragStart.x=e.clientX;
-    dragStart.y=e.clientY;
-
-    camStart.x=camera.x;
-    camStart.y=camera.y;
-
-    canvas.setPointerCapture(e.pointerId);
+    if(e.button===0){
+      dragStart.x=e.clientX;
+      dragStart.y=e.clientY;
+      canvas.setPointerCapture(e.pointerId);
+    }
   }
 );
 
 canvas.addEventListener(
   "pointermove",
   e=>{
-
     if(!dragging)return;
 
     const dx=e.clientX-dragStart.x;
     const dy=e.clientY-dragStart.y;
 
-    camera.x=
-      camStart.x-dx/camera.zoom;
-
-    camera.y=
-      camStart.y-dy/camera.zoom;
+    camera.x=camStart.x-dx/camera.zoom;
+    camera.y=camStart.y-dy/camera.zoom;
 
     clampCamera();
   }
@@ -46,23 +49,44 @@ canvas.addEventListener(
 canvas.addEventListener(
   "pointerup",
   e=>{
+    const moved=Math.hypot(
+      e.clientX-dragStart.x,
+      e.clientY-dragStart.y
+    );
 
-    const moved=
-      Math.hypot(
-        e.clientX-dragStart.x,
-        e.clientY-dragStart.y
-      );
-
-    dragging=false;
-
-    canvas.classList.remove("dragging");
-
-    if(moved<8){
-      handleClick(
-        e.clientX,
-        e.clientY
-      );
+    if(e.button===2){
+      dragging=false;
+      cameraFree=false;
+      canvas.classList.remove("dragging");
+      if(canvas.hasPointerCapture(e.pointerId))
+        canvas.releasePointerCapture(e.pointerId);
+      return;
     }
+
+    if(e.button===0){
+      if(canvas.hasPointerCapture(e.pointerId))
+        canvas.releasePointerCapture(e.pointerId);
+
+      if(moved<8){
+        handleClick(e.clientX,e.clientY);
+      }
+    }
+  }
+);
+
+canvas.addEventListener(
+  "pointercancel",
+  e=>{
+    dragging=false;
+    cameraFree=false;
+    canvas.classList.remove("dragging");
+  }
+);
+
+canvas.addEventListener(
+  "contextmenu",
+  e=>{
+    e.preventDefault();
   }
 );
 
