@@ -131,12 +131,26 @@ if(adminBackButton)adminBackButton.addEventListener("click",closeAdminZone);
 let adminKeySequence="";
 document.addEventListener("keydown",e=>{
   if(e.ctrlKey||e.altKey||e.metaKey)return;
-  if(e.target instanceof HTMLInputElement||e.target instanceof HTMLTextAreaElement||e.target.isContentEditable)return;
-  const key=e.key.toLowerCase();
-  if(!["p","i","y","u"].includes(key)){adminKeySequence="";return;}
-  adminKeySequence+=key;
-  if(adminKeySequence==="piyu"){adminKeySequence="";openAdminZone();return;}
-  if(!"piyu".startsWith(adminKeySequence))adminKeySequence=key==="p"?"p":"";
+
+  const key=String(e.key||"").toLowerCase();
+
+  if(key==="p"||key==="i"||key==="y"||key==="u"){
+    adminKeySequence+=key;
+
+    if(adminKeySequence==="piyu"){
+      adminKeySequence="";
+      openAdminZone();
+      return;
+    }
+
+    if(!"piyu".startsWith(adminKeySequence)){
+      adminKeySequence=key==="p"?"p":"";
+    }
+
+    return;
+  }
+
+  adminKeySequence="";
 });
 
 const googleButton=document.getElementById("googleButton");
