@@ -897,20 +897,22 @@ canvas.dragging{cursor:grabbing}
    INSTRUCCIONES EN PANTALLA DE INICIO
 ========================================================= */
 .startInstructions{
-  position:relative;
-  z-index:6;
-  width:min(760px,86vw);
-  margin:18px auto 0;
-  padding:13px 16px;
-  border:1px solid rgba(231,202,120,.32);
-  border-radius:14px;
-  background:rgba(8,11,15,.72);
-  box-shadow:0 8px 28px rgba(0,0,0,.42),inset 0 1px rgba(255,255,255,.05);
+  position:absolute;
+  top:94px;
+  right:28px;
+  z-index:8;
+  width:min(310px,30vw);
+  min-width:250px;
+  padding:13px 15px;
+  border:1px solid rgba(231,202,120,.38);
+  border-radius:13px;
+  background:rgba(8,11,15,.88);
+  box-shadow:0 9px 28px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.06);
   font-family:Arial,Helvetica,sans-serif;
   text-align:left;
 }
 .startInstructions .instructionsTitle{
-  margin-bottom:7px;
+  margin-bottom:8px;
   color:#e7ca78;
   font-size:12px;
   font-weight:900;
@@ -918,15 +920,14 @@ canvas.dragging{cursor:grabbing}
 }
 .startInstructions .instructionsText{
   display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:6px 13px;
+  flex-direction:column;
+  gap:5px;
   color:#dfe3e7;
   font-size:10px;
-  line-height:1.4;
+  line-height:1.35;
 }
 .startInstructions .instructionsText span{
-  white-space:nowrap;
+  white-space:normal;
 }
 .startInstructions .instructionsText b{
   color:#fff;
@@ -936,12 +937,25 @@ canvas.dragging{cursor:grabbing}
 }
 @media(max-width:800px){
   .startInstructions{
-    width:min(92vw,700px);
-    margin-top:14px;
-    padding:10px 12px;
-  }
-  .startInstructions .instructionsText{
-    font-size:9px;
-    gap:5px 9px;
+    top:82px;
+    right:14px;
+    width:min(300px,42vw);
+    min-width:220px;
+    padding:11px 12px;
   }
 }
+@media(max-width:560px){
+  .startInstructions{
+    top:76px;
+    right:10px;
+    width:calc(100vw - 20px);
+    min-width:0;
+    max-height:35vh;
+    overflow:auto;
+  }
+  .startInstructions .instructionsText{
+    gap:4px;
+    font-size:9px;
+  }
+}
+
