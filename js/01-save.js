@@ -93,6 +93,43 @@ async function signInGoogle(){
   }
 }
 
+const startCrown=document.querySelector(".startCrown");
+const adminZone=document.getElementById("adminZone");
+const adminCodeInput=document.getElementById("adminCodeInput");
+const adminCodeButton=document.getElementById("adminCodeButton");
+const adminStatus=document.getElementById("adminStatus");
+const adminBackButton=document.getElementById("adminBackButton");
+
+function openAdminZone(){
+  if(!adminZone)return;
+  adminZone.style.display="flex";
+  if(adminCodeInput){adminCodeInput.value="";adminCodeInput.focus();}
+  if(adminStatus)adminStatus.textContent="";
+}
+function closeAdminZone(){
+  if(adminZone)adminZone.style.display="none";
+  if(adminCodeInput)adminCodeInput.value="";
+  if(adminStatus)adminStatus.textContent="";
+}
+function redeemAdminCode(){
+  if(!adminCodeInput)return;
+  const code=adminCodeInput.value.trim().toLowerCase();
+  if(code==="piyuesgay"){
+    globalDiamonds=Math.max(0,Number(globalDiamonds)||0)+1000;
+    saveProgress();
+    updateUI();
+    if(typeof renderKingdomMarket==="function")renderKingdomMarket();
+    adminStatus.textContent="✓ +1000 💎 añadidos al reino.";
+    adminCodeInput.value="";
+    return;
+  }
+  adminStatus.textContent="ZONA DE ADMIN";
+}
+if(startCrown)startCrown.addEventListener("click",openAdminZone);
+if(adminCodeButton)adminCodeButton.addEventListener("click",redeemAdminCode);
+if(adminCodeInput)adminCodeInput.addEventListener("keydown",e=>{if(e.key==="Enter")redeemAdminCode();});
+if(adminBackButton)adminBackButton.addEventListener("click",closeAdminZone);
+
 const googleButton=document.getElementById("googleButton");
 if(googleButton)googleButton.addEventListener("click",signInGoogle);
 const playButton=document.getElementById("playButton");
