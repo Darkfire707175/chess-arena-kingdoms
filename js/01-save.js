@@ -9,6 +9,7 @@ const FIREBASE_CONFIG={
   appId:"1:257471638012:web:760545f02d75a4197cea79"
 };
 let firebaseReady=false,cloudUser=null,saveBusy=false,saveQueued=false;
+let globalDiamonds=0;
 const localSaveKey="chessArenaKingdoms_save_v1";
 
 function hasFirebaseConfig(){
@@ -46,10 +47,11 @@ function initFirebase(){
 function safeArmy(a){return {id:a.id,name:a.name,color:a.color,coins:a.coins,xp:a.xp,level:a.level,lives:a.lives,score:a.score};}
 function saveSnapshot(){
   const armyList=[playerArmy,...armies].filter((a,i,arr)=>arr.indexOf(a)===i);
-  return {version:1,savedAt:Date.now(),player:safeArmy(playerArmy),armies:armyList.map(safeArmy),units:units.map(u=>({id:u.id,type:u.type,armyId:u.army?.id,x:u.x,y:u.y,renderX:u.renderX,renderY:u.renderY,alive:u.alive,moving:u.moving,deadAnimating:u.deadAnimating,moveStartX:u.moveStartX,moveStartY:u.moveStartY,moveTargetX:u.moveTargetX,moveTargetY:u.moveTargetY,moveProgress:u.moveProgress,moveDuration:u.moveDuration,cooldown:u.cooldown})),spawnType,gameEnded};
+  return {version:1,savedAt:Date.now(),diamonds:Math.max(0,Number(globalDiamonds)||0),player:safeArmy(playerArmy),armies:armyList.map(safeArmy),units:units.map(u=>({id:u.id,type:u.type,armyId:u.army?.id,x:u.x,y:u.y,renderX:u.renderX,renderY:u.renderY,alive:u.alive,moving:u.moving,deadAnimating:u.deadAnimating,moveStartX:u.moveStartX,moveStartY:u.moveStartY,moveTargetX:u.moveTargetX,moveTargetY:u.moveTargetY,moveProgress:u.moveProgress,moveDuration:u.moveDuration,cooldown:u.cooldown})),spawnType,gameEnded};
 }
 function restoreSnapshot(d){
   if(!d||d.version!==1||!d.player||!Array.isArray(d.units))return false;
+  globalDiamonds=Math.max(0,Number(d.diamonds)||0);
   const armyMap=new Map();for(const a of (d.armies||[]))armyMap.set(a.id,{...a});
   playerArmy=armyMap.get("player")||{...d.player};Object.assign(playerArmy,d.player);playerArmy.id="player";
   armies=Array.from(armyMap.values()).filter(a=>a.id!=="player");
