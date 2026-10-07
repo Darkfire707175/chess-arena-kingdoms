@@ -56,6 +56,11 @@ function renderKingdomMarket(){
   });
 }
 
+function setupGameStoreButton(){
+  const button=document.getElementById("gameStoreButton");
+  if(button)button.addEventListener("click",openKingdomMarket);
+}
+
 function openKingdomMarket(){
   const market=document.getElementById("kingdomMarket");
   if(!market)return;
@@ -76,4 +81,5 @@ document.addEventListener("DOMContentLoaded",()=>{
   if(close)close.addEventListener("click",closeKingdomMarket);
   if(market)market.addEventListener("click",e=>{if(e.target===market)closeKingdomMarket();});
   renderKingdomMarket();
+  setupGameStoreButton();
 });
