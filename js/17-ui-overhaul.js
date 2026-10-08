@@ -23,9 +23,9 @@ function ui17OpenProfile(){
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
   set("profileLevelValue",level);
   set("profileXPText",xp+" / "+req+" XP");
-  set("profileScore",Number(typeof playerArmy!=="undefined"&&playerArmy?playerArmy.score:0||0));
-  set("profileKills",Object.values(window.arenaInventory||{}).reduce((n,v)=>n+Number(v||0),0));
-  set("profileChests",Number(window.arenaPassLevel||1));
+  set("profileScore",Number(typeof playerArmy!=="undefined"&&playerArmy?playerArmy.score:0)||0);
+  set("profileKills",typeof arenaInventory!=="undefined"?Object.values(arenaInventory).reduce((n,v)=>n+Number(v||0),0):0);
+  set("profileChests",Number(typeof arenaPassLevel!=="undefined"?arenaPassLevel:1));
   const fill=document.getElementById("profileXPFill");
   if(fill)fill.style.width=pct+"%";
   overlay.style.display="flex";
@@ -95,6 +95,14 @@ function ui17OpenQuickItems(){
     });
   }
   overlay.style.display="flex";
+}
+
+const ui17OriginalUpdate=typeof window.update==="function"?window.update:null;
+const ui17OriginalAttackUpdate=typeof window.updateAttackAnimations==="function"?window.updateAttackAnimations:null;
+if(ui17OriginalUpdate&&!window.__ui17UpdateWrapped){
+  window.__ui17UpdateWrapped=true;
+  window.update=function(dt){if(typeof gamePaused!=="undefined"&&gamePaused)return;return ui17OriginalUpdate(dt);};
+  if(ui17OriginalAttackUpdate)window.updateAttackAnimations=function(dt){if(typeof gamePaused!=="undefined"&&gamePaused)return;return ui17OriginalAttackUpdate(dt);};
 }
 
 document.addEventListener("DOMContentLoaded",()=>{
