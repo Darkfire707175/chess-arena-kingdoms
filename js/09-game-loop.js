@@ -479,7 +479,11 @@ function drawMap(){
   }
 
   drawDesertTexture();
+  drawBiomeTransitions();
+  drawBiomeLighting(left,right,top,bottom);
   drawDecorations();
+  drawBiomeLandmarks();
+  drawAnimatedBiomeParticles(left,right,top,bottom);
 
   /* Cofres visibles solo dentro de la zona explorada. */
   for(const chest of chests){
