@@ -1531,3 +1531,6 @@ button:focus-visible{
   #pieces{left:8px!important;bottom:8px!important}.pieceBtn{width:57px;height:56px}.pieceName{font-size:8px}
 }
 @media(max-width:520px){.inventoryGrid{grid-template-columns:1fr}.startProfileCard{width:188px}.profileGoogleButton{font-size:9px}.quickItemsContent{grid-template-columns:1fr 1fr}}
+
+.startInventoryButton{position:absolute;left:22px;bottom:22px;z-index:8;min-width:150px}
+@media(max-width:760px){.startInventoryButton{left:10px;bottom:10px;min-width:130px}}
