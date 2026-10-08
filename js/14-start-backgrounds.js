@@ -33,13 +33,3 @@
     oldLayer.classList.remove("active");
   },15000);
 })();
-
-// Load the optional visual skin after all existing game scripts.
-(() => {
-  const source = document.currentScript?.src;
-  if (!source) return;
-  const skin = document.createElement("script");
-  skin.src = new URL("15-arcade-textures.js", source).href;
-  skin.onerror = () => console.warn("Arcade textures could not load; original terrain remains active.");
-  document.head.appendChild(skin);
-})();
