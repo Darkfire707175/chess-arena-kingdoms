@@ -11,6 +11,7 @@ const KINGDOMS=[
 
 let unlockedKingdoms=["green"];
 let selectedKingdom="green";
+let marketTab="kingdoms";
 
 /* Habilidades de ejército:
    Vacío combina Desértico + Volcánico + Sombras. */
@@ -216,41 +217,110 @@ function restoreKingdomProgress(d){
 }
 
 function renderKingdomMarket(){
+
+  const balance=document.getElementById("marketDiamonds");
+  const grid=document.getElementById("kingdomGrid");
+  if(balance)balance.textContent=globalDiamonds;
+
+  const views={
+    kingdoms:document.getElementById("kingdomShopView"),
+    items:document.getElementById("objectShopView"),
+    pass:document.getElementById("passShopView"),
+    missions:document.getElementById("missionsShopView")
+  };
+
+  for(const [key,view] of Object.entries(views)){
+    if(view)view.style.display=key===marketTab?"block":"none";
+  }
+
+  document.querySelectorAll(".marketTab").forEach(tab=>{
+    tab.classList.toggle("active",tab.dataset.marketTab===marketTab);
+  });
+
+  if(marketTab==="items"&&typeof arenaRenderItems==="function"){
+    arenaRenderItems("kingdomObjectContent");
+    return;
+  }
+
+  if(marketTab==="pass"&&typeof arenaRenderPass==="function"){
+    arenaRenderPass("kingdomPassContent");
+    return;
+  }
+
+  if(marketTab==="missions"&&typeof arenaRenderMissions==="function"){
+    arenaRenderMissions("kingdomMissionsContent");
+    return;
+  }
+
   restoreKingdomProgress({
     unlockedKingdoms,
     selectedKingdom
   });
 
-  const balance=document.getElementById("marketDiamonds");
-  const grid=document.getElementById("kingdomGrid");
-  if(!balance||!grid)return;
-  balance.textContent=globalDiamonds;
+  if(!grid)return;
   grid.innerHTML="";
+
   KINGDOMS.forEach(k=>{
     const unlocked=unlockedKingdoms.includes(k.id);
     const card=document.createElement("article");
     card.className="kingdomCard"+(selectedKingdom===k.id?" active":"");
-    card.innerHTML="<div class='kingdomIcon'>"+k.icon+"</div><h3>"+k.name+"</h3><p>"+k.description+"</p><div class='kingdomPrice'>"+(unlocked?"DESBLOQUEADO":k.price+" 💎")+"</div>";
+
+    card.innerHTML=
+      "<div class='kingdomIcon'>"+k.icon+"</div>"+
+      "<div class='kingdomBadge'>REINO</div>"+
+      "<h3>"+k.name+"</h3>"+
+      "<p>"+k.description+"</p>"+
+      "<div class='kingdomPrice'>"+(unlocked?"DESBLOQUEADO":k.price+" 💎")+"</div>";
+
     const button=document.createElement("button");
     button.className="kingdomAction";
-    if(selectedKingdom===k.id){button.textContent="✓ SELECCIONADO";button.disabled=true;}
-    else if(unlocked){button.textContent="ELEGIR";}
-    else{button.textContent=k.price+" 💎";button.disabled=globalDiamonds<k.price;}
+
+    if(selectedKingdom===k.id){
+      button.textContent="✓ SELECCIONADO";
+      button.disabled=true;
+      button.classList.add("selected");
+    }else if(unlocked){
+      button.textContent="ELEGIR";
+    }else{
+      button.textContent="COMPRAR · "+k.price+" 💎";
+      button.disabled=globalDiamonds<k.price;
+    }
+
     button.addEventListener("click",()=>{
-      if(unlocked) selectedKingdom=k.id;
-      else{
-        if(globalDiamonds<k.price)return;
+      if(unlockedKingdoms.includes(k.id)){
+        selectedKingdom=k.id;
+      }else{
+        if(globalDiamonds<k.price){
+          showMessage("💎 No tienes suficientes diamantes.");
+          return;
+        }
+
         globalDiamonds-=k.price;
-        unlockedKingdoms.push(k.id);
+        unlockedKingdoms=[...new Set([...unlockedKingdoms,k.id])];
         selectedKingdom=k.id;
       }
+
       saveProgress();
       renderKingdomMarket();
       showMessage("👑 "+k.name+" seleccionado");
     });
+
     card.appendChild(button);
     grid.appendChild(card);
   });
+}
+
+function openKingdomMarket(tab="kingdoms"){
+  marketTab=tab;
+  const market=document.getElementById("kingdomMarket");
+  if(!market)return;
+  market.style.display="flex";
+  renderKingdomMarket();
+}
+
+function closeKingdomMarket(){
+  const market=document.getElementById("kingdomMarket");
+  if(market)market.style.display="none";
 }
 
 function setupGameStoreButton(){
@@ -279,7 +349,14 @@ document.addEventListener("DOMContentLoaded",()=>{
   const open=document.getElementById("marketButton");
   const close=document.getElementById("closeMarket");
   const market=document.getElementById("kingdomMarket");
-  if(open)open.addEventListener("click",openKingdomMarket);
+  if(open)open.addEventListener("click",()=>openKingdomMarket("kingdoms"));
+
+  document.querySelectorAll(".marketTab").forEach(tab=>{
+    tab.addEventListener("click",()=>{
+      marketTab=tab.dataset.marketTab||"kingdoms";
+      renderKingdomMarket();
+    });
+  });
   if(close)close.addEventListener("click",closeKingdomMarket);
   if(market)market.addEventListener("click",e=>{if(e.target===market)closeKingdomMarket();});
   renderKingdomMarket();
