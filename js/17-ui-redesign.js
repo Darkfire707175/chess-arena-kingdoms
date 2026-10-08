@@ -223,7 +223,8 @@ function uiResume(){
 }
 
 function uiReturnToMenu(){
-  uiResume();
+  uiGamePaused=true;
+  window.gamePaused=true;
   uiCloseProfile();
   uiCloseInventory();
   uiCloseQuickItems();
@@ -316,6 +317,8 @@ function uiBind(){
 
   const play=document.getElementById("playButton");
   if(play)play.addEventListener("click",()=>{
+    uiGamePaused=false;
+    window.gamePaused=false;
     setTimeout(uiSyncMode,0);
     uiCloseSettings();
   });
