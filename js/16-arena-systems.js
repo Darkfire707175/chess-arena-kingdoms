@@ -1588,7 +1588,10 @@ function arenaCreateUI(){
   open.id="arenaItemsButton";
   open.type="button";
   open.textContent="💎 OBJETOS";
-  open.addEventListener("click",()=>arenaOpenPanel("items"));
+  open.addEventListener("click",()=>{
+    if(typeof openKingdomMarket==="function")openKingdomMarket("items");
+    else arenaOpenPanel("items");
+  });
   document.body.appendChild(open);
 
   const loadout=document.createElement("div");
