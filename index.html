@@ -69,6 +69,13 @@
     <div class="startKingdomTitle">KINGDOMS</div>
     <div class="startDivider"><span></span><b>FORJA TU LEYENDA</b><span></span></div>
 
+    <div class="startFeatureStrip" aria-label="Características">
+      <span>⚔️ ESTRATEGIA</span>
+      <span>🌫️ EXPLORACIÓN</span>
+      <span>👑 REINOS</span>
+      <span>💎 PROGRESIÓN</span>
+    </div>
+
     <button class="forgeButton" id="playButton" type="button">
       <span class="forgeIcon">⚔</span>
       <span>FORJA TU PROPIO REINO</span>
@@ -126,7 +133,24 @@
       </div>
       <div class="marketBalance">💎 <b id="marketDiamonds">0</b></div>
     </div>
-    <div id="kingdomGrid" class="kingdomGrid"></div>
+    <div class="marketTabs" role="tablist" aria-label="Secciones de la tienda">
+      <button class="marketTab active" data-market-tab="kingdoms" type="button">👑 REINOS</button>
+      <button class="marketTab" data-market-tab="items" type="button">💣 OBJETOS</button>
+      <button class="marketTab" data-market-tab="pass" type="button">🎟️ PASE</button>
+      <button class="marketTab" data-market-tab="missions" type="button">📜 MISIONES</button>
+    </div>
+    <div id="kingdomShopView" class="marketShopView">
+      <div id="kingdomGrid" class="kingdomGrid"></div>
+    </div>
+    <div id="objectShopView" class="marketShopView" style="display:none">
+      <div id="kingdomObjectContent"></div>
+    </div>
+    <div id="passShopView" class="marketShopView" style="display:none">
+      <div id="kingdomPassContent"></div>
+    </div>
+    <div id="missionsShopView" class="marketShopView" style="display:none">
+      <div id="kingdomMissionsContent"></div>
+    </div>
     <button id="closeMarket" class="marketClose" type="button">← VOLVER</button>
   </div>
 </div>
