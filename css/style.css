@@ -2301,3 +2301,49 @@ button:focus-visible{
  #startScreen .startKingdomTitle{letter-spacing:3px}
  #startScreen .forgeButton{min-height:58px;font-size:20px}
 }
+
+
+/* INVENTORY FIX: compact modal, keep the game world visible */
+.inventoryOverlay{
+  padding:12px !important;
+  background:rgba(2,5,8,.48) !important;
+  backdrop-filter:blur(3px) !important;
+}
+.inventoryPanel{
+  width:min(610px,calc(100vw - 28px)) !important;
+  max-height:min(76vh,660px) !important;
+  padding:16px !important;
+  border-radius:18px !important;
+  overflow-y:auto !important;
+}
+.inventoryHeader{gap:10px !important}
+.inventoryHeader>div{min-width:0;flex-wrap:wrap;gap:7px !important}
+.inventoryHeader h2{font-size:20px !important}
+.inventoryHeader p{font-size:10px !important}
+.inventoryLoadoutHeader{margin:14px 0 7px !important}
+.inventoryLoadoutRow{gap:7px !important}
+.inventoryEquippedSlot{min-height:66px !important;border-radius:10px !important}
+.inventoryEquippedSlot strong{font-size:22px !important}
+.inventoryGrid{
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:8px !important;
+  margin-top:12px !important;
+}
+.inventoryCard{
+  grid-template-columns:48px minmax(0,1fr) !important;
+  gap:8px !important;
+  padding:9px !important;
+  border-radius:11px !important;
+}
+.inventoryObjectIcon{width:46px !important;height:46px !important;font-size:27px !important;border-radius:10px !important}
+.inventoryObjectInfo h3{font-size:12px !important}
+.inventoryObjectInfo p{font-size:9px !important;margin:3px 0 !important}
+.inventoryObjectInfo b{font-size:10px !important}
+.inventoryEquipButton{grid-column:1/-1;min-height:32px !important}
+@media(max-width:520px){
+  .inventoryPanel{width:calc(100vw - 20px) !important;max-height:78vh !important;padding:12px !important}
+  .inventoryHeader h2{font-size:17px !important}
+  .inventoryHeader button{width:34px;height:34px}
+  .inventoryLoadoutRow{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
+  .inventoryGrid{grid-template-columns:1fr !important}
+}
