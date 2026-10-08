@@ -311,7 +311,7 @@ function renderKingdomMarket(){
 }
 
 function openKingdomMarket(tab="kingdoms"){
-  marketTab=tab;
+  marketTab=tab||"kingdoms";
   const market=document.getElementById("kingdomMarket");
   if(!market)return;
   market.style.display="flex";
@@ -325,19 +325,7 @@ function closeKingdomMarket(){
 
 function setupGameStoreButton(){
   const button=document.getElementById("gameStoreButton");
-  if(button)button.addEventListener("click",openKingdomMarket);
-}
-
-function openKingdomMarket(){
-  const market=document.getElementById("kingdomMarket");
-  if(!market)return;
-  market.style.display="flex";
-  renderKingdomMarket();
-}
-
-function closeKingdomMarket(){
-  const market=document.getElementById("kingdomMarket");
-  if(market)market.style.display="none";
+  if(button)button.addEventListener("click",()=>openKingdomMarket("kingdoms"));
 }
 
 document.addEventListener("DOMContentLoaded",()=>{
