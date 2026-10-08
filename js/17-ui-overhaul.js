@@ -121,6 +121,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   }
 
   document.getElementById("closeProfile")?.addEventListener("click",()=>ui17Close("profileOverlay"));
+  document.getElementById("profilePassButton")?.addEventListener("click",()=>{ui17Close("profileOverlay");if(typeof openKingdomMarket==="function")openKingdomMarket("pass");});
   document.getElementById("closeInventory")?.addEventListener("click",()=>ui17Close("inventoryOverlay"));
   document.getElementById("closeQuickItems")?.addEventListener("click",()=>ui17Close("quickItemsOverlay"));
 
