@@ -2173,3 +2173,131 @@ button:focus-visible{
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
+
+
+/* CHESS ARENA — KINGDOMS: lobby arcade refresh */
+@import url('https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&display=swap');
+
+#startScreen{
+  font-family:'Fredoka',system-ui,sans-serif;
+  color:#fff;
+  background:#8bd85b;
+}
+#startScreen .startBackdrop{overflow:hidden;background:linear-gradient(180deg,#86d8ff 0%,#c9f3ff 38%,#92df68 38%,#58b744 100%)}
+#startScreen .startSky{opacity:.42;background:radial-gradient(ellipse at 18% 15%,#fff 0 4%,transparent 4.5%),radial-gradient(ellipse at 23% 13%,#fff 0 3%,transparent 3.5%),radial-gradient(ellipse at 77% 19%,#fff 0 4%,transparent 4.5%),radial-gradient(ellipse at 82% 17%,#fff 0 3%,transparent 3.5%)}
+#startScreen .startSceneLayer{opacity:.42;filter:saturate(.9)}
+#startScreen .startSceneLayerA{background:linear-gradient(160deg,transparent 42%,rgba(52,139,47,.45) 42% 60%,transparent 60%),linear-gradient(20deg,transparent 44%,rgba(39,122,48,.34) 44% 66%,transparent 66%)}
+#startScreen .startSceneLayerB{opacity:.5;background:radial-gradient(ellipse at 15% 68%,#378e3a 0 9%,transparent 9.5%),radial-gradient(ellipse at 85% 73%,#34893a 0 12%,transparent 12.5%),radial-gradient(ellipse at 49% 94%,#388c36 0 23%,transparent 23.5%)}
+#startScreen .startGlow,#startScreen .startVignette{opacity:.12}
+#startScreen .startArena{opacity:.24;filter:none}
+#startScreen .startWorldDecor .startEmber{display:none}
+#startScreen .startPiece{
+  color:#fff7d5;
+  -webkit-text-stroke:1px #315e37;
+  text-shadow:0 4px 0 #397b3e,0 7px 10px #1c622d66;
+  filter:none;
+}
+#startScreen .startPieceLeft{left:9%;top:42%;font-size:clamp(70px,9vw,128px)}
+#startScreen .startPieceLeftPawn{left:22%;top:63%;font-size:clamp(48px,5vw,76px)}
+#startScreen .startPieceRight{right:10%;top:43%;font-size:clamp(76px,10vw,140px)}
+#startScreen .startPieceRightPawn{right:23%;top:65%;font-size:clamp(45px,5vw,72px)}
+#startScreen .startHero{
+  width:min(480px,calc(100vw - 32px));
+  margin:0;
+  padding:clamp(18px,3vh,32px) clamp(18px,2.5vw,30px) 24px;
+  position:absolute;
+  left:50%;top:50%;
+  transform:translate(-50%,-46%);
+  border:3px solid #fff4b7;
+  border-radius:24px;
+  background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(244,255,226,.95));
+  box-shadow:0 8px 0 #4c963d,0 14px 30px #1d663e4d,inset 0 0 0 3px #b7e78a;
+  text-align:center;
+  color:#254a2a;
+}
+#startScreen .startCrown{display:none}
+#startScreen .startTitle{
+  margin:0;
+  font-family:'Bungee','Fredoka',sans-serif;
+  font-size:clamp(25px,3.2vw,42px);
+  line-height:1.12;
+  letter-spacing:-1.2px;
+  color:#fff;
+  -webkit-text-stroke:1px #386b37;
+  text-shadow:0 3px 0 #367d37,0 6px 0 #245d2b,0 8px 10px #174d2940;
+}
+#startScreen .startKingdomTitle{
+  margin:6px 0 8px;
+  font-family:'Bungee',sans-serif;
+  font-size:clamp(13px,1.5vw,18px);
+  letter-spacing:4px;
+  color:#f4a52f;
+  text-shadow:0 2px 0 #a96524;
+}
+#startScreen .startDivider{margin:8px auto 20px;gap:10px;color:#56844b;font:700 11px 'Fredoka',sans-serif;letter-spacing:2px}
+#startScreen .startDivider span{height:3px;background:#b8dba0;border-radius:99px}
+#startScreen .forgeButton{
+  width:min(310px,100%);
+  min-height:68px;
+  border:3px solid #fff4bd;
+  border-radius:17px;
+  background:linear-gradient(180deg,#8deb50 0%,#55c93e 48%,#36a92f 100%);
+  color:#fff;
+  font:700 25px 'Bungee','Fredoka',sans-serif;
+  letter-spacing:1px;
+  text-shadow:0 3px 0 #28772a;
+  box-shadow:0 6px 0 #28772a,0 10px 18px #348f3540,inset 0 2px 0 #ffffff8c;
+  transition:transform .12s,filter .12s,box-shadow .12s;
+}
+#startScreen .forgeButton:hover{filter:brightness(1.07);transform:translateY(-2px);box-shadow:0 8px 0 #28772a,0 13px 20px #348f3540,inset 0 2px 0 #ffffff8c}
+#startScreen .forgeButton:active{transform:translateY(4px);box-shadow:0 2px 0 #28772a}
+#startScreen .forgeIcon{font-size:22px}
+#startScreen .startProfileCard{
+  width:218px;
+  padding:13px;
+  border:2px solid #fff1b0;
+  border-radius:16px;
+  background:linear-gradient(180deg,#fffef2,#e8f8d9);
+  box-shadow:0 5px 0 #4e913f,0 9px 20px #174f2f36;
+  color:#2b542f;
+  font-family:'Fredoka',sans-serif;
+}
+#startScreen .profileAvatar{background:linear-gradient(180deg,#ffd968,#f0a832);border:2px solid #fff6c7;color:#fff;text-shadow:0 2px #b87525;box-shadow:0 3px 0 #c18127}
+#startScreen .profileTop small{color:#6b9361;font:700 10px 'Fredoka',sans-serif;letter-spacing:1.5px}
+#startScreen .profileTop b{color:#2f6a35;font:700 13px 'Fredoka',sans-serif}
+#startScreen .accountXPTrack{height:9px;border:2px solid #fff;background:#c8e8b1;border-radius:99px;overflow:hidden}
+#startScreen .accountXPFill{background:linear-gradient(90deg,#ffd94b,#ffab35);border-radius:99px}
+#startScreen .accountXPText{color:#709066;font:600 10px 'Fredoka',sans-serif}
+#startScreen .profileGoogleButton{
+  min-height:33px;border:1px solid #b8d9a8;border-radius:9px;background:#fff;color:#3c6940;
+  font:600 9px 'Fredoka',sans-serif;box-shadow:0 2px 0 #c6e2b6;
+}
+#startScreen .startCornerButton{
+  border:2px solid #fff0ac;border-radius:13px;
+  background:linear-gradient(180deg,#ffda62,#f5a832);
+  color:#fff;font:700 13px 'Bungee','Fredoka',sans-serif;
+  text-shadow:0 2px 0 #b77626;
+  box-shadow:0 4px 0 #c17b29,0 8px 18px #174f2f35;
+}
+#startScreen .startCornerButton:hover{transform:translateY(-2px);filter:brightness(1.06)}
+#startScreen .startMarketButton{right:22px;top:22px}
+#startScreen .startProfileArea{left:22px;top:22px}
+@media(max-width:760px){
+ #startScreen .startHero{top:53%;width:min(440px,calc(100vw - 24px));padding:20px 16px}
+ #startScreen .startProfileArea{left:10px;top:10px}
+ #startScreen .startProfileCard{width:174px;padding:9px}
+ #startScreen .profileGoogleButton{font-size:8px}
+ #startScreen .startMarketButton{right:10px;top:10px}
+ #startScreen .startPieceLeft{left:2%;top:34%}
+ #startScreen .startPieceRight{right:2%;top:36%}
+ #startScreen .startPieceLeftPawn{left:5%;top:75%}
+ #startScreen .startPieceRightPawn{right:6%;top:76%}
+}
+@media(max-width:430px){
+ #startScreen .startProfileCard{width:148px}
+ #startScreen .profileTop small{font-size:8px}
+ #startScreen .profileTop b{font-size:10px}
+ #startScreen .startTitle{font-size:23px}
+ #startScreen .startKingdomTitle{letter-spacing:3px}
+ #startScreen .forgeButton{min-height:58px;font-size:20px}
+}
