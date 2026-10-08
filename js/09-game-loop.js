@@ -242,7 +242,7 @@ function updateMovement(u,dt){
 
 function update(dt){
 
-  if(gameEnded)return;
+  if(gameEnded||window.gamePaused)return;
 
   /*
     Actualización de movimientos visuales.
