@@ -104,6 +104,11 @@ function showMessage(text){
 
 function spawnPlayerPiece(type){
 
+  /* El sistema de arena sustituye el spawn automático por despliegue manual. */
+  if(typeof arenaStartPiecePlacement==="function"){
+    return arenaStartPiecePlacement(type);
+  }
+
   if(!PIECES[type]||type==="king")return;
 
   const requiredLevel=UNLOCK[type]||99;
