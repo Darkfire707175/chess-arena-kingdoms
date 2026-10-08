@@ -8,18 +8,18 @@
 "use strict";
 
 const ARENA_ITEM_DEFS={
-  bombSmall:{icon:"💣",name:"Bomba pequeña",price:2,description:"Explosión pequeña que daña a los enemigos cercanos."},
-  bombBig:{icon:"💣",name:"Bomba grande",price:4,description:"Explosión mayor que afecta a una zona más amplia."},
-  mine:{icon:"🧨",name:"Mina",price:3,description:"Queda oculta y explota cuando entra un enemigo."},
-  electricTrap:{icon:"⚡",name:"Trampa eléctrica",price:3,description:"Inmoviliza al primer enemigo que la activa."},
-  iceBomb:{icon:"🧊",name:"Bomba de hielo",price:4,description:"Congela a los enemigos cercanos durante 2 segundos."},
-  smoke:{icon:"🌫️",name:"Bomba de humo",price:2,description:"Crea una zona que bloquea la visión durante unos segundos."},
-  wall:{icon:"🧱",name:"Muro portátil",price:3,description:"Crea una barrera temporal que bloquea el paso."},
-  bushSeed:{icon:"🌿",name:"Semilla de arbusto",price:2,description:"Crea un arbusto dentro de tu zona iluminada."},
-  visionTotem:{icon:"👁️",name:"Tótem de visión",price:4,description:"Amplía la luz alrededor de su posición temporalmente."},
-  portal:{icon:"🌀",name:"Portal",price:5,description:"Conecta dos posiciones visibles para teletransportar tus piezas."},
-  fireZone:{icon:"🔥",name:"Zona de fuego",price:4,description:"Daña periódicamente a los enemigos dentro del área."},
-  impulse:{icon:"💨",name:"Impulso",price:3,description:"Reduce inmediatamente el cooldown de una pieza."}
+  bombSmall:{icon:"💣",name:"Bomba pequeña",price:2,category:"ofense",description:"Explosión pequeña que daña a los enemigos cercanos."},
+  bombBig:{icon:"💣",name:"Bomba grande",price:4,category:"ofense",description:"Explosión mayor que afecta a una zona más amplia."},
+  mine:{icon:"🧨",name:"Mina",price:3,category:"control",description:"Queda oculta y explota cuando entra un enemigo."},
+  electricTrap:{icon:"⚡",name:"Trampa eléctrica",price:3,category:"control",description:"Inmoviliza al primer enemigo que la activa."},
+  iceBomb:{icon:"🧊",name:"Bomba de hielo",price:4,category:"control",description:"Congela a los enemigos cercanos durante 2 segundos."},
+  smoke:{icon:"🌫️",name:"Bomba de humo",price:2,category:"utility",description:"Crea una zona que bloquea la visión durante unos segundos."},
+  wall:{icon:"🧱",name:"Muro portátil",price:3,category:"terrain",description:"Crea una barrera temporal que bloquea el paso."},
+  bushSeed:{icon:"🌿",name:"Semilla de arbusto",price:2,category:"terrain",description:"Crea un arbusto dentro de tu zona iluminada."},
+  visionTotem:{icon:"👁️",name:"Tótem de visión",price:4,category:"utility",description:"Amplía la luz alrededor de su posición temporalmente."},
+  portal:{icon:"🌀",name:"Portal",price:5,category:"utility",description:"Conecta dos posiciones visibles para teletransportar tus piezas."},
+  fireZone:{icon:"🔥",name:"Zona de fuego",price:4,category:"ofense",description:"Daña periódicamente a los enemigos dentro del área."},
+  impulse:{icon:"💨",name:"Impulso",price:3,category:"utility",description:"Reduce inmediatamente el cooldown de una pieza."}
 };
 
 const ARENA_PASS_XP_PER_LEVEL=500;
@@ -553,11 +553,8 @@ function arenaPurchaseItem(id){
   globalDiamonds-=def.price;
   arenaInventory[id]=(arenaInventory[id]||0)+1;
 
-  if(arenaLoadout.length<3&&!arenaIsEquipped(id)){
-    arenaLoadout.push(id);
-  }
-
-  showMessage(def.icon+" "+def.name+" comprado por "+def.price+" 💎");
+  /* Comprar no equipa automáticamente: llevar objetos es opcional. */
+  showMessage(def.icon+" "+def.name+" comprado por "+def.price+" 💎 · Puedes equiparlo desde OBJETOS.");
   renderArenaSystemsUI();
   updateUI();
   saveProgress();
@@ -1662,39 +1659,52 @@ function arenaClosePanel(){
   if(panel)panel.style.display="none";
 }
 
-function arenaRenderItems(){
+function arenaRenderItems(targetId="arenaSystemsContent"){
 
-  const content=document.getElementById("arenaSystemsContent");
+  const content=document.getElementById(targetId);
   if(!content)return;
 
-  let html="<div class='arenaItemGrid'>";
+  const groups=[
+    ["ofense","💥 OFENSIVA"],
+    ["control","🧊 CONTROL"],
+    ["terrain","🌿 TERRENO"],
+    ["utility","👁️ UTILIDAD"]
+  ];
 
-  for(const [id,def] of Object.entries(ARENA_ITEM_DEFS)){
+  let html="";
 
-    const owned=arenaCount(id);
-    const equipped=arenaIsEquipped(id);
+  for(const [categoryId,categoryName] of groups){
+    const entries=Object.entries(ARENA_ITEM_DEFS)
+      .filter(([,def])=>def.category===categoryId);
 
-    html+=`
-      <article class="arenaItemCard">
-        <div class="arenaItemIcon">${def.icon}</div>
-        <h3>${def.name}</h3>
-        <p>${def.description}</p>
-        <div class="arenaItemBottom">
-          <div class="arenaItemOwned">Cargas: <b>${owned}</b> · ${def.price} 💎</div>
-          <div class="arenaItemActions">
-            <button class="arenaBuyButton" data-buy="${id}">
-              COMPRAR · ${def.price} 💎
-            </button>
-            <button class="arenaEquipButton ${equipped?"active":""}" data-equip="${id}" ${owned?"":"disabled"}>
-              ${equipped?"✓ EQUIPADO":"EQUIPAR"}
-            </button>
+    if(!entries.length)continue;
+
+    html+="<section class='arenaItemCategory'><h3>"+categoryName+"</h3><div class='arenaItemGrid'>";
+
+    for(const [id,def] of entries){
+      const owned=arenaCount(id);
+      const equipped=arenaIsEquipped(id);
+
+      html+=`
+        <article class="arenaItemCard">
+          <div class="arenaItemIcon">${def.icon}</div>
+          <h3>${def.name}</h3>
+          <p>${def.description}</p>
+          <div class="arenaItemBottom">
+            <div class="arenaItemOwned">Cargas: <b>${owned}</b> · ${def.price} 💎</div>
+            <div class="arenaItemActions">
+              <button class="arenaBuyButton" data-buy="${id}">COMPRAR · ${def.price} 💎</button>
+              <button class="arenaEquipButton ${equipped?"active":""}" data-equip="${id}" ${owned?"":"disabled"}>
+                ${equipped?"✓ EQUIPADO":"EQUIPAR"}
+              </button>
+            </div>
           </div>
-        </div>
-      </article>
-    `;
-  }
+        </article>
+      `;
+    }
 
-  html+="</div>";
+    html+="</div></section>";
+  }
 
   content.innerHTML=html;
 
@@ -1706,14 +1716,19 @@ function arenaRenderItems(){
 
   for(const button of content.querySelectorAll("[data-equip]")){
     button.addEventListener("click",()=>{
-      arenaEquipItem(button.dataset.equip);
+      const id=button.dataset.equip;
+      if(!arenaCount(id)){
+        showMessage("📦 Compra primero una carga de este objeto.");
+        return;
+      }
+      arenaEquipItem(id);
     });
   }
 }
 
-function arenaRenderPass(){
+function arenaRenderPass(targetId="arenaSystemsContent"){
 
-  const content=document.getElementById("arenaSystemsContent");
+  const content=document.getElementById(targetId);
   if(!content)return;
 
   const current=arenaPassXp;
@@ -1752,11 +1767,11 @@ function arenaRenderPass(){
   content.innerHTML=html;
 }
 
-function arenaRenderMissions(){
+function arenaRenderMissions(targetId="arenaSystemsContent"){
 
   arenaEnsureMissionState();
 
-  const content=document.getElementById("arenaSystemsContent");
+  const content=document.getElementById(targetId);
   if(!content)return;
 
   let html="<h3 style='margin:0 0 10px;color:#e7ca78'>MISIONES DIARIAS</h3>";
@@ -2054,10 +2069,10 @@ function arenaDrawOverlay(){
       shrub.y*TILE+TILE/2
     );
 
-    drawBush(
+    drawArenaBush(
       p.x,
       p.y,
-      TILE*camera.zoom*.95
+      TILE*camera.zoom*1.02
     );
   }
 
@@ -2179,6 +2194,70 @@ function arenaDrawOverlay(){
 
     ctx.restore();
   }
+}
+
+function drawArenaBush(x,y,size){
+  ctx.save();
+  const s=size;
+  const sway=Math.sin(performance.now()/900+x*.7+y*.35)*s*.018;
+  ctx.translate(x,y);
+
+  ctx.fillStyle="rgba(0,0,0,.34)";
+  ctx.beginPath();
+  ctx.ellipse(0,s*.30,s*.42,s*.13,0,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.strokeStyle="#3f5d2f";
+  ctx.lineWidth=Math.max(2,s*.055);
+  ctx.lineCap="round";
+  ctx.beginPath();
+  ctx.moveTo(0,s*.27);
+  ctx.lineTo(-s*.08,-s*.05);
+  ctx.moveTo(-s*.04,s*.16);
+  ctx.lineTo(-s*.25,-s*.08);
+  ctx.moveTo(s*.03,s*.14);
+  ctx.lineTo(s*.25,-s*.10);
+  ctx.stroke();
+
+  const leaves=[
+    [-.26,-.10,.22,"#284f2c"],
+    [.24,-.10,.23,"#315f31"],
+    [-.12,-.23,.25,"#3f7336"],
+    [.12,-.27,.26,"#487c3b"],
+    [0,-.06,.29,"#356833"]
+  ];
+
+  for(let i=0;i<leaves.length;i++){
+    const [lx,ly,r,col]=leaves[i];
+    const yy=ly*s+sway*(i%2?1:-1);
+    ctx.fillStyle=col;
+    ctx.beginPath();
+    ctx.arc(lx*s,yy,r*s,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle="rgba(133,187,86,.28)";
+    ctx.beginPath();
+    ctx.arc(lx*s-r*s*.25,yy-r*s*.28,r*s*.34,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle="#7ea84e";
+  for(let i=0;i<7;i++){
+    const angle=i*1.83+performance.now()/6000;
+    const rr=s*(.18+.06*Math.sin(i*2.1));
+    ctx.beginPath();
+    ctx.arc(Math.cos(angle)*rr,-s*.18+Math.sin(angle)*rr*.62,s*.045,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle="#b54b45";
+  for(const [bx,by] of [[-.18,-.13],[.19,-.04],[.04,-.31]]){
+    ctx.beginPath();
+    ctx.arc(bx*s,by*s,s*.025,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  ctx.restore();
 }
 
 function arenaDrawPortalPoint(x,y){
