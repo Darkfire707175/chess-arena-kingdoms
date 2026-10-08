@@ -23,7 +23,7 @@ function ui17OpenProfile(){
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
   set("profileLevelValue",level);
   set("profileXPText",xp+" / "+req+" XP");
-  set("profileScore",Number(window.playerArmy?.score||0));
+  set("profileScore",Number(typeof playerArmy!=="undefined"&&playerArmy?playerArmy.score:0||0));
   set("profileKills",Object.values(window.arenaInventory||{}).reduce((n,v)=>n+Number(v||0),0));
   set("profileChests",Number(window.arenaPassLevel||1));
   const fill=document.getElementById("profileXPFill");
@@ -40,9 +40,9 @@ function ui17OpenInventory(){
   const overlay=document.getElementById("inventoryOverlay");
   const content=document.getElementById("inventoryContent");
   if(!overlay||!content)return;
-  const defs=window.ARENA_ITEM_DEFS||{};
-  const count=window.arenaCount||(()=>0);
-  const equipped=window.arenaIsEquipped||(()=>false);
+  const defs=typeof ARENA_ITEM_DEFS!=="undefined"?ARENA_ITEM_DEFS:{};
+  const count=typeof arenaCount==="function"?arenaCount:(()=>0);
+  const equipped=typeof arenaIsEquipped==="function"?arenaIsEquipped:(()=>false);
   const entries=Object.entries(defs).filter(([id])=>count(id)>0);
   if(!entries.length){
     content.innerHTML='<div class="inventoryEmpty">Tu inventario está vacío.<br>Compra objetos desde TIENDA → OBJETOS.</div>';
@@ -61,7 +61,7 @@ function ui17OpenInventory(){
     content.innerHTML=html+'</div>';
     content.querySelectorAll("[data-ui17-equip]").forEach(btn=>{
       btn.addEventListener("click",()=>{
-        if(typeof window.arenaEquipItem==="function")window.arenaEquipItem(btn.dataset.ui17Equip);
+        if(typeof window.arenaEquipItem==="function")arenaEquipItem(btn.dataset.ui17Equip);
         ui17OpenInventory();
       });
     });
@@ -73,9 +73,9 @@ function ui17OpenQuickItems(){
   const overlay=document.getElementById("quickItemsOverlay");
   const content=document.getElementById("quickItemsContent");
   if(!overlay||!content)return;
-  const loadout=window.arenaLoadout||[];
-  const defs=window.ARENA_ITEM_DEFS||{};
-  const count=window.arenaCount||(()=>0);
+  const loadout=typeof arenaLoadout!=="undefined"?arenaLoadout:[];
+  const defs=typeof ARENA_ITEM_DEFS!=="undefined"?ARENA_ITEM_DEFS:{};
+  const count=typeof arenaCount==="function"?arenaCount:(()=>0);
   content.innerHTML="";
   if(!loadout.length){
     content.innerHTML='<div class="inventoryEmpty">No hay objetos equipados.</div>';
@@ -88,7 +88,7 @@ function ui17OpenQuickItems(){
       button.className="quickItemButton";
       button.innerHTML="<strong>"+def.icon+"</strong><span>"+def.name+"</span><small>×"+count(id)+"</small>";
       button.addEventListener("click",()=>{
-        if(count(id)&&typeof window.arenaSelectItem==="function")window.arenaSelectItem(id);
+        if(count(id)&&typeof arenaSelectItem==="function")arenaSelectItem(id);
         overlay.style.display="none";
       });
       content.appendChild(button);
