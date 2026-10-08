@@ -31,18 +31,14 @@
   </div>
 
   <div class="startProfileArea" aria-label="Cuenta y progreso">
-    <button class="startCornerButton startGoogleButton" id="googleButton" type="button" aria-label="Iniciar sesión con Google">
-      <span class="googleG">G</span>
-      <span>INICIAR SESIÓN</span>
-      <small>CON GOOGLE</small>
-    </button>
-
-    <div id="accountProgress" class="startAccountProgress" aria-label="Nivel de cuenta y experiencia">
-      <div class="accountLevelLabel">🏆 NIVEL <b id="accountLevel">1</b></div>
-      <div class="accountXPTrack">
-        <div id="accountXPFill" class="accountXPFill"></div>
+    <div id="profileCard" class="startProfileCard" role="button" tabindex="0" aria-label="Abrir perfil">
+      <div class="profileTop">
+        <span class="profileAvatar">♛</span>
+        <span><small>PERFIL</small><b>NIVEL <span id="accountLevel">1</span></b></span>
       </div>
+      <div class="accountXPTrack"><div id="accountXPFill" class="accountXPFill"></div></div>
       <div id="accountXPText" class="accountXPText">0 / 150 XP</div>
+      <button id="googleButton" class="profileGoogleButton" type="button"><span class="googleG">G</span><span>INICIAR SESIÓN CON GOOGLE</span></button>
     </div>
   </div>
 
@@ -69,16 +65,9 @@
     <div class="startKingdomTitle">KINGDOMS</div>
     <div class="startDivider"><span></span><b>FORJA TU LEYENDA</b><span></span></div>
 
-    <div class="startFeatureStrip" aria-label="Características">
-      <span>⚔️ ESTRATEGIA</span>
-      <span>🌫️ EXPLORACIÓN</span>
-      <span>👑 REINOS</span>
-      <span>💎 PROGRESIÓN</span>
-    </div>
-
     <button class="forgeButton" id="playButton" type="button">
       <span class="forgeIcon">⚔</span>
-      <span>FORJA TU PROPIO REINO</span>
+      <span>JUGAR</span>
     </button>
 
     <p id="googleStatus" class="googleStatusStart" aria-live="polite">Puedes jugar sin conectar una cuenta.</p>
@@ -119,6 +108,41 @@
 </div>
 
 <div id="pieces"></div>
+<div id="profileOverlay" class="profileOverlay" style="display:none" role="dialog" aria-label="Perfil">
+  <div class="profilePanel">
+    <div class="profilePanelHeader"><div><span class="profilePanelCrown">♛</span><h2>PERFIL</h2></div><button id="closeProfile" type="button">✕</button></div>
+    <div class="profileBigLevel">NIVEL <b id="profileLevelValue">1</b></div>
+    <div class="accountXPTrack"><div id="profileXPFill" class="accountXPFill"></div></div>
+    <div id="profileXPText" class="accountXPText">0 / 150 XP</div>
+    <div class="profileStatsGrid">
+      <div><span>🏆</span><b id="profileScore">0</b><small>PUNTUACIÓN</small></div>
+      <div><span>⚔️</span><b id="profileKills">0</b><small>BAJAS</small></div>
+      <div><span>🎁</span><b id="profileChests">0</b><small>COFRES</small></div>
+    </div>
+    <button id="profilePassButton" type="button">🎟️ VER PASE</button>
+  </div>
+</div>
+<div id="inventoryOverlay" class="inventoryOverlay" style="display:none" role="dialog" aria-label="Inventario">
+  <div class="inventoryPanel">
+    <div class="inventoryHeader"><div><span>🎒</span><h2>INVENTARIO</h2><p>Equipa hasta 3 objetos antes de comenzar.</p></div><button id="closeInventory" type="button">✕</button></div>
+    <div id="inventoryContent"></div>
+  </div>
+</div>
+<div id="quickItemsOverlay" class="quickItemsOverlay" style="display:none" role="dialog" aria-label="Objetos equipados">
+  <div class="quickItemsPanel">
+    <div class="quickItemsHeader"><b>🎒 OBJETOS EQUIPADOS</b><button id="closeQuickItems" type="button">✕</button></div>
+    <div id="quickItemsContent"></div>
+  </div>
+</div>
+<div id="pauseOverlay" class="pauseOverlay" style="display:none" role="dialog" aria-label="Pausa">
+  <div class="pausePanel"><div class="pauseCrown">♛</div><h2>PAUSA</h2>
+    <button id="resumeGameButton" type="button">▶ CONTINUAR</button>
+    <button id="restartGameButton" type="button">🔄 REINICIAR</button>
+    <button id="mainMenuButton" type="button">🏠 MENÚ PRINCIPAL</button>
+  </div>
+</div>
+<button id="pauseGameButton" class="gameUtilityButton" type="button" aria-label="Pausa">⚙️</button>
+<button id="quickItemsButton" class="gameUtilityButton quickItemsButton" type="button" aria-label="Objetos equipados">🎒</button>
 
 <canvas id="minimap" width="420" height="324"></canvas>
 
