@@ -1459,3 +1459,75 @@ button:focus-visible{
   .pieceCost{font-size:8px}
   #gameStoreButton{min-width:112px;height:44px;font-size:11px}
 }
+
+/* =========================================================
+   CHESS ARENA — INTERFAZ ARCADE FINAL
+========================================================= */
+.startProfileArea{position:absolute;top:22px;left:22px;z-index:8}
+.startProfileCard{
+  width:230px;padding:14px 15px;border:2px solid rgba(231,202,120,.58);
+  border-radius:17px;background:linear-gradient(145deg,rgba(35,41,49,.96),rgba(10,14,19,.94));
+  box-shadow:0 14px 38px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.08);
+  cursor:pointer;color:#f7f1df;outline:none;
+}
+.startProfileCard:hover{transform:translateY(-2px);border-color:#e7ca78}
+.profileTop{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+.profileAvatar{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:rgba(231,202,120,.12);border:1px solid rgba(231,202,120,.3);font-size:25px;color:#e7ca78}
+.profileTop small,.profileTop b{display:block}
+.profileTop small{font:800 10px Arial,sans-serif;letter-spacing:1.4px;color:#aeb5bb}
+.profileTop b{font:900 16px Arial,sans-serif;margin-top:2px}
+.accountXPTrack{height:9px;overflow:hidden;border-radius:99px;background:#090d12;border:1px solid rgba(255,255,255,.12)}
+.accountXPFill{height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#b98b3d,#f0d47c);box-shadow:0 0 12px rgba(240,212,124,.22)}
+.accountXPText{margin-top:5px;color:#aeb5bb;font:800 10px Arial,sans-serif;text-align:right}
+.profileGoogleButton{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:10px;padding:7px 9px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:#f4f4f4;color:#303238;font:800 10px Arial,sans-serif;cursor:pointer}
+.profileGoogleButton:hover{filter:brightness(1.04)}
+.startFeatureStrip{display:none!important}
+.startMarketButton{position:absolute;top:22px;right:22px;z-index:8}
+.forgeButton{min-width:220px!important;padding:15px 30px!important;border-radius:14px!important;font-size:17px!important;letter-spacing:1.2px!important;box-shadow:0 9px 0 #765626,0 15px 28px rgba(0,0,0,.4),inset 0 1px rgba(255,255,255,.28)!important}
+.forgeButton:active{transform:translateY(7px)!important;box-shadow:0 2px 0 #765626,0 8px 18px rgba(0,0,0,.35)!important}
+.startInstructions{position:absolute;right:22px;top:92px;width:250px;z-index:8}
+.startHero{position:relative;z-index:5}
+.startDivider{opacity:.55}
+.profileOverlay,.inventoryOverlay,.quickItemsOverlay,.pauseOverlay{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,6,10,.82);backdrop-filter:blur(8px)}
+.profilePanel,.inventoryPanel,.quickItemsPanel,.pausePanel{width:min(760px,100%);max-height:90vh;overflow:auto;padding:24px;border:2px solid rgba(231,202,120,.52);border-radius:22px;background:linear-gradient(145deg,#252c35,#11151b);color:#f7f1df;box-shadow:0 30px 90px rgba(0,0,0,.75);font-family:Arial,Helvetica,sans-serif}
+.profilePanelHeader,.inventoryHeader,.quickItemsHeader{display:flex;justify-content:space-between;align-items:center;gap:14px}
+.profilePanelHeader button,.inventoryHeader button,.quickItemsHeader button{width:40px;height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:#252c34;color:#fff;cursor:pointer}
+.profilePanelHeader h2,.inventoryHeader h2{display:inline-block;margin:0 0 0 8px;font-family:Georgia,serif;color:#e7ca78}
+.profilePanelCrown{font-size:30px;color:#e7ca78}
+.profileBigLevel{text-align:center;margin:22px 0 10px;font:900 30px Georgia,serif}
+.profileStatsGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.profileStatsGrid>div{padding:15px;text-align:center;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(7,10,14,.55)}
+.profileStatsGrid span,.profileStatsGrid b,.profileStatsGrid small{display:block}
+.profileStatsGrid span{font-size:22px}.profileStatsGrid b{font-size:22px;margin:5px 0}.profileStatsGrid small{font-size:9px;color:#9da6ad;letter-spacing:1px}
+#profilePassButton{display:block;margin:18px auto 0;padding:11px 18px;border:1px solid #e7ca78;border-radius:11px;background:linear-gradient(#e7c96f,#b48b3e);color:#211b10;font-weight:900;cursor:pointer}
+.inventoryHeader p{margin:4px 0 0;color:#9da6ad;font-size:12px}
+.inventoryGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+.inventoryCard{padding:15px;border-radius:15px;border:1px solid rgba(255,255,255,.1);background:rgba(8,12,17,.64);text-align:center}
+.inventoryCard.equipped{border-color:#e7ca78;box-shadow:0 0 20px rgba(231,202,120,.1)}
+.inventoryCard .itemIcon{font-size:42px}.inventoryCard h3{margin:7px 0 4px;font-size:14px}.inventoryCard p{min-height:30px;margin:0;color:#9da6ad;font-size:10px}
+.inventoryCard button{margin-top:10px;width:100%;padding:9px;border-radius:9px;border:1px solid rgba(231,202,120,.4);background:#303741;color:#fff;font-weight:900;cursor:pointer}
+.inventoryCard.equipped button{background:linear-gradient(#536653,#344437);border-color:#9bc49a}
+.inventoryEmpty{text-align:center;padding:40px 15px;color:#9da6ad}
+.quickItemsPanel{width:min(520px,100%)}
+.quickItemsContent{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}
+.quickItemButton{min-height:95px;border-radius:13px;border:2px solid rgba(255,255,255,.1);background:#202731;color:#fff;cursor:pointer;font-weight:900}
+.quickItemButton strong{display:block;font-size:34px}.quickItemButton small{color:#b7bec5}.quickItemButton.active{border-color:#e7ca78;background:#3b424d}
+.pausePanel{width:min(360px,100%);text-align:center}
+.pauseCrown{font-size:46px;color:#e7ca78}
+.pausePanel h2{margin:5px 0 20px;font:900 28px Georgia,serif;color:#e7ca78}
+.pausePanel button{display:block;width:100%;margin:9px 0;padding:13px;border-radius:11px;border:1px solid rgba(231,202,120,.4);background:linear-gradient(#3d454f,#252b33);color:#fff;font-weight:900;cursor:pointer}
+.pausePanel button:first-of-type{background:linear-gradient(#e7c96f,#b48b3e);color:#211b10}
+.gameUtilityButton{position:fixed;right:14px;top:14px;z-index:120;display:none;width:46px;height:46px;border-radius:13px;border:2px solid rgba(231,202,120,.65);background:linear-gradient(#3b414b,#20252c);color:#ffe39a;font-size:19px;cursor:pointer;box-shadow:0 7px 22px rgba(0,0,0,.45)}
+.quickItemsButton{right:68px}
+#pauseGameButton{right:14px}
+#gameStoreButton{display:none!important}
+#arenaItemsButton{display:none!important}
+#arenaLoadout{bottom:20px!important;left:50%!important;transform:translateX(-50%)!important;background:rgba(8,12,17,.9)!important;border:2px solid rgba(231,202,120,.3)!important}
+#pieces{bottom:20px!important;left:14px!important}
+#minimap{bottom:14px!important;right:14px!important}
+@media(max-width:760px){
+  .startProfileArea{top:10px;left:10px}.startProfileCard{width:200px;padding:11px}.startMarketButton{top:10px;right:10px}
+  .startInstructions{display:none}.inventoryGrid{grid-template-columns:1fr 1fr}.profileStatsGrid{grid-template-columns:1fr 1fr 1fr}
+  #pieces{left:8px!important;bottom:8px!important}.pieceBtn{width:57px;height:56px}.pieceName{font-size:8px}
+}
+@media(max-width:520px){.inventoryGrid{grid-template-columns:1fr}.startProfileCard{width:188px}.profileGoogleButton{font-size:9px}.quickItemsContent{grid-template-columns:1fr 1fr}}
