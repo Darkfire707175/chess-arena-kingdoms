@@ -654,8 +654,9 @@ function arenaEliminateEnemy(unit,sourceLabel="objeto"){
 
     setTimeout(()=>{
       unit.deadAnimating=false;
-      endGame();
     },520);
+
+    showMessage("👑 ¡Has derrotado a "+unit.army.name+"!");
 
     return;
   }
@@ -863,6 +864,11 @@ function arenaPlaceObject(id,x,y){
 function arenaUseItemOnCell(id,x,y){
 
   if(id==="impulse"){
+    if(!isVisible(x,y)){
+      showMessage("💨 Solo puedes usarlo dentro de tu zona de luz.");
+      return true;
+    }
+
     const target=units.find(u=>
       u.alive&&
       !u.deadAnimating&&
@@ -1205,9 +1211,11 @@ const arenaBaseCollectChestAt=window.collectChestAt;
 window.collectChestAt=function(x,y,u){
 
   const before=chests.find(c=>!c.collected&&c.x===x&&c.y===y);
+  const wasUncollected=Boolean(before);
+
   const result=arenaBaseCollectChestAt(x,y,u);
 
-  if(before&&!before.collected)
+  if(wasUncollected)
     arenaRegisterChest();
 
   return result;
@@ -1283,7 +1291,7 @@ function arenaInjectStyles(){
 
   const style=document.createElement("style");
   style.id="arenaSystemsStyles";
-  style.textContent=\`
+  style.textContent=`
     #arenaBushButton{
       position:fixed;
       left:14px;
@@ -1568,7 +1576,7 @@ function arenaInjectStyles(){
       #arenaBushButton{bottom:124px}
       #arenaItemsButton{top:68px}
     }
-  \`;
+  `;
   document.head.appendChild(style);
 }
 
@@ -1600,7 +1608,7 @@ function arenaCreateUI(){
   overlay.id="arenaSystemsPanel";
   overlay.className="arenaMarketOverlay";
 
-  overlay.innerHTML=\`
+  overlay.innerHTML=`
     <div class="arenaMarketPanel">
       <div class="arenaMarketTop">
         <div>
@@ -1617,7 +1625,7 @@ function arenaCreateUI(){
       <div id="arenaSystemsContent"></div>
       <button id="arenaClosePanel" class="arenaCloseButton" type="button">← CERRAR</button>
     </div>
-  \`;
+  `;
 
   document.body.appendChild(overlay);
 
@@ -1666,7 +1674,7 @@ function arenaRenderItems(){
     const owned=arenaCount(id);
     const equipped=arenaIsEquipped(id);
 
-    html+=\`
+    html+=`
       <article class="arenaItemCard">
         <div class="arenaItemIcon">${def.icon}</div>
         <h3>${def.name}</h3>
@@ -1683,7 +1691,7 @@ function arenaRenderItems(){
           </div>
         </div>
       </article>
-    \`;
+    `;
   }
 
   html+="</div>";
@@ -1714,7 +1722,7 @@ function arenaRenderPass(){
     current/ARENA_PASS_XP_PER_LEVEL*100
   );
 
-  let html=\`
+  let html=`
     <div class="arenaPassLevel">
       ${ARENA_SEASON} · NIVEL ${arenaPassLevel}/${ARENA_PASS_MAX_LEVEL}
     </div>
@@ -1725,19 +1733,19 @@ function arenaRenderPass(){
       ${Math.floor(current)} / ${ARENA_PASS_XP_PER_LEVEL} XP para el siguiente nivel.
     </div>
     <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:15px">
-  \`;
+  `;
 
   for(let level=1;level<=ARENA_PASS_MAX_LEVEL;level++){
 
     const claimed=arenaClaimedPassLevels.includes(level);
     const reached=arenaPassLevel>=level;
 
-    html+=\`
+    html+=`
       <div style="padding:9px;border:1px solid rgba(255,255,255,.09);border-radius:9px;background:${reached?"rgba(93,111,71,.42)":"rgba(10,14,19,.6)"};font-size:10px">
         <b>Nv. ${level}</b><br>
         <span style="color:#aeb6bc">${claimed?"✓ RECLAMADO":reached?"✓ DISPONIBLE":"🔒 BLOQUEADO"}</span>
       </div>
-    \`;
+    `;
   }
 
   html+="</div>";
@@ -1759,7 +1767,7 @@ function arenaRenderMissions(){
       Number(arenaMissionState.daily[mission.id])||0
     );
     const pct=value/mission.goal*100;
-    html+=\`
+    html+=`
       <div class="arenaMissionCard">
         <div class="arenaMissionTitle">${mission.text}</div>
         <div class="arenaMissionMeta">
@@ -1768,7 +1776,7 @@ function arenaRenderMissions(){
         </div>
         <div class="arenaMissionTrack"><div style="width:${pct}%"></div></div>
       </div>
-    \`;
+    `;
   }
 
   html+="<h3 style='margin:18px 0 10px;color:#e7ca78'>MISIONES SEMANALES</h3>";
@@ -1779,7 +1787,7 @@ function arenaRenderMissions(){
       Number(arenaMissionState.weekly[mission.id])||0
     );
     const pct=value/mission.goal*100;
-    html+=\`
+    html+=`
       <div class="arenaMissionCard">
         <div class="arenaMissionTitle">${mission.text}</div>
         <div class="arenaMissionMeta">
@@ -1788,7 +1796,7 @@ function arenaRenderMissions(){
         </div>
         <div class="arenaMissionTrack"><div style="width:${pct}%"></div></div>
       </div>
-    \`;
+    `;
   }
 
   content.innerHTML=html;
@@ -1949,6 +1957,90 @@ function arenaDrawOverlay(){
       TILE*camera.zoom*.31,
       0,Math.PI*2
     );
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /* Zonas persistentes. */
+  for(const smoke of arenaSmokes){
+    if(Number(smoke.until||0)<=Date.now())continue;
+    if(!isVisible(smoke.x,smoke.y))continue;
+
+    const p=worldToScreen(
+      smoke.x*TILE+TILE/2,
+      smoke.y*TILE+TILE/2
+    );
+    const r=TILE*camera.zoom*(smoke.radius+.35);
+
+    ctx.save();
+    ctx.fillStyle="rgba(105,112,121,.12)";
+    ctx.strokeStyle="rgba(167,176,188,.25)";
+    ctx.lineWidth=Math.max(1,1.4*camera.zoom);
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,r,0,Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  for(const zone of arenaFireZones){
+    if(Number(zone.until||0)<=Date.now())continue;
+    if(!isVisible(zone.x,zone.y))continue;
+
+    const p=worldToScreen(
+      zone.x*TILE+TILE/2,
+      zone.y*TILE+TILE/2
+    );
+    const r=TILE*camera.zoom*(zone.radius+.15);
+
+    ctx.save();
+    ctx.fillStyle="rgba(255,77,20,.10)";
+    ctx.strokeStyle="rgba(255,123,45,.35)";
+    ctx.lineWidth=Math.max(1,1.5*camera.zoom);
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,r,0,Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  for(const mine of arenaMines){
+    if(!isVisible(mine.x,mine.y))continue;
+
+    const p=worldToScreen(
+      mine.x*TILE+TILE/2,
+      mine.y*TILE+TILE/2
+    );
+
+    ctx.save();
+    ctx.globalAlpha=.78;
+    ctx.fillStyle="#393f46";
+    ctx.strokeStyle="#f0b057";
+    ctx.lineWidth=Math.max(1,1.2*camera.zoom);
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,TILE*camera.zoom*.13,0,Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  for(const trap of arenaElectricTraps){
+    if(!isVisible(trap.x,trap.y))continue;
+
+    const p=worldToScreen(
+      trap.x*TILE+TILE/2,
+      trap.y*TILE+TILE/2
+    );
+
+    ctx.save();
+    ctx.globalAlpha=.8;
+    ctx.strokeStyle="#9bdcff";
+    ctx.lineWidth=Math.max(1,1.3*camera.zoom);
+    ctx.beginPath();
+    ctx.moveTo(p.x-TILE*.14,p.y);
+    ctx.lineTo(p.x-TILE*.04,p.y-TILE*.10);
+    ctx.lineTo(p.x+TILE*.04,p.y+TILE*.10);
+    ctx.lineTo(p.x+TILE*.14,p.y);
     ctx.stroke();
     ctx.restore();
   }
