@@ -2,6 +2,8 @@
    BUCLE PRINCIPAL
 ========================================================= */
 
+let gamePaused=false;
+
 function updateBrawlCamera(dt){
   /*
     La cámara es completamente libre.
@@ -36,8 +38,10 @@ function loop(now){
   lastTime=now;
 
   updateKeyboard(dt);
-  update(dt);
-  updateAttackAnimations(dt);
+  if(!gamePaused){
+    update(dt);
+    updateAttackAnimations(dt);
+  }
   render();
   updateUI();
 
