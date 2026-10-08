@@ -1199,3 +1199,263 @@ canvas.dragging{cursor:grabbing}
   .startFeatureStrip{gap:6px;margin-bottom:14px}
   .startFeatureStrip span{font-size:8px;padding:6px 8px}
 }
+
+
+/* =========================================================
+   CHESS ARENA — ARCADE BUTTON SYSTEM v2
+   Diseño inspirado en UI arcade competitiva
+========================================================= */
+:root{
+  --arcade-gold:#f6d46f;
+  --arcade-gold-hi:#fff0a8;
+  --arcade-gold-dark:#7b5419;
+  --arcade-panel:rgba(10,14,20,.94);
+  --arcade-line:rgba(246,212,111,.42);
+  --arcade-blue:#67c8ff;
+}
+
+button{
+  -webkit-tap-highlight-color:transparent;
+}
+button:focus-visible{
+  outline:3px solid rgba(103,200,255,.9);
+  outline-offset:3px;
+}
+
+/* Botones principales: volumen, borde doble y profundidad arcade */
+#gameStoreButton,
+.startCornerButton,
+.forgeButton,
+.marketTab,
+.kingdomAction,
+.marketClose,
+.adminActionButton,
+.adminBackButton,
+.gameOverBox button{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  font-family:Arial Black,Arial,Helvetica,sans-serif;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+#gameStoreButton::before,
+.startCornerButton::before,
+.forgeButton::before,
+.marketTab::before,
+.kingdomAction::before,
+.marketClose::before,
+.adminActionButton::before,
+.adminBackButton::before,
+.gameOverBox button::before{
+  content:"";
+  position:absolute;
+  left:8%;right:8%;top:3px;height:2px;
+  z-index:-1;
+  border-radius:99px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.72),transparent);
+  opacity:.7;
+  pointer-events:none;
+}
+
+#gameStoreButton::after,
+.startCornerButton::after,
+.forgeButton::after,
+.marketTab::after,
+.kingdomAction::after,
+.marketClose::after,
+.adminActionButton::after,
+.adminBackButton::after,
+.gameOverBox button::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:linear-gradient(115deg,transparent 0 35%,rgba(255,255,255,.16) 48%,transparent 61%);
+  transform:translateX(-130%);
+  transition:transform .45s ease;
+  pointer-events:none;
+}
+
+#gameStoreButton:hover::after,
+.startCornerButton:hover::after,
+.forgeButton:hover::after,
+.marketTab:hover::after,
+.kingdomAction:hover::after,
+.marketClose:hover::after,
+.adminActionButton:hover::after,
+.adminBackButton:hover::after,
+.gameOverBox button:hover::after{
+  transform:translateX(130%);
+}
+
+#gameStoreButton{
+  height:50px;
+  min-width:148px;
+  border:2px solid var(--arcade-gold);
+  border-radius:12px;
+  background:linear-gradient(180deg,#59616c 0%,#303740 45%,#181d24 100%);
+  color:#ffe79a;
+  text-shadow:0 2px 0 #34240d;
+  box-shadow:0 6px 0 #080a0d,0 12px 25px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.1);
+}
+#gameStoreButton:hover{transform:translateY(-3px) scale(1.03)}
+#gameStoreButton:active{transform:translateY(4px) scale(.98);box-shadow:0 2px 0 #080a0d,0 7px 14px rgba(0,0,0,.5)}
+
+/* Pantalla inicial: botones de esquina */
+.startCornerButton{
+  min-height:58px;
+  border:2px solid rgba(246,212,111,.72);
+  background:linear-gradient(180deg,#343c47,#1b2027);
+  color:#f8dc82;
+  box-shadow:0 6px 0 #090b0e,0 14px 30px rgba(0,0,0,.55),inset 0 1px rgba(255,255,255,.14);
+}
+.startCornerButton:hover{transform:translateY(-3px) scale(1.025)}
+.startCornerButton:active{transform:translateY(3px);box-shadow:0 3px 0 #090b0e,0 8px 18px rgba(0,0,0,.5)}
+.startGoogleButton{border-color:rgba(255,255,255,.35);color:#fff}
+.startMarketButton{border-color:var(--arcade-gold);color:var(--arcade-gold-hi)}
+
+/* CTA central: botón de arcade con "piso" */
+.forgeButton{
+  border:3px solid var(--arcade-gold-hi);
+  border-radius:14px;
+  background:linear-gradient(180deg,#ffe58a 0%,#e0b955 42%,#a87927 100%);
+  color:#171208;
+  text-shadow:0 1px rgba(255,255,255,.35);
+  box-shadow:0 9px 0 #523914,0 18px 45px rgba(0,0,0,.68),0 0 32px rgba(246,212,111,.18),inset 0 2px rgba(255,255,255,.75);
+}
+.forgeButton:hover{transform:translateY(-4px);filter:saturate(1.08);box-shadow:0 13px 0 #523914,0 24px 48px rgba(0,0,0,.72),0 0 42px rgba(246,212,111,.28),inset 0 2px rgba(255,255,255,.8)}
+.forgeButton:active{transform:translateY(7px);box-shadow:0 2px 0 #523914,0 9px 20px rgba(0,0,0,.6),inset 0 2px rgba(255,255,255,.4)}
+
+/* Tienda: pestañas como cartuchos de arcade */
+.marketTabs{
+  gap:9px;
+  padding:15px 25px 0;
+  background:linear-gradient(180deg,rgba(0,0,0,.16),transparent);
+}
+.marketTab{
+  min-width:125px;
+  min-height:46px;
+  border:2px solid rgba(255,255,255,.12);
+  border-bottom:2px solid rgba(255,255,255,.06);
+  border-radius:10px 10px 4px 4px;
+  background:linear-gradient(180deg,#303844,#191e25);
+  color:#9fa8b1;
+  box-shadow:0 5px 0 #080a0d,inset 0 1px rgba(255,255,255,.1);
+}
+.marketTab:hover{color:#fff;transform:translateY(-2px)}
+.marketTab.active{
+  color:#161108;
+  border-color:#ffe38a;
+  background:linear-gradient(180deg,#ffe48a,#c99637);
+  box-shadow:0 5px 0 #624516,0 0 22px rgba(246,212,111,.16),inset 0 2px rgba(255,255,255,.7);
+  text-shadow:none;
+}
+.marketTab:active{transform:translateY(3px);box-shadow:0 2px 0 #080a0d}
+
+/* Botones de comprar/elegir reino */
+.kingdomAction,
+.arenaBuyButton,
+.arenaEquipButton{
+  min-height:44px;
+  border:2px solid rgba(246,212,111,.52);
+  border-radius:9px;
+  background:linear-gradient(180deg,#4a535f,#252c34);
+  color:#ffe79a;
+  box-shadow:0 4px 0 #0a0c0f,inset 0 1px rgba(255,255,255,.14);
+}
+.kingdomAction:hover,
+.arenaBuyButton:hover,
+.arenaEquipButton:hover{transform:translateY(-2px);filter:brightness(1.12);border-color:#ffe38a}
+.kingdomAction:active,
+.arenaBuyButton:active,
+.arenaEquipButton:active{transform:translateY(2px);box-shadow:0 2px 0 #0a0c0f}
+.kingdomAction.selected,
+.arenaEquipButton.equipped{
+  color:#08120a;
+  border-color:#b7e8a9;
+  background:linear-gradient(180deg,#a9d99a,#4c814b);
+  box-shadow:0 4px 0 #213c20,0 0 18px rgba(141,219,126,.16),inset 0 1px rgba(255,255,255,.55);
+}
+.kingdomAction:disabled,
+.arenaBuyButton:disabled,
+.arenaEquipButton:disabled{filter:grayscale(.65);opacity:.42;transform:none;box-shadow:none}
+
+/* Piezas: selector tipo máquina arcade */
+#pieces{
+  padding:10px;
+  gap:8px;
+  border:2px solid rgba(246,212,111,.38);
+  border-radius:15px;
+  background:linear-gradient(180deg,rgba(31,38,47,.97),rgba(9,12,17,.97));
+  box-shadow:0 8px 30px rgba(0,0,0,.58),inset 0 1px rgba(255,255,255,.08);
+}
+.pieceBtn{
+  position:relative;
+  width:72px;height:70px;
+  border:2px solid rgba(255,255,255,.12);
+  border-radius:11px;
+  background:linear-gradient(180deg,#3b4551,#20262e);
+  box-shadow:0 4px 0 #0a0c0f,inset 0 1px rgba(255,255,255,.1);
+  color:#f5f5f5;
+}
+.pieceBtn:hover{background:linear-gradient(180deg,#515d6b,#272f39);transform:translateY(-3px);border-color:rgba(246,212,111,.55)}
+.pieceBtn:active{transform:translateY(2px);box-shadow:0 2px 0 #0a0c0f}
+.pieceBtn.selected{
+  border:2px solid #ffe38a;
+  background:linear-gradient(180deg,#66552e,#30271a);
+  box-shadow:0 4px 0 #151006,0 0 22px rgba(246,212,111,.24),inset 0 1px rgba(255,255,255,.16);
+}
+.pieceBtn.locked{opacity:.42;filter:grayscale(.7)}
+.pieceIcon{font-size:27px;text-shadow:0 2px 5px #000}
+.pieceName{font-size:10px;font-weight:900;letter-spacing:.5px}
+.pieceCost{font-size:9px;color:#ffe083;font-weight:900}
+
+/* HUD y ranking: aspecto de placas arcade */
+.stat,
+#ranking{
+  border:2px solid rgba(255,255,255,.12);
+  background:linear-gradient(180deg,rgba(30,37,46,.94),rgba(8,12,17,.94));
+  box-shadow:0 6px 22px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.08);
+}
+.stat{border-radius:9px;font-family:Arial Black,Arial,sans-serif;font-size:13px}
+#ranking{border-radius:13px}
+#ranking h3{color:#f5d77d;letter-spacing:1px}
+
+/* Game Over */
+.gameOverBox{
+  border:2px solid rgba(246,212,111,.55);
+  border-radius:20px;
+  background:radial-gradient(circle at 50% 0%,rgba(246,212,111,.12),transparent 35%),linear-gradient(145deg,#252d37,#0d1117);
+  box-shadow:0 20px 70px rgba(0,0,0,.75),0 0 35px rgba(246,212,111,.08),inset 0 1px rgba(255,255,255,.1);
+}
+.gameOverBox h1{color:#f5d77d;letter-spacing:1px}
+.gameOverBox button{
+  min-height:48px;
+  border:2px solid #ffe38a;
+  border-radius:10px;
+  background:linear-gradient(180deg,#f4d37a,#a87c2d);
+  color:#171208;
+  box-shadow:0 5px 0 #513914,0 10px 24px rgba(0,0,0,.45),inset 0 1px rgba(255,255,255,.65);
+}
+.gameOverBox button:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.gameOverBox button:active{transform:translateY(3px);box-shadow:0 2px 0 #513914}
+
+/* Respeto por usuarios con movimiento reducido */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+
+@media(max-width:700px){
+  .marketTab{min-width:112px;min-height:44px;padding:0 12px}
+  .pieceBtn{width:60px;height:62px}
+  #pieces{gap:5px;padding:8px}
+}
+@media(max-width:500px){
+  .pieceBtn{width:52px;height:57px}
+  .pieceIcon{font-size:23px}
+  .pieceName{font-size:8px}
+  .pieceCost{font-size:8px}
+  #gameStoreButton{min-width:112px;height:44px;font-size:11px}
+}
