@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(typeof restartGame==="function")restartGame();
   });
   document.getElementById("mainMenuButton")?.addEventListener("click",()=>{
-    gamePaused=false;
+    gamePaused=true;
     ui17Close("pauseOverlay");
     ui17SetGameUtilities(false);
     const start=document.getElementById("startScreen");
