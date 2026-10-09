@@ -2451,3 +2451,238 @@ button:focus-visible{
     background:linear-gradient(0deg,rgba(8,19,15,.3),rgba(8,19,15,.08));
   }
 }
+
+
+/* CHESS ARENA — KINGDOMS: professional lobby navigation */
+#startScreen .startHero{
+  left:clamp(28px,6vw,104px)!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  width:min(460px,calc(100vw - 56px))!important;
+  max-height:calc(100dvh - 48px)!important;
+  padding:clamp(24px,3vw,38px)!important;
+  display:flex!important;
+  flex-direction:column;
+  align-items:stretch!important;
+  justify-content:center;
+  text-align:left!important;
+  border:1px solid rgba(230,197,119,.48)!important;
+  border-left:3px solid #d9ad55!important;
+  border-radius:8px 18px 18px 8px!important;
+  background:linear-gradient(110deg,rgba(8,17,17,.94),rgba(11,22,21,.82) 78%,rgba(11,22,21,.5))!important;
+  box-shadow:0 24px 70px rgba(0,0,0,.42),inset 0 1px rgba(255,255,255,.06)!important;
+  backdrop-filter:blur(9px)!important;
+}
+#startScreen .startTitle{
+  font-size:clamp(34px,4vw,55px)!important;
+  line-height:1.02!important;
+  letter-spacing:clamp(0px,.3vw,3px)!important;
+  text-align:left!important;
+}
+#startScreen .startKingdomTitle{
+  margin:7px 0 0!important;
+  font-size:clamp(16px,1.7vw,22px)!important;
+  letter-spacing:clamp(4px,.8vw,9px)!important;
+  text-align:left!important;
+}
+#startScreen .startDivider{
+  width:100%!important;
+  margin:22px 0 17px!important;
+  justify-content:flex-start;
+  gap:12px;
+  font-size:10px!important;
+  letter-spacing:2px!important;
+}
+#startScreen .startDivider span{max-width:55px}
+#startScreen .forgeButton{
+  width:100%!important;
+  min-width:0!important;
+  min-height:62px!important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:13px;
+  padding:14px 22px!important;
+  border:1px solid #ffe2a0!important;
+  border-radius:9px!important;
+  background:linear-gradient(180deg,#f1d38a 0%,#d5a64d 55%,#a8762f 100%)!important;
+  color:#1c1a13!important;
+  font:900 17px/1 Arial,Helvetica,sans-serif!important;
+  letter-spacing:2.5px!important;
+  text-shadow:0 1px rgba(255,255,255,.25)!important;
+  box-shadow:0 5px 0 #60451f,0 12px 24px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.65)!important;
+  transition:transform .16s ease,filter .16s ease,box-shadow .16s ease!important;
+}
+#startScreen .forgeButton:hover{
+  transform:translateY(-2px)!important;
+  filter:brightness(1.08)!important;
+  box-shadow:0 7px 0 #60451f,0 16px 30px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.7)!important;
+}
+#startScreen .forgeButton:active{
+  transform:translateY(3px)!important;
+  box-shadow:0 2px 0 #60451f,0 5px 12px rgba(0,0,0,.3)!important;
+}
+#startScreen .forgeIcon{font-size:20px!important;margin:0!important}
+#startScreen .forgeButton:focus-visible,
+#startScreen .startCornerButton:focus-visible,
+#startScreen .profileGoogleButton:focus-visible{
+  outline:3px solid #fff0bc!important;
+  outline-offset:4px!important;
+}
+#startScreen .googleStatusStart{
+  margin:12px 0 0!important;
+  text-align:center;
+  color:rgba(239,231,210,.72)!important;
+  font-size:11px!important;
+}
+#startScreen .startInstructions{
+  margin-top:20px!important;
+  padding-top:16px!important;
+  border-top:1px solid rgba(238,211,151,.2);
+}
+#startScreen .instructionsTitle{
+  margin-bottom:10px!important;
+  color:#e8c77c!important;
+  font:800 10px/1.2 Arial,Helvetica,sans-serif!important;
+  letter-spacing:2px!important;
+}
+#startScreen .instructionsText{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px 14px!important;
+}
+#startScreen .instructionsText span{
+  display:block;
+  min-width:0;
+  color:rgba(245,241,228,.82)!important;
+  font:500 10px/1.45 Arial,Helvetica,sans-serif!important;
+}
+#startScreen .instructionsText b{
+  display:block;
+  margin-bottom:2px;
+  color:#f2d89d!important;
+  font-size:9px!important;
+  letter-spacing:.35px;
+}
+#startScreen .startProfileArea{
+  left:auto!important;
+  right:clamp(20px,3vw,44px)!important;
+  top:clamp(20px,3vh,34px)!important;
+  z-index:12!important;
+}
+#startScreen .startProfileCard{
+  width:238px!important;
+  padding:13px!important;
+  border:1px solid rgba(230,197,119,.38)!important;
+  border-radius:12px!important;
+  background:rgba(8,17,18,.84)!important;
+  box-shadow:0 12px 30px rgba(0,0,0,.28)!important;
+  backdrop-filter:blur(10px)!important;
+}
+#startScreen .profileGoogleButton{
+  width:100%;
+  min-height:36px!important;
+  margin-top:9px;
+  border:1px solid rgba(255,255,255,.18)!important;
+  border-radius:7px!important;
+  background:rgba(255,255,255,.96)!important;
+  color:#252a2e!important;
+  font:700 9px Arial,Helvetica,sans-serif!important;
+  box-shadow:none!important;
+}
+#startScreen .startCornerButton{
+  right:clamp(20px,3vw,44px)!important;
+  left:auto!important;
+  width:238px;
+  min-width:0!important;
+  min-height:44px!important;
+  padding:0 15px!important;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:12px;
+  border:1px solid rgba(232,204,139,.32)!important;
+  border-radius:10px!important;
+  background:linear-gradient(110deg,rgba(17,29,29,.94),rgba(12,22,24,.9))!important;
+  color:#f5e5bd!important;
+  font:800 11px Arial,Helvetica,sans-serif!important;
+  letter-spacing:1.3px!important;
+  text-shadow:none!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.25)!important;
+  transition:transform .16s ease,border-color .16s ease,background .16s ease!important;
+}
+#startScreen .startCornerButton span:first-child{font-size:18px}
+#startScreen .startCornerButton:hover{
+  transform:translateX(-3px)!important;
+  border-color:rgba(255,218,142,.78)!important;
+  background:linear-gradient(110deg,rgba(39,50,43,.98),rgba(16,28,28,.96))!important;
+  filter:none!important;
+}
+#startScreen .startMarketButton{top:clamp(280px,34vh,330px)!important}
+#startScreen #startInventoryButton{
+  top:calc(clamp(280px,34vh,330px) + 54px)!important;
+  right:clamp(20px,3vw,44px)!important;
+  width:238px!important;
+  min-height:44px!important;
+}
+#startScreen .startWorldDecor{z-index:2}
+#startScreen .startVignette{
+  background:
+    linear-gradient(90deg,rgba(5,12,12,.26) 0%,rgba(5,12,12,.08) 45%,rgba(5,12,12,.18) 100%),
+    linear-gradient(0deg,rgba(5,12,12,.32),transparent 35%,rgba(5,12,12,.12))!important;
+}
+@media(max-width:760px){
+  #startScreen .startHero{
+    left:50%!important;
+    top:50%!important;
+    transform:translate(-50%,-38%)!important;
+    width:min(470px,calc(100vw - 24px))!important;
+    max-height:calc(100dvh - 168px)!important;
+    padding:18px!important;
+    border-radius:12px!important;
+    background:rgba(8,17,18,.9)!important;
+  }
+  #startScreen .startTitle{font-size:clamp(28px,7vw,40px)!important}
+  #startScreen .startKingdomTitle{font-size:15px!important}
+  #startScreen .startDivider{margin:12px 0!important}
+  #startScreen .forgeButton{min-height:52px!important}
+  #startScreen .startProfileArea{
+    left:12px!important;right:auto!important;top:12px!important;
+  }
+  #startScreen .startProfileCard{
+    width:clamp(140px,40vw,190px)!important;
+    padding:8px!important;
+  }
+  #startScreen .profileGoogleButton{min-height:30px!important;font-size:8px!important}
+  #startScreen .startCornerButton{
+    right:12px!important;
+    width:clamp(116px,34vw,170px)!important;
+    min-height:37px!important;
+    padding:0 9px!important;
+    font-size:9px!important;
+    gap:7px;
+  }
+  #startScreen .startMarketButton{top:12px!important}
+  #startScreen #startInventoryButton{top:57px!important;right:12px!important;width:clamp(116px,34vw,170px)!important;min-height:37px!important}
+  #startScreen .startInstructions{margin-top:12px!important;padding-top:10px!important}
+  #startScreen .instructionsText{gap:6px 9px!important}
+  #startScreen .instructionsText span{font-size:9px!important}
+  #startScreen .instructionsText b{font-size:8px!important}
+}
+@media(max-width:430px){
+  #startScreen .startHero{
+    top:54%!important;
+    transform:translate(-50%,-32%)!important;
+    max-height:calc(100dvh - 145px)!important;
+    padding:14px!important;
+  }
+  #startScreen .startTitle{font-size:25px!important}
+  #startScreen .startKingdomTitle{font-size:12px!important;letter-spacing:3px!important}
+  #startScreen .startDivider{font-size:8px!important;letter-spacing:1px!important}
+  #startScreen .forgeButton{min-height:47px!important;font-size:14px!important}
+  #startScreen .googleStatusStart{font-size:9px!important;margin-top:8px!important}
+  #startScreen .startInstructions{margin-top:9px!important}
+  #startScreen .instructionsText{grid-template-columns:1fr 1fr!important;gap:5px 8px!important}
+  #startScreen .instructionsText span{font-size:8px!important}
+  #startScreen .instructionsText b{font-size:7px!important}
+}
