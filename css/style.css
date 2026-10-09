@@ -2347,3 +2347,25 @@ button:focus-visible{
   .inventoryLoadoutRow{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
   .inventoryGrid{grid-template-columns:1fr !important}
 }
+
+
+/* Lobby inventory shortcut must not overlap the shop button. */
+#startScreen #startInventoryButton{
+  top:82px !important;
+  right:22px !important;
+  left:auto !important;
+  z-index:25;
+  min-width:148px;
+  min-height:42px;
+  padding:0 13px;
+  font-size:11px;
+}
+@media(max-width:760px){
+  #startScreen #startInventoryButton{
+    top:62px !important;
+    right:10px !important;
+    min-width:126px;
+    min-height:38px;
+    font-size:10px;
+  }
+}
