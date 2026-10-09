@@ -108,7 +108,16 @@ function drawShoulders(main,metal,s){
   ctx.stroke();
 }
 
+const kingCharacterSprite = new Image();
+kingCharacterSprite.crossOrigin = "anonymous";
+kingCharacterSprite.src = "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:f48279ef-8855-43cd-a7f9-fdbd2295a955";
+
 function drawKingPiece(main,metal,dark,s){
+  if(kingCharacterSprite.complete && kingCharacterSprite.naturalWidth>0){
+    ctx.drawImage(kingCharacterSprite,-s*.72,-s*1.15,s*1.44,s*1.85);
+    return;
+  }
+
 
   drawCape(main,s);
   drawArmorBody(main,metal,dark,s);
