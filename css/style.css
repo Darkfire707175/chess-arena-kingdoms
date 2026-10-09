@@ -2369,3 +2369,85 @@ button:focus-visible{
     font-size:10px;
   }
 }
+
+
+/* CHESS ARENA — KINGDOMS start screen artwork (Adobe Firefly) */
+#startScreen{
+  position:fixed;
+  inset:0;
+  width:100%;
+  min-height:100vh;
+  min-height:100dvh;
+  overflow:hidden;
+  isolation:isolate;
+  background:#16291d url("https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:fe641108-4654-4ac8-94ef-9fe9de0405fd") center center / cover no-repeat;
+}
+#startScreen .startBackdrop{
+  position:absolute;
+  inset:0;
+  background:transparent!important;
+  pointer-events:none;
+}
+#startScreen .startSky,
+#startScreen .startSceneLayer,
+#startScreen .startGlow,
+#startScreen .startArena{
+  display:none!important;
+}
+#startScreen .startVignette{
+  position:absolute;
+  inset:0;
+  display:block;
+  opacity:1;
+  background:
+    linear-gradient(90deg,rgba(8,19,15,.48) 0%,rgba(8,19,15,.18) 35%,rgba(8,19,15,0) 70%),
+    linear-gradient(0deg,rgba(8,19,15,.28),transparent 28%,transparent 76%,rgba(8,19,15,.16));
+  pointer-events:none;
+}
+#startScreen .startWorldDecor{
+  pointer-events:none;
+}
+#startScreen .startHero{
+  z-index:5;
+  max-height:calc(100dvh - 32px);
+  overflow-y:auto;
+  background:linear-gradient(180deg,rgba(18,34,29,.91),rgba(12,25,23,.88));
+  border:2px solid rgba(255,226,150,.88);
+  box-shadow:0 10px 34px rgba(0,0,0,.42),inset 0 0 0 1px rgba(255,255,255,.08);
+  color:#fff8df;
+  backdrop-filter:blur(5px);
+}
+#startScreen .startTitle{
+  color:#fff8df;
+  -webkit-text-stroke:1px #513d25;
+  text-shadow:0 3px 0 #63431f,0 6px 14px rgba(0,0,0,.45);
+}
+#startScreen .startKingdomTitle{
+  color:#ffd36c;
+  text-shadow:0 2px 0 #70411d;
+}
+#startScreen .startDivider{color:#f8dfab}
+#startScreen .startDivider span{background:rgba(255,220,151,.72)}
+#startScreen .startInstructions{color:#fff4d5}
+#startScreen .startProfileCard{
+  background:rgba(15,30,26,.9);
+  border-color:rgba(255,226,150,.76);
+  box-shadow:0 8px 24px rgba(0,0,0,.3);
+  color:#fff5d8;
+  backdrop-filter:blur(6px);
+}
+#startScreen .profileTop b{color:#fff0c6}
+#startScreen .profileTop small,
+#startScreen .accountXPText{color:#d5c8a5}
+#startScreen .startCornerButton{
+  box-shadow:0 6px 18px rgba(0,0,0,.3);
+}
+@media(max-width:760px){
+  #startScreen .startHero{
+    width:min(440px,calc(100vw - 20px));
+    padding:18px 14px;
+  }
+  #startScreen .startVignette{
+    background:linear-gradient(0deg,rgba(8,19,15,.3),rgba(8,19,15,.08));
+  }
+}
