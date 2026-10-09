@@ -256,6 +256,45 @@ function capture(attacker,defender){
   startAttackAnimation(attacker,defender);
 
   /*
+    El Rey del jugador tiene tres vidas. Si aún le quedan,
+    sobrevive al golpe y contraataca: la unidad atacante cae
+    y vuelve a su casilla de origen para evitar que se solapen.
+  */
+  const playerKingHit=
+    defender.army===playerArmy&&defender.type==="king";
+
+  if(playerKingHit){
+    playerArmy.lives=Math.max(0,(Number(playerArmy.lives)||0)-1);
+
+    if(playerArmy.lives>0){
+      startAttackAnimation(defender,attacker);
+      attacker.x=attacker.moveStartX??attacker.x;
+      attacker.y=attacker.moveStartY??attacker.y;
+      attacker.renderX=attacker.x;
+      attacker.renderY=attacker.y;
+      attacker.moving=false;
+      attacker.pendingEnemy=null;
+      attacker.alive=false;
+      attacker.deadAnimating=true;
+      attacker.hitAnim={
+        progress:0,
+        duration:560,
+        originX:attacker.x,
+        originY:attacker.y,
+        attackerType:"king"
+      };
+      if(selectedUnit===attacker)selectedUnit=null;
+      showMessage("👑 ¡El Rey contraataca! Vidas restantes: "+playerArmy.lives);
+      updateUI();
+      setTimeout(()=>{
+        attacker.deadAnimating=false;
+        attacker.hitAnim=null;
+      },620);
+      return;
+    }
+  }
+
+  /*
     La víctima permanece visible durante el impacto para que
     el golpe se pueda leer claramente antes de desaparecer.
   */
@@ -331,23 +370,6 @@ function capture(attacker,defender){
     }
   }
 
-  /*
-    Si el Rey del jugador recibe el ataque,
-    pierde una vida.
-  */
-
-  if(
-    defender.army===playerArmy&&
-    defender.type==="king"
-  ){
-
-    playerArmy.lives--;
-
-    if(playerArmy.lives<=0){
-      endGame();
-    }
-  }
-
   if(selectedUnit===defender){
     selectedUnit=null;
   }
@@ -418,7 +440,6 @@ function enemyMove(army){
     u.alive&&
     !u.deadAnimating&&
     u.army===army&&
-    u.type!=="king"&&
     !u.moving&&
     !isUnitFrozen(u)
   );
@@ -486,15 +507,15 @@ function enemyMove(army){
   let primaryTarget=detectedTargets[0];
   let bestDistance=Infinity;
 
+  // Prioriza el objetivo visible más cercano a cualquier unidad del ejército.
   for(const target of detectedTargets){
-
-    const d=Math.hypot(
-      target.x-primaryTarget.x,
-      target.y-primaryTarget.y
-    );
-
-    if(d<bestDistance){
-      bestDistance=d;
+    let distanceToArmy=Infinity;
+    for(const unit of enemyUnits){
+      const d=Math.hypot(target.x-unit.x,target.y-unit.y);
+      if(d<distanceToArmy)distanceToArmy=d;
+    }
+    if(distanceToArmy<bestDistance){
+      bestDistance=distanceToArmy;
       primaryTarget=target;
     }
   }
