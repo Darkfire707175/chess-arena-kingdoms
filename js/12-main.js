@@ -2,7 +2,7 @@
    BUCLE PRINCIPAL
 ========================================================= */
 
-let gamePaused=false;
+let gamePaused=true;
 
 function updateBrawlCamera(dt){
   /*
@@ -37,8 +37,8 @@ function loop(now){
 
   lastTime=now;
 
-  updateKeyboard(dt);
   if(!gamePaused){
+    updateKeyboard(dt);
     update(dt);
     updateAttackAnimations(dt);
   }
