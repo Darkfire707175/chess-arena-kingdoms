@@ -125,6 +125,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   document.getElementById("closeInventory")?.addEventListener("click",()=>ui17Close("inventoryOverlay"));
   document.getElementById("closeQuickItems")?.addEventListener("click",()=>ui17Close("quickItemsOverlay"));
 
+  // Keep one compact inventory shortcut on the lobby.
   const inventoryButton=document.createElement("button");
   inventoryButton.id="startInventoryButton";
   inventoryButton.type="button";
@@ -132,6 +133,12 @@ document.addEventListener("DOMContentLoaded",()=>{
   inventoryButton.textContent="🎒 INVENTARIO";
   inventoryButton.addEventListener("click",ui17OpenInventory);
   document.getElementById("startScreen")?.appendChild(inventoryButton);
+
+  // Clicking the dimmed area closes the inventory instead of trapping the user.
+  const inventoryOverlay=document.getElementById("inventoryOverlay");
+  inventoryOverlay?.addEventListener("click",e=>{
+    if(e.target===inventoryOverlay)ui17Close("inventoryOverlay");
+  });
 
   document.getElementById("quickItemsButton")?.addEventListener("click",ui17OpenQuickItems);
 
@@ -157,7 +164,17 @@ document.addEventListener("DOMContentLoaded",()=>{
   });
 
   const play=document.getElementById("playButton");
-  if(play)play.addEventListener("click",()=>ui17SetGameUtilities(true));
+  if(play)play.addEventListener("click",()=>{
+    // The old handler only revealed utility buttons; it never hid the full-screen lobby.
+    // The game loop already runs behind this layer, so hiding it reveals the live arena.
+    const start=document.getElementById("startScreen");
+    if(start)start.style.display="none";
+    gamePaused=false;
+    ui17Close("inventoryOverlay");
+    ui17Close("profileOverlay");
+    ui17Close("quickItemsOverlay");
+    ui17SetGameUtilities(true);
+  });
 
   if(typeof window.restartGame==="function"&&!window.__ui17RestartWrapped){
     const originalRestart=window.restartGame;
