@@ -477,10 +477,21 @@ function getMoves(u){
 
   }else if(u.type==="pawn"){
 
-    add(u.x+1,u.y);
-    add(u.x-1,u.y);
-    add(u.x,u.y+1);
-    add(u.x,u.y-1);
+    // El peón puede avanzar en horizontal/vertical, pero no captura así.
+    // Las capturas del peón son exclusivamente diagonales.
+    const addQuietStep=(x,y)=>{
+      if(!inBounds(x,y))return;
+      const occupiedByAnyUnit=units.some(e=>
+        e.alive&&!e.deadAnimating&&e.x===x&&e.y===y
+      );
+      if(occupiedByAnyUnit)return;
+      if(validCell(x,y,u))moves.push({x,y,capture:false});
+    };
+
+    addQuietStep(u.x+1,u.y);
+    addQuietStep(u.x-1,u.y);
+    addQuietStep(u.x,u.y+1);
+    addQuietStep(u.x,u.y-1);
 
     for(const [dx,dy] of [
       [1,1],[1,-1],[-1,1],[-1,-1]
