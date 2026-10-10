@@ -2686,3 +2686,223 @@ button:focus-visible{
   #startScreen .instructionsText span{font-size:8px!important}
   #startScreen .instructionsText b{font-size:7px!important}
 }
+
+
+/* START SCREEN SIZE FIX — full-viewport professional lobby */
+#startScreen{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  min-height:100svh!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  display:flex;
+  isolation:isolate;
+  background:#101525!important;
+  color:#fff!important;
+  font-family:'Fredoka',system-ui,sans-serif!important;
+}
+#startScreen .startBackdrop{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  overflow:hidden!important;
+  background:
+    radial-gradient(ellipse at 50% 45%,rgba(31,68,126,.22),transparent 48%),
+    linear-gradient(180deg,#101321 0%,#1a1c31 48%,#11131f 100%)!important;
+}
+#startScreen .startSky{
+  opacity:.45!important;
+  background:
+    radial-gradient(circle at 15% 20%,#f8d88a 0 1px,transparent 2px),
+    radial-gradient(circle at 78% 17%,#fff 0 1px,transparent 2px),
+    radial-gradient(circle at 66% 32%,#7eb7ff 0 1px,transparent 2px),
+    radial-gradient(circle at 28% 40%,#fff 0 1px,transparent 2px),
+    radial-gradient(ellipse at 50% 100%,rgba(229,113,38,.24),transparent 55%)!important;
+}
+#startScreen .startSceneLayerA{
+  opacity:.9!important;
+  background:
+    linear-gradient(180deg,transparent 58%,rgba(8,10,19,.2) 59%),
+    repeating-linear-gradient(90deg,transparent 0 8%,rgba(10,13,24,.35) 8.2% 8.8%,transparent 9% 16%),
+    linear-gradient(180deg,transparent 38%,rgba(8,11,21,.6) 100%)!important;
+}
+#startScreen .startSceneLayerB{
+  opacity:.78!important;
+  background:
+    radial-gradient(ellipse at 50% 110%,rgba(232,142,52,.3),transparent 44%),
+    linear-gradient(180deg,transparent 60%,rgba(6,8,15,.65) 100%)!important;
+}
+#startScreen .startGlowA{opacity:.65!important;background:radial-gradient(ellipse at 50% 72%,rgba(36,108,255,.18),transparent 48%)!important}
+#startScreen .startGlowB{opacity:.5!important;background:radial-gradient(ellipse at 50% 100%,rgba(255,117,35,.2),transparent 38%)!important}
+#startScreen .startVignette{opacity:1!important;background:radial-gradient(ellipse at center,transparent 30%,rgba(3,5,12,.72) 100%)!important}
+#startScreen .startArena{opacity:.68!important;filter:drop-shadow(0 -8px 18px rgba(255,156,57,.15))!important}
+#startScreen .startWorldDecor{position:absolute!important;inset:0!important;pointer-events:none!important}
+#startScreen .startPiece{
+  color:#e8c66f!important;
+  -webkit-text-stroke:1px rgba(16,23,40,.95)!important;
+  text-shadow:0 5px 0 #5b3d1e,0 12px 30px rgba(0,0,0,.7)!important;
+  opacity:.78!important;
+}
+#startScreen .startPieceLeft{left:7%!important;top:40%!important;font-size:clamp(90px,13vw,190px)!important}
+#startScreen .startPieceLeftPawn{left:22%!important;top:66%!important;font-size:clamp(48px,6vw,90px)!important}
+#startScreen .startPieceRight{right:7%!important;top:39%!important;font-size:clamp(100px,14vw,205px)!important}
+#startScreen .startPieceRightPawn{right:22%!important;top:66%!important;font-size:clamp(48px,6vw,90px)!important}
+#startScreen .startHero{
+  position:absolute!important;
+  left:50%!important;
+  top:53%!important;
+  transform:translate(-50%,-50%)!important;
+  width:min(560px,46vw)!important;
+  max-width:560px!important;
+  min-width:300px!important;
+  margin:0!important;
+  padding:clamp(18px,3vh,34px) clamp(16px,2.2vw,30px)!important;
+  border:0!important;
+  border-radius:0!important;
+  background:linear-gradient(180deg,rgba(9,14,27,.22),rgba(9,14,27,.04))!important;
+  box-shadow:none!important;
+  color:#fff!important;
+  text-align:center!important;
+  z-index:5!important;
+}
+#startScreen .startCrown{display:block!important;font-size:clamp(38px,4.6vw,62px)!important;color:#f3cb68!important;text-shadow:0 4px 0 #6f451b,0 10px 25px #000!important;margin-bottom:5px!important}
+#startScreen .startTitle{
+  font-family:'Bungee','Fredoka',sans-serif!important;
+  font-size:clamp(32px,4.5vw,62px)!important;
+  line-height:1.08!important;
+  letter-spacing:-1px!important;
+  color:#fff4d2!important;
+  -webkit-text-stroke:1px #8b642a!important;
+  text-shadow:0 4px 0 #65431d,0 8px 22px rgba(0,0,0,.8)!important;
+  overflow-wrap:anywhere!important;
+}
+#startScreen .startKingdomTitle{
+  margin:8px 0 12px!important;
+  font-family:'Bungee','Fredoka',sans-serif!important;
+  font-size:clamp(15px,1.8vw,23px)!important;
+  letter-spacing:clamp(4px,.8vw,9px)!important;
+  color:#5eb4ff!important;
+  text-shadow:0 3px 0 #153d7a,0 0 20px rgba(55,144,255,.45)!important;
+}
+#startScreen .startDivider{margin:12px auto 25px!important;color:#f0d9a0!important;letter-spacing:2.5px!important;font-size:11px!important}
+#startScreen .startDivider span{height:2px!important;background:linear-gradient(90deg,transparent,#e6bf67)!important}
+#startScreen .startDivider span:last-child{background:linear-gradient(90deg,#e6bf67,transparent)!important}
+#startScreen .forgeButton{
+  width:min(340px,100%)!important;
+  min-height:clamp(64px,8vh,86px)!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:14px!important;
+  margin:0 auto!important;
+  border:2px solid #ffe6a1!important;
+  border-radius:13px!important;
+  background:linear-gradient(180deg,#4ca8ff 0%,#1765cf 55%,#104398 100%)!important;
+  color:#fff!important;
+  font:700 clamp(22px,2.5vw,31px) 'Bungee','Fredoka',sans-serif!important;
+  letter-spacing:2px!important;
+  text-shadow:0 3px 0 #10346e!important;
+  box-shadow:0 5px 0 #092c62,0 13px 28px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.45)!important;
+}
+#startScreen .forgeButton:hover{filter:brightness(1.12)!important;transform:translateY(-2px)!important}
+#startScreen .forgeButton:active{transform:translateY(3px)!important}
+#startScreen .googleStatusStart{margin:12px auto 0!important;color:#e6eaf5!important;font-size:11px!important;text-shadow:0 2px 5px #000!important}
+#startScreen .startInstructions{display:none!important}
+#startScreen .startProfileArea{
+  position:absolute!important;
+  left:auto!important;
+  right:24px!important;
+  top:22px!important;
+  width:clamp(220px,22vw,290px)!important;
+  z-index:10!important;
+}
+#startScreen .startProfileCard{
+  width:100%!important;
+  padding:14px!important;
+  border:1px solid rgba(120,177,255,.7)!important;
+  border-radius:14px!important;
+  background:linear-gradient(145deg,rgba(18,30,53,.96),rgba(8,14,27,.96))!important;
+  box-shadow:0 8px 25px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.12)!important;
+  color:#f6f7ff!important;
+}
+#startScreen .profileTop{gap:11px!important}
+#startScreen .profileAvatar{background:linear-gradient(145deg,#f6d478,#b87b2c)!important;border:2px solid #ffe7a0!important;color:#19243a!important;text-shadow:none!important;box-shadow:0 3px 0 #67431c!important}
+#startScreen .profileTop small{color:#93bfff!important;font-size:10px!important}
+#startScreen .profileTop b{color:#fff!important;font-size:14px!important}
+#startScreen .accountXPTrack{margin-top:11px!important;height:10px!important;border:1px solid #516985!important;background:#0b1321!important}
+#startScreen .accountXPFill{background:linear-gradient(90deg,#39aaff,#2567ff,#f0c96b)!important}
+#startScreen .accountXPText{color:#c4d1e4!important;text-align:right!important;font-size:10px!important}
+#startScreen .profileGoogleButton{
+  width:100%!important;
+  min-height:40px!important;
+  margin-top:10px!important;
+  border:1px solid #7ea8e9!important;
+  border-radius:9px!important;
+  background:linear-gradient(180deg,#fff,#dfeaff)!important;
+  color:#152340!important;
+  font:700 10px 'Fredoka',sans-serif!important;
+  box-shadow:0 3px 0 #49628a!important;
+}
+#startScreen .startCornerButton{
+  position:absolute!important;
+  z-index:10!important;
+  min-width:0!important;
+  min-height:48px!important;
+  padding:0 20px!important;
+  border:1px solid #e8c36a!important;
+  border-radius:11px!important;
+  background:linear-gradient(180deg,#344d71,#1b2a45)!important;
+  color:#fff1c4!important;
+  font:700 12px 'Bungee','Fredoka',sans-serif!important;
+  text-shadow:0 2px 0 #0a1426!important;
+  box-shadow:0 4px 0 #080f1c,0 8px 20px rgba(0,0,0,.35)!important;
+}
+#startScreen .startMarketButton{right:24px!important;top:calc(22px + clamp(220px,22vw,290px) + 14px)!important;width:clamp(220px,22vw,290px)!important}
+#startScreen #startInventoryButton{right:24px!important;left:auto!important;bottom:auto!important;top:calc(22px + clamp(220px,22vw,290px) + 74px)!important;width:clamp(220px,22vw,290px)!important}
+#startScreen .startCornerButton:hover{filter:brightness(1.12)!important;transform:translateY(-2px)!important}
+#startScreen .startCornerButton:active{transform:translateY(2px)!important}
+@media(max-width:900px){
+  #startScreen .startHero{left:50%!important;top:55%!important;width:min(500px,54vw)!important}
+  #startScreen .startProfileArea{right:14px!important;top:14px!important;width:clamp(190px,25vw,240px)!important}
+  #startScreen .startMarketButton{right:14px!important;top:calc(14px + clamp(190px,25vw,240px) + 10px)!important;width:clamp(190px,25vw,240px)!important}
+  #startScreen #startInventoryButton{right:14px!important;top:calc(14px + clamp(190px,25vw,240px) + 68px)!important;width:clamp(190px,25vw,240px)!important}
+  #startScreen .startPieceLeft{left:2%!important;top:44%!important}
+  #startScreen .startPieceRight{right:2%!important;top:44%!important}
+}
+@media(max-width:620px){
+  #startScreen{min-height:100dvh!important}
+  #startScreen .startProfileArea{left:10px!important;right:auto!important;top:10px!important;width:calc(100% - 20px)!important;max-width:none!important}
+  #startScreen .startProfileCard{display:grid!important;grid-template-columns:1fr!important;padding:9px 11px!important}
+  #startScreen .profileTop{gap:8px!important}
+  #startScreen .profileAvatar{width:34px!important;height:34px!important;font-size:20px!important}
+  #startScreen .accountXPTrack{margin-top:6px!important}
+  #startScreen .profileGoogleButton{min-height:32px!important;margin-top:7px!important}
+  #startScreen .startMarketButton{left:10px!important;right:auto!important;top:auto!important;bottom:12px!important;width:calc(50% - 15px)!important;min-height:43px!important;padding:0 8px!important;font-size:10px!important}
+  #startScreen #startInventoryButton{left:auto!important;right:10px!important;top:auto!important;bottom:12px!important;width:calc(50% - 15px)!important;min-height:43px!important;padding:0 8px!important;font-size:10px!important}
+  #startScreen .startHero{top:56%!important;left:50%!important;width:calc(100vw - 24px)!important;min-width:0!important;padding:10px 12px!important}
+  #startScreen .startCrown{font-size:34px!important;margin-bottom:2px!important}
+  #startScreen .startTitle{font-size:clamp(25px,7vw,38px)!important}
+  #startScreen .startKingdomTitle{font-size:15px!important;margin:5px 0 8px!important}
+  #startScreen .startDivider{margin:7px auto 14px!important;font-size:9px!important}
+  #startScreen .forgeButton{min-height:58px!important;font-size:21px!important}
+  #startScreen .googleStatusStart{font-size:9px!important;margin-top:8px!important}
+  #startScreen .startPieceLeft{left:-4%!important;top:43%!important;font-size:74px!important}
+  #startScreen .startPieceRight{right:-4%!important;top:43%!important;font-size:78px!important}
+  #startScreen .startPieceLeftPawn,#startScreen .startPieceRightPawn{display:none!important}
+}
+@media(max-height:650px) and (min-width:621px){
+  #startScreen .startHero{top:55%!important;padding:8px 18px!important}
+  #startScreen .startCrown{font-size:34px!important}
+  #startScreen .startTitle{font-size:clamp(28px,4vw,46px)!important}
+  #startScreen .startKingdomTitle{margin:3px 0 5px!important}
+  #startScreen .startDivider{margin:6px auto 10px!important}
+  #startScreen .forgeButton{min-height:54px!important}
+  #startScreen .startProfileArea{top:10px!important}
+  #startScreen .startMarketButton{top:calc(10px + clamp(220px,22vw,290px) + 10px)!important}
+  #startScreen #startInventoryButton{top:calc(10px + clamp(220px,22vw,290px) + 68px)!important}
+}
