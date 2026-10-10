@@ -2960,3 +2960,13 @@ button:focus-visible{
 @media(max-width:620px){
   #startScreen .startBackdrop{background-position:center center!important}
 }
+
+
+/* PUBLICACIÓN 2026-10-10: fondo de inicio generado con Adobe */
+#startScreen{
+  background-color:#16291d !important;
+  background-image:url("https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:fe641108-4654-4ac8-94ef-9fe9de0405fd") !important;
+  background-position:center center !important;
+  background-size:cover !important;
+  background-repeat:no-repeat !important;
+}
