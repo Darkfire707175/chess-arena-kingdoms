@@ -2906,3 +2906,38 @@ button:focus-visible{
   #startScreen .startMarketButton{top:calc(10px + clamp(220px,22vw,290px) + 10px)!important}
   #startScreen #startInventoryButton{top:calc(10px + clamp(220px,22vw,290px) + 68px)!important}
 }
+
+
+/* Layout correction: account/login top-left; store and inventory top-right */
+#startScreen .startProfileArea{
+  left:24px!important;
+  right:auto!important;
+  top:22px!important;
+  width:clamp(220px,22vw,290px)!important;
+}
+#startScreen .startMarketButton{
+  left:auto!important;
+  right:24px!important;
+  top:22px!important;
+  width:clamp(220px,22vw,290px)!important;
+}
+#startScreen #startInventoryButton{
+  left:auto!important;
+  right:24px!important;
+  top:82px!important;
+  width:clamp(220px,22vw,290px)!important;
+}
+@media(max-width:900px){
+  #startScreen .startProfileArea{left:14px!important;right:auto!important;top:14px!important;width:clamp(190px,25vw,240px)!important}
+  #startScreen .startMarketButton{right:14px!important;left:auto!important;top:14px!important;width:clamp(190px,25vw,240px)!important}
+  #startScreen #startInventoryButton{right:14px!important;left:auto!important;top:72px!important;width:clamp(190px,25vw,240px)!important}
+}
+@media(max-width:620px){
+  #startScreen .startProfileArea{left:10px!important;right:auto!important;top:10px!important;width:calc(50% - 15px)!important}
+  #startScreen .startProfileCard{padding:8px!important}
+  #startScreen .profileTop{gap:6px!important}
+  #startScreen .profileTop b{font-size:11px!important}
+  #startScreen .profileGoogleButton{font-size:8px!important;padding:4px!important;white-space:normal!important}
+  #startScreen .startMarketButton{left:auto!important;right:10px!important;top:10px!important;bottom:auto!important;width:calc(50% - 15px)!important;min-height:42px!important}
+  #startScreen #startInventoryButton{left:auto!important;right:10px!important;top:62px!important;bottom:auto!important;width:calc(50% - 15px)!important;min-height:42px!important}
+}
