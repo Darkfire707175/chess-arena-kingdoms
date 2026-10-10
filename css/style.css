@@ -2941,3 +2941,22 @@ button:focus-visible{
   #startScreen .startMarketButton{left:auto!important;right:10px!important;top:10px!important;bottom:auto!important;width:calc(50% - 15px)!important;min-height:42px!important}
   #startScreen #startInventoryButton{left:auto!important;right:10px!important;top:62px!important;bottom:auto!important;width:calc(50% - 15px)!important;min-height:42px!important}
 }
+
+
+/* ADOBE FIREFLY HOME BACKGROUND — actual generated arena artwork */
+#startScreen .startBackdrop{
+  background-color:#101525!important;
+  background-image:
+    linear-gradient(180deg,rgba(6,10,22,.30) 0%,rgba(6,10,22,.12) 42%,rgba(5,8,17,.60) 100%),
+    url("https://at.adobe.com/vhvxWc6krNu7d84S")!important;
+  background-size:cover!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+}
+#startScreen .startSky{opacity:.18!important}
+#startScreen .startSceneLayerA{opacity:.24!important}
+#startScreen .startSceneLayerB{opacity:.22!important}
+#startScreen .startVignette{opacity:.72!important}
+@media(max-width:620px){
+  #startScreen .startBackdrop{background-position:center center!important}
+}
