@@ -355,8 +355,7 @@ function arenaCanPlaceCell(x,y){
 
 function arenaStartPiecePlacement(type){
 
-  /* Al pulsar una pieza, desplegarla directamente junto al Rey.
-     No exigir un segundo clic en el mapa: evita que parezca que el botón no funciona. */
+  /* Selecciona la pieza y deja que el jugador elija su casilla. */
 
   if(gameEnded){
     showMessage("⏸️ La partida ha terminado.");
@@ -392,45 +391,20 @@ function arenaStartPiecePlacement(type){
     return;
   }
 
-  const spots=[
-    [1,0],[-1,0],[0,1],[0,-1],
-    [1,1],[1,-1],[-1,1],[-1,-1],
-    [2,0],[-2,0],[0,2],[0,-2],
-    [2,1],[2,-1],[-2,1],[-2,-1],
-    [1,2],[-1,2],[1,-2],[-1,-2]
-  ];
-
-  let spawn=null;
-  for(const [dx,dy] of spots){
-    const x=king.x+dx;
-    const y=king.y+dy;
-    if(
-      inBounds(x,y)&&
-      validCell(x,y)&&
-      !units.some(u=>
-        u.alive&&!u.deadAnimating&&u.x===x&&u.y===y
-      )
-    ){
-      spawn={x,y};
-      break;
-    }
-  }
-
-  if(!spawn){
-    showMessage("⚠️ No hay casillas libres cerca del Rey.");
+  /* Pulsar otra vez la misma pieza cancela la selección. */
+  if(arenaPlacementMode?.kind==="piece"&&arenaPlacementMode.type===type){
+    arenaPlacementMode=null;
+    showMessage("❌ Colocación cancelada.");
+    updatePieceButtons();
     return;
   }
 
-  playerArmy.coins-=cost;
-  createUnit(type,playerArmy,spawn.x,spawn.y);
-  arenaPlacementMode=null;
+  arenaPlacementMode={kind:"piece",type};
   arenaPortalFirst=null;
+  arenaSelectedItem=null;
   spawnType=type;
-  arenaExploredCells.add(spawn.y*MAP_W+spawn.x);
   updatePieceButtons();
-  updateUI();
-  saveProgress();
-  showMessage("⚔️ "+type.toUpperCase()+" desplegado junto al Rey.");
+  showMessage("♟️ Elige una casilla iluminada y libre para colocar el "+type.toUpperCase()+".");
 }
 
 function arenaPlacePieceAt(x,y){
