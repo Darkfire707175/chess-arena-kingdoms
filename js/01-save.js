@@ -48,10 +48,10 @@ function initFirebase(){
 function safeArmy(a){return {id:a.id,name:a.name,color:a.color,coins:a.coins,xp:a.xp,level:a.level,lives:a.lives,score:a.score};}
 function saveSnapshot(){
   const armyList=[playerArmy,...armies].filter((a,i,arr)=>arr.indexOf(a)===i);
-  return {version:1,savedAt:Date.now(),diamonds:Math.max(0,Number(globalDiamonds)||0),prodigiousStartMode:!!prodigiousStartMode,accountLevel:Math.max(1,Number(accountLevel)||1),accountXp:Math.max(0,Number(accountXp)||0),volcanicKills:Math.max(0,Number(volcanicKills)||0),kingdoms:typeof kingdomProgressSnapshot==="function"?kingdomProgressSnapshot():{unlockedKingdoms:["green"],selectedKingdom:"green"},player:safeArmy(playerArmy),armies:armyList.map(safeArmy),units:units.map(u=>({id:u.id,type:u.type,armyId:u.army?.id,x:u.x,y:u.y,renderX:u.renderX,renderY:u.renderY,alive:u.alive,moving:u.moving,deadAnimating:u.deadAnimating,moveStartX:u.moveStartX,moveStartY:u.moveStartY,moveTargetX:u.moveTargetX,moveTargetY:u.moveTargetY,moveProgress:u.moveProgress,moveDuration:u.moveDuration,cooldown:u.cooldown,frozenUntil:u.frozenUntil||0})),spawnType,gameEnded};
+  return {version:2,savedAt:Date.now(),diamonds:Math.max(0,Number(globalDiamonds)||0),prodigiousStartMode:!!prodigiousStartMode,accountLevel:Math.max(1,Number(accountLevel)||1),accountXp:Math.max(0,Number(accountXp)||0),volcanicKills:Math.max(0,Number(volcanicKills)||0),kingdoms:typeof kingdomProgressSnapshot==="function"?kingdomProgressSnapshot():{unlockedKingdoms:["green"],selectedKingdom:"green"},player:safeArmy(playerArmy),armies:armyList.map(safeArmy),units:units.map(u=>({id:u.id,type:u.type,armyId:u.army?.id,x:u.x,y:u.y,renderX:u.renderX,renderY:u.renderY,alive:u.alive,moving:u.moving,deadAnimating:u.deadAnimating,moveStartX:u.moveStartX,moveStartY:u.moveStartY,moveTargetX:u.moveTargetX,moveTargetY:u.moveTargetY,moveProgress:u.moveProgress,moveDuration:u.moveDuration,cooldown:u.cooldown,frozenUntil:u.frozenUntil||0})),spawnType,gameEnded};
 }
 function restoreSnapshot(d){
-  if(!d||d.version!==1||!d.player||!Array.isArray(d.units))return false;
+  if(!d||![1,2].includes(d.version)||!d.player||!Array.isArray(d.units))return false;
   globalDiamonds=Math.max(0,Number(d.diamonds)||0);
   prodigiousStartMode=!!d.prodigiousStartMode;
 
@@ -105,7 +105,32 @@ function restoreSnapshot(d){
   )).map(u=>({...u,army:armyMap.get(u.armyId),frozenUntil:Number(u.frozenUntil)||0}));
   spawnType=d.spawnType||"pawn";gameEnded=!!d.gameEnded;selectedUnit=null;
   let king=units.find(u=>u.army===playerArmy&&u.type==="king"&&u.alive&&!u.deadAnimating);
-  if(!king){playerArmy.lives=Math.max(1,Number(playerArmy.lives)||3);gameEnded=false;createPlayer();king=units.find(u=>u.army===playerArmy&&u.type==="king"&&u.alive&&!u.deadAnimating);}
+
+  /* Migración de partidas antiguas: antes solo se guardaba el Rey inicial. */
+  if(d.version===1&&king&&!units.some(u=>
+    u.army===playerArmy&&u.type==="pawn"&&u.alive&&!u.deadAnimating
+  )){
+    let pawnCell=null;
+    for(let radius=1;radius<=5&&!pawnCell;radius++){
+      for(let dy=-radius;dy<=radius&&!pawnCell;dy++){
+        for(let dx=-radius;dx<=radius&&!pawnCell;dx++){
+          if(Math.max(Math.abs(dx),Math.abs(dy))!==radius)continue;
+          const x=king.x+dx,y=king.y+dy;
+          if(inBounds(x,y)&&validCell(x,y)&&!occupied(x,y)){
+            pawnCell={x,y};
+          }
+        }
+      }
+    }
+    if(pawnCell)createUnit("pawn",playerArmy,pawnCell.x,pawnCell.y);
+  }
+
+  if(!king){
+    playerArmy.lives=Math.max(1,Number(playerArmy.lives)||3);
+    gameEnded=false;
+    createPlayer();
+    king=units.find(u=>u.army===playerArmy&&u.type==="king"&&u.alive&&!u.deadAnimating);
+  }
   if(king){camera.x=(king.moving?king.renderX:king.x)*TILE+TILE/2;camera.y=(king.moving?king.renderY:king.y)*TILE+TILE/2;}
   updatePieceButtons();updateUI();render();return true;
 }
