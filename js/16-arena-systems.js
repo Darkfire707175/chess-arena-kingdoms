@@ -355,45 +355,82 @@ function arenaCanPlaceCell(x,y){
 
 function arenaStartPiecePlacement(type){
 
-  if(gameEnded)return;
+  /* Al pulsar una pieza, desplegarla directamente junto al Rey.
+     No exigir un segundo clic en el mapa: evita que parezca que el botón no funciona. */
+
+  if(gameEnded){
+    showMessage("⏸️ La partida ha terminado.");
+    return;
+  }
 
   if(!PIECES[type]||type==="king"){
-    if(type==="king")
-      showMessage("👑 Solo existe un Rey.");
+    if(type==="king")showMessage("👑 Solo existe un Rey.");
     return;
   }
 
-  if(playerArmy.level<(UNLOCK[type]||99)){
-    showMessage("🔒 Desbloquea esta pieza en el nivel "+UNLOCK[type]);
+  const requiredLevel=UNLOCK[type]||99;
+  if(playerArmy.level<requiredLevel){
+    showMessage("🔒 Desbloquea esta pieza en el nivel "+requiredLevel);
     return;
   }
 
-  if(playerArmy.coins<(COST[type]||0)){
+  const cost=COST[type]||0;
+  if(playerArmy.coins<cost){
     showMessage("🪙 No tienes suficientes monedas.");
     return;
   }
 
-  if(
-    typeof arenaPlacementMode==="object"&&
-    arenaPlacementMode.kind==="piece"&&
-    arenaPlacementMode.type===type
-  ){
-    arenaPlacementMode=null;
-    spawnType=type;
-    updatePieceButtons();
-    showMessage("❌ Colocación cancelada.");
+  const king=units.find(u=>
+    u.alive&&
+    !u.deadAnimating&&
+    u.army===playerArmy&&
+    u.type==="king"
+  );
+
+  if(!king){
+    showMessage("👑 No se encuentra tu Rey en el mapa.");
     return;
   }
 
-  arenaPlacementMode={
-    kind:"piece",
-    type
-  };
+  const spots=[
+    [1,0],[-1,0],[0,1],[0,-1],
+    [1,1],[1,-1],[-1,1],[-1,-1],
+    [2,0],[-2,0],[0,2],[0,-2],
+    [2,1],[2,-1],[-2,1],[-2,-1],
+    [1,2],[-1,2],[1,-2],[-1,-2]
+  ];
 
+  let spawn=null;
+  for(const [dx,dy] of spots){
+    const x=king.x+dx;
+    const y=king.y+dy;
+    if(
+      inBounds(x,y)&&
+      validCell(x,y)&&
+      !units.some(u=>
+        u.alive&&!u.deadAnimating&&u.x===x&&u.y===y
+      )
+    ){
+      spawn={x,y};
+      break;
+    }
+  }
+
+  if(!spawn){
+    showMessage("⚠️ No hay casillas libres cerca del Rey.");
+    return;
+  }
+
+  playerArmy.coins-=cost;
+  createUnit(type,playerArmy,spawn.x,spawn.y);
+  arenaPlacementMode=null;
   arenaPortalFirst=null;
   spawnType=type;
+  arenaExploredCells.add(spawn.y*MAP_W+spawn.x);
   updatePieceButtons();
-  showMessage("🎯 Coloca el "+type.toUpperCase()+" en una casilla iluminada. ESC cancela.");
+  updateUI();
+  saveProgress();
+  showMessage("⚔️ "+type.toUpperCase()+" desplegado junto al Rey.");
 }
 
 function arenaPlacePieceAt(x,y){
