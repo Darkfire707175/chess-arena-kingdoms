@@ -827,21 +827,39 @@ function randomSafeEnemyCell(){
 function createPlayer(){
 
   const p=randomValidCell();
-
-  createUnit(
-    "king",
-    playerArmy,
-    p.x,p.y
-  );
+  const king=createUnit("king",playerArmy,p.x,p.y);
 
   /*
-    SOLO UN REY.
-    El Peón está desbloqueado pero no aparece
-    automáticamente.
+    La partida empieza con Rey y Peón, ambos gratuitos.
+    El Peón aparece en una casilla libre cercana y visible.
   */
+  let pawnCell=null;
 
-  camera.x=p.x*TILE+TILE/2;
-  camera.y=p.y*TILE+TILE/2;
+  for(let radius=1;radius<=5&&!pawnCell;radius++){
+    for(let dy=-radius;dy<=radius&&!pawnCell;dy++){
+      for(let dx=-radius;dx<=radius&&!pawnCell;dx++){
+        if(Math.max(Math.abs(dx),Math.abs(dy))!==radius)continue;
+
+        const x=king.x+dx;
+        const y=king.y+dy;
+
+        if(
+          inBounds(x,y)&&
+          validCell(x,y)&&
+          !occupied(x,y)
+        ){
+          pawnCell={x,y};
+        }
+      }
+    }
+  }
+
+  if(pawnCell){
+    createUnit("pawn",playerArmy,pawnCell.x,pawnCell.y);
+  }
+
+  camera.x=king.x*TILE+TILE/2;
+  camera.y=king.y*TILE+TILE/2;
 }
 
 function enemySpawnNearPlayer(){
