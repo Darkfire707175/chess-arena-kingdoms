@@ -73,6 +73,15 @@ canvas.addEventListener(
         canvas.releasePointerCapture(e.pointerId);
 
       if(moved<8){
+        /*
+          El modo de despliegue/objetos recibe el clic primero.
+          Así una casilla seleccionada no se interpreta como movimiento.
+        */
+        if(
+          typeof arenaHandleClick==="function"&&
+          arenaHandleClick(e.clientX,e.clientY)
+        )return;
+
         handleClick(e.clientX,e.clientY);
       }
     }
