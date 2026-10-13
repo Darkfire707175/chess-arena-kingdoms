@@ -236,7 +236,8 @@ function conquestHandleClick(sx,sy){
           /* La brecha queda fija en el tramo atacado. */
           conquestState.outerBreach={x:cell.x,y:cell.y};
           conquestState.outerBreachOpen=true;
-          showMessage("💥 ¡Muralla exterior rota! La brecha está abierta.");
+          conquestState.innerOpen=true;
+          showMessage("💥 ¡Muralla exterior rota! La brecha y la muralla interior se abren.");
         }else{
           showMessage("🧱 Muralla exterior: "+conquestState.outerHP+" impactos restantes.");
         }
