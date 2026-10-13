@@ -287,13 +287,14 @@ function conquestEnsureDiplomacyButton(){
 function conquestBuildOtherRealms(){
   conquestRealms=[];conquestAllies=new Set();
   const pk=units.find(u=>u.alive&&!u.deadAnimating&&u.army===playerArmy&&u.type==="king");if(!pk)return;
+  /* Reinos cercanos a la capital para que el jugador vea castillos y fronteras al entrar. */
   const specs=[
-    {id:"verdant",name:"Reino Esmeralda",x:Math.round(MAP_W*.78),y:Math.round(MAP_H*.20),color:"#4fa66b"},
-    {id:"dune",name:"Sultanato de Dunas",x:Math.round(MAP_W*.22),y:Math.round(MAP_H*.76),color:"#d4a04f"},
-    {id:"ember",name:"Reino Carmesí",x:Math.round(MAP_W*.79),y:Math.round(MAP_H*.77),color:"#cf5b56"}
+    {id:"verdant",name:"Reino Esmeralda",x:clamp(pk.x+13,12,MAP_W-13),y:clamp(pk.y-8,12,MAP_H-12),color:"#4fa66b"},
+    {id:"dune",name:"Sultanato de Dunas",x:clamp(pk.x-13,12,MAP_W-13),y:clamp(pk.y+8,12,MAP_H-12),color:"#d4a04f"},
+    {id:"ember",name:"Reino Carmesí",x:clamp(pk.x+13,12,MAP_W-13),y:clamp(pk.y+9,12,MAP_H-12),color:"#cf5b56"}
   ];
   for(const s of specs){
-    if(Math.hypot(s.x-pk.x,s.y-pk.y)<19||Math.hypot(s.x-conquestState.cx,s.y-conquestState.cy)<17)continue;
+    if(Math.hypot(s.x-pk.x,s.y-pk.y)<10)continue;
     const army={id:"realm-"+s.id,realmId:s.id,name:s.name,color:s.color,coins:350,xp:0,level:3,lives:3,score:0};
     armies.push(army);
     const r={...s,army,baseHP:100,baseCaptured:false,posts:[[s.x,s.y-4],[s.x,s.y+4],[s.x-4,s.y],[s.x+4,s.y]].map((p,i)=>({id:s.id+"-post-"+i,x:p[0],y:p[1],owner:army,progress:0,progressArmy:null}))};
@@ -303,19 +304,39 @@ function conquestBuildOtherRealms(){
   }
   conquestEnsureDiplomacyButton();
 }
+
 function conquestOtherRealmsDraw(){
   if(!conquestActive)return;
   const size=TILE*camera.zoom;
   for(const r of conquestRealms){
+    /* Frontera territorial amplia y translúcida, distinta para cada reino. */
+    const left=Math.max(0,r.x-9),right=Math.min(MAP_W-1,r.x+9),top=Math.max(0,r.y-8),bottom=Math.min(MAP_H-1,r.y+8);
+    ctx.save();
+    ctx.globalAlpha=.12;ctx.fillStyle=r.color;
+    const a=worldToScreen(left*TILE,top*TILE),b=worldToScreen((right+1)*TILE,(bottom+1)*TILE);
+    ctx.fillRect(a.x,a.y,b.x-a.x,b.y-a.y);
+    ctx.globalAlpha=.78;ctx.strokeStyle=r.color;ctx.lineWidth=Math.max(2,2.5*camera.zoom);ctx.setLineDash([8*camera.zoom,5*camera.zoom]);ctx.strokeRect(a.x,a.y,b.x-a.x,b.y-a.y);ctx.setLineDash([]);
+    ctx.restore();
+    /* Muralla del castillo con cuatro puertas claramente visibles. */
     for(let y=r.y-5;y<=r.y+5;y++)for(let x=r.x-5;x<=r.x+5;x++){
       if(!inBounds(x,y)||!(Math.abs(x-r.x)===5&&Math.abs(y-r.y)<=5||Math.abs(y-r.y)===5&&Math.abs(x-r.x)<=5)||conquestRealmGate(r,x,y))continue;
-      const p=worldToScreen(x*TILE,y*TILE);ctx.save();ctx.fillStyle=r.color;ctx.strokeStyle="#f0dba4";ctx.globalAlpha=.86;ctx.lineWidth=Math.max(1,1.2*camera.zoom);ctx.fillRect(p.x+size*.12,p.y+size*.12,size*.76,size*.76);ctx.strokeRect(p.x+size*.12,p.y+size*.12,size*.76,size*.76);ctx.restore();
+      const p=worldToScreen(x*TILE,y*TILE);ctx.save();ctx.fillStyle=r.color;ctx.strokeStyle="#f0dba4";ctx.globalAlpha=.96;ctx.lineWidth=Math.max(1.5,1.6*camera.zoom);ctx.fillRect(p.x+size*.08,p.y+size*.08,size*.84,size*.84);ctx.strokeRect(p.x+size*.08,p.y+size*.08,size*.84,size*.84);ctx.restore();
     }
     const p=worldToScreen(r.x*TILE+TILE/2,r.y*TILE+TILE/2);
-    ctx.save();ctx.fillStyle="#18232b";ctx.strokeStyle=r.color;ctx.lineWidth=Math.max(2,3*camera.zoom);ctx.beginPath();ctx.roundRect(p.x-size*.9,p.y-size*.75,size*1.8,size*1.5,6*camera.zoom);ctx.fill();ctx.stroke();ctx.fillStyle="#fff2c9";ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="bold "+Math.max(9,12*camera.zoom)+"px Arial";ctx.fillText(r.name,p.x,p.y-size*.05);ctx.font="bold "+Math.max(8,10*camera.zoom)+"px Arial";ctx.fillText("♛",p.x,p.y+size*.22);ctx.font="bold "+Math.max(8,10*camera.zoom)+"px Arial";ctx.fillText(r.baseHP+"%",p.x,p.y+size*.48);ctx.restore();
-    for(const post of r.posts){const q=worldToScreen(post.x*TILE+TILE/2,post.y*TILE+TILE/2);const owned=post.owner===playerArmy;ctx.save();ctx.fillStyle=owned?"#51c878":post.owner.color;ctx.strokeStyle="#f6df9b";ctx.globalAlpha=.92;ctx.beginPath();ctx.arc(q.x,q.y,size*.52,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#fff";ctx.font="bold "+Math.max(8,10*camera.zoom)+"px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(owned?"✓":"⚑",q.x,q.y);if(post.progress>0){ctx.strokeStyle="#fff0a6";ctx.lineWidth=Math.max(2,3*camera.zoom);ctx.beginPath();ctx.arc(q.x,q.y,size*.72,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,post.progress/3));ctx.stroke();}ctx.restore();}
+    ctx.save();ctx.fillStyle="#18232b";ctx.strokeStyle=r.color;ctx.lineWidth=Math.max(2.5,3.5*camera.zoom);ctx.beginPath();ctx.roundRect(p.x-size*1.18,p.y-size*.88,size*2.36,size*1.76,7*camera.zoom);ctx.fill();ctx.stroke();
+    ctx.fillStyle="#fff2c9";ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="bold "+Math.max(10,12*camera.zoom)+"px Arial";ctx.fillText(r.name,p.x,p.y-size*.24);
+    ctx.font="bold "+Math.max(11,15*camera.zoom)+"px Arial";ctx.fillText("♛",p.x,p.y+size*.12);
+    ctx.font="bold "+Math.max(9,10*camera.zoom)+"px Arial";ctx.fillText("BASE "+r.baseHP+"%",p.x,p.y+size*.52);ctx.restore();
+    for(const post of r.posts){
+      const q=worldToScreen(post.x*TILE+TILE/2,post.y*TILE+TILE/2),owned=post.owner===playerArmy;
+      ctx.save();ctx.fillStyle=owned?"#51c878":r.color;ctx.strokeStyle="#fff0bf";ctx.lineWidth=Math.max(1.5,2*camera.zoom);ctx.globalAlpha=.98;ctx.beginPath();ctx.arc(q.x,q.y,size*.58,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.fillStyle="#fff";ctx.font="bold "+Math.max(9,11*camera.zoom)+"px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(owned?"✓":"⚑",q.x,q.y);
+      if(post.progress>0){ctx.strokeStyle="#fff0a6";ctx.lineWidth=Math.max(2,3*camera.zoom);ctx.beginPath();ctx.arc(q.x,q.y,size*.78,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,post.progress/3));ctx.stroke();}
+      ctx.restore();
+    }
   }
 }
+
 function conquestAiMove(army){
   const own=units.filter(u=>u.alive&&!u.deadAnimating&&u.army===army&&!u.moving&&!isUnitFrozen(u));
   if(!own.length)return;
