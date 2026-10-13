@@ -171,11 +171,16 @@ function conquestWallCells(){
   if(!conquestActive||!conquestState)return[];
   const s=conquestState,{cx,cy}=s;
   const cells=[];
+  /* Las cuatro puertas de la muralla exterior permanecen abiertas. */
   for(let x=cx-8;x<=cx+8;x++){
-    cells.push({x,y:cy-8,kind:"outer"},{x,y:cy+8,kind:"outer"});
+    if(x!==cx){
+      cells.push({x,y:cy-8,kind:"outer"},{x,y:cy+8,kind:"outer"});
+    }
   }
   for(let y=cy-7;y<=cy+7;y++){
-    cells.push({x:cx-8,y,kind:"outer"},{x:cx+8,y,kind:"outer"});
+    if(y!==cy){
+      cells.push({x:cx-8,y,kind:"outer"},{x:cx+8,y,kind:"outer"});
+    }
   }
   if(!s.innerOpen){
     for(let x=cx-3;x<=cx+3;x++){
@@ -225,16 +230,23 @@ function conquestHandleClick(sx,sy){
       return true;
     }
     if(wall.kind==="outer"){
-      conquestState.outerHP--;
-      showMessage(conquestState.outerHP>0
-        ?"🧱 Muralla exterior: "+conquestState.outerHP+" impactos restantes."
-        :"💥 ¡Brecha abierta en la muralla exterior!");
-      if(conquestState.outerHP<=0){
-        /* Abre un portillo en el tramo atacado. */
-        conquestState.outerBreach={x:cell.x,y:cell.y};
+      if(conquestState.outerHP>0){
+        conquestState.outerHP--;
+        if(conquestState.outerHP<=0){
+          /* La brecha queda fija en el tramo atacado. */
+          conquestState.outerBreach={x:cell.x,y:cell.y};
+          conquestState.outerBreachOpen=true;
+          showMessage("💥 ¡Muralla exterior rota! La brecha está abierta.");
+        }else{
+          showMessage("🧱 Muralla exterior: "+conquestState.outerHP+" impactos restantes.");
+        }
+      }else{
+        showMessage("💥 La brecha exterior ya está abierta. Avanza hacia los puestos.");
       }
     }else{
-      if(!conquestState.posts.every(p=>p.owner==="player")){
+      if(conquestState.outerHP>0){
+        showMessage("🔒 Primero debes romper la muralla exterior.");
+      }else if(!conquestState.posts.every(p=>p.owner==="player")){
         showMessage("🔒 La muralla interior sigue cerrada: conquista todos los puestos.");
       }else{
         conquestState.innerOpen=true;
@@ -246,6 +258,10 @@ function conquestHandleClick(sx,sy){
   }
 
   if(Math.abs(cell.x-conquestState.cx)<=1&&Math.abs(cell.y-conquestState.cy)<=1){
+    if(conquestState.outerHP>0){
+      showMessage("🔒 La base está protegida. Rompe primero la muralla exterior.");
+      return true;
+    }
     if(!conquestState.posts.every(p=>p.owner==="player")){
       showMessage("🔒 La base está protegida. Conquista primero todos los puestos.");
       return true;
@@ -310,7 +326,9 @@ function conquestTick(dt){
     }
   }
   const postsDone=s.posts.every(p=>p.owner==="player");
-  if(postsDone&&!s.innerOpen){
+  /* La muralla interior solo puede abrirse tras romper la exterior y tomar
+     todos los puestos. Si los defensores recuperan uno, vuelve a cerrarse. */
+  if(postsDone&&s.outerHP<=0&&!s.innerOpen){
     s.innerOpen=true;
     showMessage("🏰 ¡Todos los puestos conquistados! La muralla interior se abre.");
   }
@@ -335,6 +353,7 @@ function conquestTick(dt){
       showMessage(side==="player"?"🏴 ¡"+post.label+" conquistado!":"🛡️ ¡"+post.label+" reconquistado por los defensores!");
       if(side==="defender"){
         s.innerOpen=false;
+        showMessage("🔒 Los defensores han cerrado de nuevo la muralla interior.");
       }
       conquestUpdateHud();
     }
