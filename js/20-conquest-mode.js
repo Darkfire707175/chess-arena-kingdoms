@@ -580,12 +580,45 @@ function conquestAiMove(army){
   const own=units.filter(u=>u.alive&&!u.deadAnimating&&u.army===army&&!u.moving&&!isUnitFrozen(u));
   if(!own.length)return;
   const enemies=units.filter(u=>u.alive&&!u.deadAnimating&&u.army!==army&&!conquestAreAllied(army,u.army));
-  const targets=enemies.filter(t=>canArmySeeUnit(army,t));
+  const visible=enemies.filter(t=>canArmySeeUnit(army,t));
+  const goals=[];
+  const addGoal=(x,y,owner)=>{
+    if(!owner||owner===army||conquestAreAllied(army,owner))return;
+    goals.push({x,y,owner});
+  };
+  if(conquestState){
+    for(const post of conquestState.posts){
+      const owner=post.owner==="player"?playerArmy:conquestState.defenders;
+      addGoal(post.x,post.y,owner);
+    }
+  }
+  for(const realm of conquestRealms){
+    for(const post of realm.posts)addGoal(post.x,post.y,post.owner);
+  }
+  /* Las unidades persiguen enemigos visibles; si no los ven, avanzan
+     hacia puestos hostiles para disputar territorio en vez de vagar al azar. */
   const u=own[Math.floor(Math.random()*own.length)];
-  let moves=getMoves(u).filter(m=>{const t=units.find(v=>v.alive&&!v.deadAnimating&&v.x===m.x&&v.y===m.y);return !t||!conquestAreAllied(army,t.army);});
+  let moves=getMoves(u).filter(m=>{
+    const t=units.find(v=>v.alive&&!v.deadAnimating&&v.x===m.x&&v.y===m.y);
+    return !t||!conquestAreAllied(army,t.army);
+  });
   if(!moves.length)return;
-  if(targets.length){moves.sort((a,b)=>Math.min(...targets.map(t=>Math.hypot(a.x-t.x,a.y-t.y)))-Math.min(...targets.map(t=>Math.hypot(b.x-t.x,b.y-t.y))));}
-  moveUnit(u,moves[0]);
+  const targets=visible.length?visible:goals;
+  if(targets.length){
+    const distance=(p)=>Math.min(...targets.map(t=>Math.hypot(p.x-t.x,p.y-t.y)));
+    moves.sort((a,b)=>distance(a)-distance(b));
+    const current=distance(u);
+    const best=distance(moves[0]);
+    /* No se fuerza un movimiento que aleje de todos los objetivos. */
+    if(best<=current)moveUnit(u,moves[0]);
+    else if(!visible.length){
+      /* Si una muralla bloquea el camino directo, prueba otra casilla legal. */
+      const alternatives=moves.filter(m=>distance(m)<current+1.5);
+      if(alternatives.length)moveUnit(u,alternatives[0]);
+    }
+  }else{
+    moveUnit(u,moves[Math.floor(Math.random()*moves.length)]);
+  }
 }
 
 /* El script se carga con defer al final del HTML: los elementos ya existen. Instalar ahora evita que el selector dependa de DOMContentLoaded. */
