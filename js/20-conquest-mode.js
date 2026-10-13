@@ -78,6 +78,7 @@ function conquestCreateModePicker(){
 function conquestStartFresh(){
   conquestActive=true;
   conquestState=null;
+  conquestRealms=[];conquestAllies=new Set();if(conquestDiplomacyPanel)conquestDiplomacyPanel.style.display="none";
   if(typeof restartGame==="function"){
     conquestStartingNew=true;
     restartGame();
@@ -144,6 +145,7 @@ function conquestBuildFortress(){
     const cell=conquestFindSpawn(cx+dx,cy+dy);
     if(cell)createUnit(type,defender,cell.x,cell.y);
   }
+  conquestBuildOtherRealms();
   camera.x=king.x*TILE+TILE/2;
   camera.y=king.y*TILE+TILE/2;
   if(typeof clampCamera==="function")clampCamera();
@@ -305,6 +307,7 @@ function conquestTick(dt){
 
 function conquestUpdateHud(){
   const hud=document.getElementById("conquestHud");
+  const diplomacy=document.getElementById("conquestDiplomacyButton");if(diplomacy)diplomacy.style.display=conquestActive?"block":"none";
   if(!hud)return;
   if(!conquestActive||!conquestState){hud.style.display="none";return;}
   const captured=conquestState.posts.filter(p=>p.owner==="player").length;
@@ -387,6 +390,14 @@ function conquestInstallHooks(){
     if(conquestHandleClick(sx,sy))return;
     return originalHandleClick(sx,sy);
   };
+  const originalEnemyMove=enemyMove;
+  enemyMove=function(army){if(conquestActive){conquestAiMove(army);return;}return originalEnemyMove(army);};
+  const originalGetMoves=getMoves;
+  getMoves=function(unit){const moves=originalGetMoves(unit);if(!conquestActive)return moves;return moves.filter(m=>{const t=units.find(v=>v.alive&&!v.deadAnimating&&v.x===m.x&&v.y===m.y);return !t||!conquestAreAllied(unit.army,t.army);});};
+  const originalMoveUnit=moveUnit;
+  moveUnit=function(unit,target){if(conquestActive){const t=units.find(v=>v.alive&&!v.deadAnimating&&v.x===target.x&&v.y===target.y);if(t&&conquestAreAllied(unit.army,t.army))return;}return originalMoveUnit(unit,target);};
+  const originalCapture=capture;
+  capture=function(a,d){if(conquestActive&&a&&d&&conquestAreAllied(a.army,d.army)){if(a.moving){a.x=a.moveStartX??a.x;a.y=a.moveStartY??a.y;a.renderX=a.x;a.renderY=a.y;a.moving=false;a.pendingEnemy=null;}return;}return originalCapture(a,d);};
   const originalUpdate=update;
   update=function(dt){
     originalUpdate(dt);
@@ -407,6 +418,7 @@ function conquestInstallHooks(){
   drawMap=function(){
     originalDrawMap();
     conquestDraw();
+    conquestOtherRealmsDraw();
   };
   const playButton=document.getElementById("playButton");
   if(playButton){
@@ -416,6 +428,91 @@ function conquestInstallHooks(){
       conquestModeOverlay.style.display="flex";
     },true);
   }
+}
+
+
+/* Reinos adicionales y diplomacia para el mundo territorial. */
+let conquestRealms=[];
+let conquestAllies=new Set();
+let conquestDiplomacyPanel=null;
+
+function conquestAreAllied(a,b){
+  if(!a||!b)return false;
+  if(a===b)return true;
+  if(a===playerArmy)return conquestAllies.has(b.realmId);
+  if(b===playerArmy)return conquestAllies.has(a.realmId);
+  return !!(a.realmId&&b.realmId&&a.allianceId&&a.allianceId===b.allianceId);
+}
+function conquestOpenDiplomacy(){
+  if(!conquestDiplomacyPanel){
+    const p=document.createElement("div");
+    p.style.cssText="position:fixed;inset:0;z-index:10020;display:none;align-items:center;justify-content:center;padding:18px;background:#071018cc;font-family:system-ui,Arial;color:#fff";
+    p.innerHTML='<section style="width:min(520px,100%);max-height:85vh;overflow:auto;padding:24px;border:1px solid #d8bd79;border-radius:18px;background:linear-gradient(145deg,#1d3037,#101820)"><h2 style="color:#f0d181;margin-top:0">DIPLOMACIA DE LOS REINOS</h2><p style="color:#c2ccd2;font-size:13px">Forma alianzas para que ese reino no te ataque. Puedes romperlas cuando quieras.</p><div id="conquestDiplomacyList"></div><button id="conquestDiplomacyClose" style="margin-top:12px;width:100%;padding:11px;border:1px solid #62717b;border-radius:10px;background:#24333d;color:white;font-weight:800;cursor:pointer">VOLVER AL MAPA</button></section>';
+    document.body.appendChild(p);
+    p.querySelector("#conquestDiplomacyClose").onclick=()=>p.style.display="none";
+    p.addEventListener("click",e=>{if(e.target===p)p.style.display="none";});
+    conquestDiplomacyPanel=p;
+  }
+  const list=conquestDiplomacyPanel.querySelector("#conquestDiplomacyList");
+  list.innerHTML="";
+  conquestRealms.forEach(r=>{
+    const allied=conquestAllies.has(r.id);
+    const row=document.createElement("div");
+    row.style.cssText="display:flex;align-items:center;gap:12px;padding:12px;margin:9px 0;border:1px solid #465661;border-radius:12px;background:#15232b";
+    row.innerHTML='<span style="width:12px;height:38px;border-radius:6px;background:'+r.color+'"></span><div style="flex:1"><b>'+r.name+'</b><div style="font-size:12px;color:#c0cbd1">'+(allied?"Aliado: no te atacará":"Reino independiente")+'</div></div><button style="padding:9px;border-radius:8px;border:1px solid #d6b968;background:#3a3323;color:#fff;cursor:pointer;font-weight:800">'+(allied?"ROMPER ALIANZA":"PROPONER ALIANZA")+'</button>';
+    row.querySelector("button").onclick=()=>{allied?conquestAllies.delete(r.id):conquestAllies.add(r.id);showMessage(allied?"⚔️ Alianza rota con "+r.name:"🤝 Alianza firmada con "+r.name);conquestOpenDiplomacy();};
+    list.appendChild(row);
+  });
+  conquestDiplomacyPanel.style.display="flex";
+}
+function conquestEnsureDiplomacyButton(){
+  if(document.getElementById("conquestDiplomacyButton"))return;
+  const b=document.createElement("button");b.id="conquestDiplomacyButton";b.type="button";b.textContent="🤝 DIPLOMACIA";
+  b.style.cssText="position:fixed;right:12px;top:12px;z-index:10010;display:none;padding:10px 13px;border:1px solid #d8bd79;border-radius:10px;background:#17272f;color:#fff1c9;font:800 11px system-ui;cursor:pointer";
+  b.onclick=conquestOpenDiplomacy;document.body.appendChild(b);
+}
+function conquestBuildOtherRealms(){
+  conquestRealms=[];conquestAllies=new Set();
+  const pk=units.find(u=>u.alive&&!u.deadAnimating&&u.army===playerArmy&&u.type==="king");if(!pk)return;
+  const specs=[
+    {id:"verdant",name:"Reino Esmeralda",x:Math.round(MAP_W*.78),y:Math.round(MAP_H*.20),color:"#4fa66b"},
+    {id:"dune",name:"Sultanato de Dunas",x:Math.round(MAP_W*.22),y:Math.round(MAP_H*.76),color:"#d4a04f"},
+    {id:"ember",name:"Reino Carmesí",x:Math.round(MAP_W*.79),y:Math.round(MAP_H*.77),color:"#cf5b56"}
+  ];
+  for(const s of specs){
+    if(Math.hypot(s.x-pk.x,s.y-pk.y)<19||Math.hypot(s.x-conquestState.cx,s.y-conquestState.cy)<17)continue;
+    const army={id:"realm-"+s.id,realmId:s.id,name:s.name,color:s.color,coins:350,xp:0,level:3,lives:3,score:0};
+    armies.push(army);
+    const r={...s,army,posts:[[s.x,s.y-4],[s.x,s.y+4],[s.x-4,s.y],[s.x+4,s.y]]};
+    conquestRealms.push(r);
+    const spawn=(x,y,t)=>{const q=conquestFindSpawn(x,y);if(q)createUnit(t,army,q.x,q.y);};
+    spawn(s.x,s.y,"king");spawn(s.x-2,s.y,"rook");spawn(s.x+2,s.y,"rook");spawn(s.x,s.y-2,"knight");spawn(s.x,s.y+2,"bishop");spawn(s.x-1,s.y+1,"pawn");spawn(s.x+1,s.y-1,"pawn");
+  }
+  conquestEnsureDiplomacyButton();
+}
+function conquestOtherRealmsDraw(){
+  if(!conquestActive)return;
+  const size=TILE*camera.zoom;
+  for(const r of conquestRealms){
+    for(let y=r.y-5;y<=r.y+5;y++)for(let x=r.x-5;x<=r.x+5;x++){
+      if(!inBounds(x,y)||!(Math.abs(x-r.x)===5&&Math.abs(y-r.y)<=5||Math.abs(y-r.y)===5&&Math.abs(x-r.x)<=5))continue;
+      const p=worldToScreen(x*TILE,y*TILE);ctx.save();ctx.fillStyle=r.color;ctx.strokeStyle="#f0dba4";ctx.globalAlpha=.86;ctx.lineWidth=Math.max(1,1.2*camera.zoom);ctx.fillRect(p.x+size*.12,p.y+size*.12,size*.76,size*.76);ctx.strokeRect(p.x+size*.12,p.y+size*.12,size*.76,size*.76);ctx.restore();
+    }
+    const p=worldToScreen(r.x*TILE+TILE/2,r.y*TILE+TILE/2);
+    ctx.save();ctx.fillStyle="#18232b";ctx.strokeStyle=r.color;ctx.lineWidth=Math.max(2,3*camera.zoom);ctx.beginPath();ctx.roundRect(p.x-size*.9,p.y-size*.75,size*1.8,size*1.5,6*camera.zoom);ctx.fill();ctx.stroke();ctx.fillStyle="#fff2c9";ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="bold "+Math.max(9,12*camera.zoom)+"px Arial";ctx.fillText(r.name,p.x,p.y-size*.05);ctx.font="bold "+Math.max(8,10*camera.zoom)+"px Arial";ctx.fillText("♛",p.x,p.y+size*.30);ctx.restore();
+    for(const [x,y] of r.posts){const q=worldToScreen(x*TILE+TILE/2,y*TILE+TILE/2);ctx.save();ctx.fillStyle=r.color;ctx.strokeStyle="#f6df9b";ctx.globalAlpha=.88;ctx.beginPath();ctx.arc(q.x,q.y,size*.5,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();}
+  }
+}
+function conquestAiMove(army){
+  const own=units.filter(u=>u.alive&&!u.deadAnimating&&u.army===army&&!u.moving&&!isUnitFrozen(u));
+  if(!own.length)return;
+  const enemies=units.filter(u=>u.alive&&!u.deadAnimating&&u.army!==army&&!conquestAreAllied(army,u.army));
+  const targets=enemies.filter(t=>canArmySeeUnit(army,t));
+  const u=own[Math.floor(Math.random()*own.length)];
+  let moves=getMoves(u).filter(m=>{const t=units.find(v=>v.alive&&!v.deadAnimating&&v.x===m.x&&v.y===m.y);return !t||!conquestAreAllied(army,t.army);});
+  if(!moves.length)return;
+  if(targets.length){moves.sort((a,b)=>Math.min(...targets.map(t=>Math.hypot(a.x-t.x,a.y-t.y)))-Math.min(...targets.map(t=>Math.hypot(b.x-t.x,b.y-t.y))));}
+  moveUnit(u,moves[0]);
 }
 
 /* El script se carga con defer al final del HTML: los elementos ya existen. Instalar ahora evita que el selector dependa de DOMContentLoaded. */
