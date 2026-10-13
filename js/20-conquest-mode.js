@@ -44,7 +44,7 @@ function conquestCreateModePicker(){
     '.conquestModeCard small{display:block;margin-top:5px;color:#c0cbd1;font-size:12px;line-height:1.45}'+
     '.conquestModeArrow{margin-left:auto;font-size:30px;color:#e8c878}'+
     '.conquestPickerBack{margin-top:10px;border:0;background:transparent;color:#c4cbd2;padding:12px 20px;cursor:pointer;font-weight:800;letter-spacing:1px}'+
-    '#conquestHud{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:30;display:none;max-width:min(720px,calc(100vw - 24px));padding:10px 15px;border:1px solid #d8b967;border-radius:12px;background:rgba(12,22,25,.91);color:#fff1c9;text-align:center;box-shadow:0 8px 25px #0006;font:700 12px/1.5 system-ui,Arial,sans-serif;pointer-events:none}'+
+    '#conquestHud{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:30;display:none;max-width:min(900px,calc(100vw - 24px));padding:10px 15px;border:1px solid #d8b967;border-radius:12px;background:rgba(12,22,25,.91);color:#fff1c9;text-align:center;box-shadow:0 8px 25px #0006;font:700 12px/1.5 system-ui,Arial,sans-serif;pointer-events:none}'+
     '#conquestHud b{color:#f4d67b}'+
     '@media(max-width:520px){.conquestPickerPanel{padding:20px 14px}.conquestModeCard{gap:9px;padding:13px}.conquestModeCard small{font-size:11px}}';
   document.head.appendChild(style);
@@ -100,7 +100,7 @@ function conquestStartFresh(){
   if(pause)pause.style.display="none";
   const button=document.getElementById("pauseGameButton");
   if(button)button.textContent="⚙️";
-  showMessage("🏰 ¡Asalto iniciado! Destruye un tramo de la muralla exterior.");
+  showMessage("🏰 CONQUISTA TERRITORIAL: acércate a la fortaleza, rompe su muralla y captura los cuatro puestos.");
   conquestUpdateHud();
   if(typeof saveProgress==="function")saveProgress();
 }
@@ -110,7 +110,7 @@ function conquestBuildFortress(){
   if(!king)return;
   /* El objetivo aparece delante del Rey, dejando espacio para avanzar. */
   const direction=king.x<MAP_W-25?1:-1;
-  const cx=clamp(king.x+direction*17,11,MAP_W-12);
+  const cx=clamp(king.x+direction*11,11,MAP_W-12);
   const cy=clamp(king.y,10,MAP_H-11);
   conquestState={
     cx,cy,direction,
@@ -366,7 +366,7 @@ function conquestUpdateHud(){
   const captured=conquestState.posts.filter(p=>p.owner==="player").length;
   const breach=conquestState.outerBreachOpen?"abierta":"cerrada";
   hud.style.display="block";
-  hud.innerHTML='🏰 <b>CONQUISTA</b> · Muralla exterior: <b>'+(conquestState.outerHP<=0?"brecha":"intacta")+'</b> · Puestos: <b>'+captured+'/'+conquestState.posts.length+'</b> · Muralla interior: <b>'+(conquestState.innerOpen?"ABIERTA":"CERRADA")+'</b> · Base: <b>'+conquestState.baseHP+'%</b>';
+  hud.innerHTML='🏰 <b>CONQUISTA TERRITORIAL</b> · Objetivo: rompe la muralla exterior y captura los puestos · Muralla: <b>'+(conquestState.outerHP<=0?"brecha abierta":"intacta")+'</b> · Puestos: <b>'+captured+'/4</b> · Interior: <b>'+(conquestState.innerOpen?"ABIERTO":"CERRADO")+'</b> · Base: <b>'+conquestState.baseHP+'%</b>';
 }
 
 function conquestDraw(){
