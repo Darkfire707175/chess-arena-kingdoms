@@ -8,6 +8,7 @@ let conquestActive=false;
 let conquestState=null;
 let conquestModeOverlay=null;
 let conquestLastMessage="";
+let conquestStartingNew=false;
 
 function conquestCreateModePicker(){
   if(document.getElementById("conquestModePicker"))return;
@@ -59,6 +60,8 @@ function conquestCreateModePicker(){
         conquestState=null;
         const start=document.getElementById("startScreen");
         if(start)start.style.display="none";
+        if(typeof gamePaused!=="undefined")gamePaused=false;
+        window.gamePaused=false;
         showMessage("♾️ Modo Endless: ¡que empiece el combate!");
         if(typeof saveProgress==="function")saveProgress();
       }else{
@@ -75,7 +78,11 @@ function conquestCreateModePicker(){
 function conquestStartFresh(){
   conquestActive=true;
   conquestState=null;
-  if(typeof restartGame==="function")restartGame();
+  if(typeof restartGame==="function"){
+    conquestStartingNew=true;
+    restartGame();
+    conquestStartingNew=false;
+  }
   else{
     const start=document.getElementById("startScreen");
     if(start)start.style.display="none";
@@ -384,6 +391,17 @@ function conquestInstallHooks(){
   update=function(dt){
     originalUpdate(dt);
     if(conquestActive)conquestTick(dt);
+  };
+  const originalRestartGame=restartGame;
+  restartGame=function(){
+    originalRestartGame();
+    if(conquestActive&&!conquestStartingNew){
+      conquestState=null;
+      conquestBuildFortress();
+      if(typeof gamePaused!=="undefined")gamePaused=false;
+      window.gamePaused=false;
+      conquestUpdateHud();
+    }
   };
   const originalDrawMap=drawMap;
   drawMap=function(){
