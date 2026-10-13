@@ -81,79 +81,21 @@ function conquestCreateModePicker(){
 }
 
 function conquestStartFresh(){
-  conquestActive=true;
-  conquestState=null;
-  conquestRealms=[];conquestAllies=new Set();if(conquestDiplomacyPanel)conquestDiplomacyPanel.style.display="none";
-  if(typeof restartGame==="function"){
-    conquestStartingNew=true;
-    restartGame();
-    conquestStartingNew=false;
-  }
-  else{
-    const start=document.getElementById("startScreen");
-    if(start)start.style.display="none";
-  }
-  conquestBuildFortress();
-  if(typeof gamePaused!=="undefined")gamePaused=false;
-  window.gamePaused=false;
-  const pause=document.getElementById("pauseOverlay");
-  if(pause)pause.style.display="none";
-  const button=document.getElementById("pauseGameButton");
-  if(button)button.textContent="⚙️";
-  showMessage("🏰 CONQUISTA TERRITORIAL: acércate a la fortaleza, rompe su muralla y captura los cuatro puestos.");
-  conquestUpdateHud();
-  if(typeof saveProgress==="function")saveProgress();
+  conquestActive=true;conquestState=null;conquestRealms=[];conquestAllies=new Set();if(conquestDiplomacyPanel)conquestDiplomacyPanel.style.display="none";
+  if(typeof restartGame==="function"){conquestStartingNew=true;restartGame();conquestStartingNew=false;}else{const start=document.getElementById("startScreen");if(start)start.style.display="none";}
+  conquestBuildFortress();if(typeof gamePaused!=="undefined")gamePaused=false;window.gamePaused=false;
+  const pause=document.getElementById("pauseOverlay");if(pause)pause.style.display="none";const button=document.getElementById("pauseGameButton");if(button)button.textContent="⚙️";
+  showMessage("👑 Este es tu reino inicial. Explora el mapa y conquista los reinos enemigos; tu capital no es un objetivo.");conquestUpdateHud();if(typeof saveProgress==="function")saveProgress();
 }
 
 function conquestBuildFortress(){
-  const king=units.find(u=>u.alive&&!u.deadAnimating&&u.army===playerArmy&&u.type==="king");
-  if(!king)return;
-  /* El objetivo aparece delante del Rey, dejando espacio para avanzar. */
-  const direction=king.x<MAP_W-25?1:-1;
-  const cx=clamp(king.x+direction*11,11,MAP_W-12);
-  const cy=clamp(king.y,10,MAP_H-11);
-  conquestState={
-    cx,cy,direction,
-    outerHP:5,
-    baseHP:100,
-    innerOpen:false,
-    posts:[
-      {id:"north",x:cx,y:cy-5,label:"Puesto Norte",owner:"defender",progress:0,progressArmy:null},
-      {id:"south",x:cx,y:cy+5,label:"Puesto Sur",owner:"defender",progress:0,progressArmy:null},
-      {id:"west",x:cx-5,y:cy,label:"Puesto Oeste",owner:"defender",progress:0,progressArmy:null},
-      {id:"east",x:cx+5,y:cy,label:"Puesto Este",owner:"defender",progress:0,progressArmy:null}
-    ],
-    defenders:null,
-    won:false
-  };
-
-  /* La partida de conquista tiene un solo reino defensor. */
-  units=units.filter(u=>u.army===playerArmy);
-  armies=[];
-  const defender={
-    id:"conquest-defender",
-    name:"Reino Defensor",
-    color:"#c34a4d",
-    coins:500,xp:0,level:3,lives:3,score:0
-  };
-  armies.push(defender);
-  conquestState.defenders=defender;
-
-  /* Garrison: una pieza defiende cada puesto y el centro. */
-  for(const post of conquestState.posts){
-    const cell=conquestFindSpawn(post.x,post.y);
-    if(cell)createUnit("rook",defender,cell.x,cell.y);
-  }
-  const kingCell=conquestFindSpawn(cx,cy);
-  if(kingCell)createUnit("king",defender,kingCell.x,kingCell.y);
-  for(const [dx,dy,type] of [[-2,0,"knight"],[2,0,"knight"],[0,-2,"bishop"],[0,2,"bishop"]]){
-    const cell=conquestFindSpawn(cx+dx,cy+dy);
-    if(cell)createUnit(type,defender,cell.x,cell.y);
-  }
-  conquestBuildOtherRealms();
-  camera.x=king.x*TILE+TILE/2;
-  camera.y=king.y*TILE+TILE/2;
-  if(typeof clampCamera==="function")clampCamera();
+  const king=units.find(u=>u.alive&&!u.deadAnimating&&u.army===playerArmy&&u.type==="king");if(!king)return;
+  const cx=clamp(king.x,8,MAP_W-9),cy=clamp(king.y+3,8,MAP_H-9);
+  conquestState={isHome:true,cx,cy,outerHP:0,baseHP:100,innerOpen:true,outerBreachOpen:true,
+    posts:[{id:"home-north",x:cx,y:cy-4,label:"Puesto Norte",owner:"player",progress:0,progressArmy:null},{id:"home-south",x:cx,y:cy+4,label:"Puesto Sur",owner:"player",progress:0,progressArmy:null},{id:"home-west",x:cx-4,y:cy,label:"Puesto Oeste",owner:"player",progress:0,progressArmy:null},{id:"home-east",x:cx+4,y:cy,label:"Puesto Este",owner:"player",progress:0,progressArmy:null}],
+    defenders:playerArmy,won:false};
+  /* No se borra ni se sustituye el ejército inicial: esta es la capital propia. */
+  conquestBuildOtherRealms();camera.x=king.x*TILE+TILE/2;camera.y=king.y*TILE+TILE/2;if(typeof clampCamera==="function")clampCamera();
 }
 
 function conquestFindSpawn(x,y){
@@ -168,28 +110,11 @@ function conquestFindSpawn(x,y){
 }
 
 function conquestWallCells(){
-  if(!conquestActive||!conquestState)return[];
-  const s=conquestState,{cx,cy}=s;
-  const cells=[];
-  /* Las cuatro puertas de la muralla exterior permanecen abiertas. */
-  for(let x=cx-8;x<=cx+8;x++){
-    if(x!==cx){
-      cells.push({x,y:cy-8,kind:"outer"},{x,y:cy+8,kind:"outer"});
-    }
-  }
-  for(let y=cy-7;y<=cy+7;y++){
-    if(y!==cy){
-      cells.push({x:cx-8,y,kind:"outer"},{x:cx+8,y,kind:"outer"});
-    }
-  }
-  if(!s.innerOpen){
-    for(let x=cx-3;x<=cx+3;x++){
-      cells.push({x,y:cy-3,kind:"inner"},{x,y:cy+3,kind:"inner"});
-    }
-    for(let y=cy-2;y<=cy+2;y++){
-      cells.push({x:cx-3,y,kind:"inner"},{x:cx+3,y,kind:"inner"});
-    }
-  }
+  if(!conquestActive||!conquestState||conquestState.isHome)return[];
+  const s=conquestState,{cx,cy}=s,cells=[];
+  for(let x=cx-8;x<=cx+8;x++){if(x!==cx)cells.push({x,y:cy-8,kind:"outer"},{x,y:cy+8,kind:"outer"});}
+  for(let y=cy-7;y<=cy+7;y++){if(y!==cy)cells.push({x:cx-8,y,kind:"outer"},{x:cx+8,y,kind:"outer"});}
+  if(!s.innerOpen){for(let x=cx-3;x<=cx+3;x++)cells.push({x,y:cy-3,kind:"inner"},{x,y:cy+3,kind:"inner"});for(let y=cy-2;y<=cy+2;y++)cells.push({x:cx-3,y,kind:"inner"},{x:cx+3,y,kind:"inner"});}
   return cells.filter(c=>inBounds(c.x,c.y));
 }
 
@@ -216,99 +141,17 @@ function conquestHasFriendlyNear(x,y){
 
 function conquestHandleClick(sx,sy){
   if(!conquestActive||!conquestState)return false;
-  const world=screenToWorld(sx,sy);
-  const cell=tileAtWorld(world.x,world.y);
-  if(!inBounds(cell.x,cell.y))return false;
+  const world=screenToWorld(sx,sy),cell=tileAtWorld(world.x,world.y);if(!inBounds(cell.x,cell.y))return false;
+  if(conquestState.isHome&&Math.abs(cell.x-conquestState.cx)<=2&&Math.abs(cell.y-conquestState.cy)<=2){showMessage("👑 Esta es tu capital: ya te pertenece. ¡Conquista uno de los reinos enemigos del mapa!");return true;}
   const wall=conquestIsWall(cell.x,cell.y);
-  if(wall){
-    if(wall.kind==="realm"){
-      showMessage("🏰 Accede a "+wall.realm.name+" por una de sus cuatro puertas.");
-      return true;
-    }
-    if(!conquestHasFriendlyNear(cell.x,cell.y)){
-      showMessage("⚔️ Acerca una pieza a la muralla para atacarla.");
-      return true;
-    }
-    if(wall.kind==="outer"){
-      if(conquestState.outerHP>0){
-        conquestState.outerHP--;
-        if(conquestState.outerHP<=0){
-          /* La brecha queda fija en el tramo atacado. */
-          conquestState.outerBreach={x:cell.x,y:cell.y};
-          conquestState.outerBreachOpen=true;
-          conquestState.innerOpen=true;
-          showMessage("💥 ¡Muralla exterior rota! La brecha y la muralla interior se abren.");
-        }else{
-          showMessage("🧱 Muralla exterior: "+conquestState.outerHP+" impactos restantes.");
-        }
-      }else{
-        showMessage("💥 La brecha exterior ya está abierta. Avanza hacia los puestos.");
-      }
-    }else{
-      if(conquestState.outerHP>0){
-        showMessage("🔒 Primero debes romper la muralla exterior.");
-      }else if(!conquestState.posts.every(p=>p.owner==="player")){
-        showMessage("🔒 La muralla interior sigue cerrada: conquista todos los puestos.");
-      }else{
-        conquestState.innerOpen=true;
-        showMessage("🏰 ¡La muralla interior se ha abierto!");
-      }
-    }
-    conquestUpdateHud();
-    return true;
-  }
-
-  if(Math.abs(cell.x-conquestState.cx)<=1&&Math.abs(cell.y-conquestState.cy)<=1){
-    if(conquestState.outerHP>0){
-      showMessage("🔒 La base está protegida. Rompe primero la muralla exterior.");
-      return true;
-    }
-    if(!conquestState.posts.every(p=>p.owner==="player")){
-      showMessage("🔒 La base está protegida. Conquista primero todos los puestos.");
-      return true;
-    }
-    if(!conquestState.innerOpen){
-      conquestState.innerOpen=true;
-      showMessage("🏰 ¡La muralla interior se ha abierto!");
-      return true;
-    }
-    if(!conquestHasFriendlyNear(cell.x,cell.y)){
-      showMessage("⚔️ Acerca una pieza a la base principal para atacarla.");
-      return true;
-    }
-    conquestState.baseHP=Math.max(0,conquestState.baseHP-10);
-    showMessage("👑 Base principal: "+conquestState.baseHP+"% de resistencia.");
-    if(conquestState.baseHP===0){
-      conquestState.won=true;
-      conquestActive=false;
-      gameEnded=true;
-      showMessage("🏆 ¡Victoria! Has conquistado el reino.");
-      const over=document.getElementById("gameOver");
-      const text=document.getElementById("gameOverText");
-      if(text)text.textContent="¡Has destruido la base principal y conquistado el reino!";
-      if(over)over.style.display="flex";
-    }
-    conquestUpdateHud();
-    if(typeof saveProgress==="function")saveProgress();
-    return true;
-  }
+  if(wall){if(wall.kind==="realm")showMessage("🏰 La muralla de "+wall.realm.name+" tiene puertas abiertas. Entra por una puerta para disputar sus puestos.");return true;}
   for(const realm of conquestRealms){
     if(Math.abs(cell.x-realm.x)<=1&&Math.abs(cell.y-realm.y)<=1){
-      if(!realm.posts.every(p=>p.owner===playerArmy)){
-        showMessage("🔒 Conquista primero los cuatro puestos de "+realm.name+".");return true;
-      }
-      if(!conquestHasFriendlyNear(cell.x,cell.y)){
-        showMessage("⚔️ Acerca una pieza aliada a la base de "+realm.name+".");return true;
-      }
-      realm.baseHP=Math.max(0,realm.baseHP-10);
-      showMessage("🏰 "+realm.name+": base al "+realm.baseHP+"%.");
-      if(realm.baseHP===0){
-        for(const u of units){if(u.army===realm.army){u.alive=false;u.deadAnimating=true;}}
-        armies=armies.filter(a=>a!==realm.army);
-        conquestRealms=conquestRealms.filter(r=>r!==realm);
-        showMessage("🏆 ¡Has conquistado "+realm.name+"!");
-      }
-      return true;
+      if(!realm.posts.every(p=>p.owner===playerArmy)){showMessage("🔒 "+realm.name+": captura sus cuatro puestos antes de atacar la base.");return true;}
+      if(!conquestHasFriendlyNear(cell.x,cell.y)){showMessage("⚔️ Acerca una pieza aliada a la base de "+realm.name+".");return true;}
+      realm.baseHP=Math.max(0,realm.baseHP-10);showMessage("🏰 "+realm.name+": base al "+realm.baseHP+"%.");
+      if(realm.baseHP===0){for(const u of units){if(u.army===realm.army){u.alive=false;u.deadAnimating=true;}}armies=armies.filter(a=>a!==realm.army);conquestRealms=conquestRealms.filter(r=>r!==realm);showMessage("🏆 ¡Has conquistado "+realm.name+"! Su territorio pasa a formar parte de tu reino.");}
+      conquestUpdateHud();if(typeof saveProgress==="function")saveProgress();return true;
     }
   }
   return false;
@@ -316,62 +159,12 @@ function conquestHandleClick(sx,sy){
 
 function conquestTick(dt){
   if(!conquestActive||!conquestState||conquestState.won)return;
-  const s=conquestState;
-  const breach=s.outerBreach;
-  /* Solo se puede cruzar por el tramo de muralla destruido. */
-  if(breach){
-    const wallIndex=conquestWallCells().findIndex(c=>c.x===breach.x&&c.y===breach.y);
-    if(wallIndex>=0){
-      /* El portillo deja de bloquearse aunque el dibujo de muro continúe. */
-      s.outerBreachOpen=true;
-    }
-  }
-  const postsDone=s.posts.every(p=>p.owner==="player");
-  /* La muralla interior solo puede abrirse tras romper la exterior y tomar
-     todos los puestos. Si los defensores recuperan uno, vuelve a cerrarse. */
-  if(postsDone&&s.outerHP<=0&&!s.innerOpen){
-    s.innerOpen=true;
-    showMessage("🏰 ¡Todos los puestos conquistados! La muralla interior se abre.");
-  }
-  for(const post of s.posts){
-    const playerInside=units.some(u=>u.alive&&!u.deadAnimating&&u.army===playerArmy&&Math.max(Math.abs(u.x-post.x),Math.abs(u.y-post.y))<=1);
-    const defenderInside=units.some(u=>u.alive&&!u.deadAnimating&&u.army===s.defenders&&Math.max(Math.abs(u.x-post.x),Math.abs(u.y-post.y))<=1);
-    if(playerInside&&defenderInside){
-      post.progress=0;post.progressArmy=null;
-      continue;
-    }
-    const side=playerInside?"player":defenderInside?"defender":null;
-    if(!side){
-      post.progress=0;post.progressArmy=null;
-      continue;
-    }
-    if(post.progressArmy!==side){post.progress=0;post.progressArmy=side;}
-    post.progress+=dt;
-    if(post.progress>=3){
-      post.owner=side;
-      post.progress=0;
-      post.progressArmy=null;
-      showMessage(side==="player"?"🏴 ¡"+post.label+" conquistado!":"🛡️ ¡"+post.label+" reconquistado por los defensores!");
-      if(side==="defender"){
-        s.innerOpen=false;
-        showMessage("🔒 Los defensores han cerrado de nuevo la muralla interior.");
-      }
-      conquestUpdateHud();
-    }
-  }
   for(const realm of conquestRealms){
     for(const post of realm.posts){
-      const contenders=units.filter(u=>u.alive&&!u.deadAnimating&&Math.max(Math.abs(u.x-post.x),Math.abs(u.y-post.y))<=1);
-      const sides=[...new Set(contenders.map(u=>u.army).filter(Boolean))];
+      const contenders=units.filter(u=>u.alive&&!u.deadAnimating&&Math.max(Math.abs(u.x-post.x),Math.abs(u.y-post.y))<=1),sides=[...new Set(contenders.map(u=>u.army).filter(Boolean))];
       if(sides.length!==1){post.progress=0;post.progressArmy=null;continue;}
-      const side=sides[0];
-      if(post.progressArmy!==side){post.progress=0;post.progressArmy=side;}
-      post.progress+=dt;
-      if(post.progress>=3){
-        const changed=post.owner!==side;
-        post.owner=side;post.progress=0;post.progressArmy=null;
-        if(changed)showMessage(side===playerArmy?"🏴 ¡Puesto de "+realm.name+" conquistado!":"🛡️ Un puesto de "+realm.name+" ha cambiado de manos.");
-      }
+      const side=sides[0];if(post.progressArmy!==side){post.progress=0;post.progressArmy=side;}post.progress+=dt;
+      if(post.progress>=3){const changed=post.owner!==side;post.owner=side;post.progress=0;post.progressArmy=null;if(changed)showMessage(side===playerArmy?"🏴 ¡Puesto de "+realm.name+" conquistado!":"🛡️ Un puesto de "+realm.name+" ha cambiado de manos.");}
     }
     realm.baseCaptured=realm.posts.every(p=>p.owner===playerArmy);
   }
@@ -379,71 +172,17 @@ function conquestTick(dt){
 }
 
 function conquestUpdateHud(){
-  const hud=document.getElementById("conquestHud");
-  const diplomacy=document.getElementById("conquestDiplomacyButton");if(diplomacy)diplomacy.style.display=conquestActive?"block":"none";
-  if(!hud)return;
-  if(!conquestActive||!conquestState){hud.style.display="none";return;}
-  const captured=conquestState.posts.filter(p=>p.owner==="player").length;
-  const breach=conquestState.outerBreachOpen?"abierta":"cerrada";
-  hud.style.display="block";
-  hud.innerHTML='🏰 <b>CONQUISTA TERRITORIAL</b> · Objetivo: rompe la muralla exterior y captura los puestos · Muralla: <b>'+(conquestState.outerHP<=0?"brecha abierta":"intacta")+'</b> · Puestos: <b>'+captured+'/4</b> · Interior: <b>'+(conquestState.innerOpen?"ABIERTO":"CERRADO")+'</b> · Base: <b>'+conquestState.baseHP+'%</b>';
+  const hud=document.getElementById("conquestHud"),diplomacy=document.getElementById("conquestDiplomacyButton");if(diplomacy)diplomacy.style.display=conquestActive?"block":"none";
+  if(!hud)return;if(!conquestActive||!conquestState){hud.style.display="none";return;}
+  hud.style.display="block";hud.innerHTML='👑 <b>CONQUISTA TERRITORIAL</b> · Tu capital: <b>ALIADA</b> · Reinos enemigos restantes: <b>'+conquestRealms.length+'</b> · Objetivo: conquista los puestos de un reino enemigo y después su base.';
 }
 
 function conquestDraw(){
   if(!conquestActive||!conquestState)return;
-  const s=conquestState,{cx,cy}=s;
-  const size=TILE*camera.zoom;
-  const drawTileBadge=(x,y,fill,stroke,text)=>{
-    const p=worldToScreen(x*TILE+TILE/2,y*TILE+TILE/2);
-    ctx.save();
-    ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=Math.max(1,2*camera.zoom);
-    ctx.beginPath();ctx.roundRect(p.x-size*.42,p.y-size*.36,size*.84,size*.72,5*camera.zoom);ctx.fill();ctx.stroke();
-    ctx.fillStyle="#fff5d9";ctx.font="bold "+Math.max(8,10*camera.zoom)+"px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(text,p.x,p.y);ctx.restore();
-  };
-  /* Puestos visibles incluso desde lejos, como objetivos tácticos. */
-  for(const post of s.posts){
-    const p=worldToScreen(post.x*TILE+TILE/2,post.y*TILE+TILE/2);
-    ctx.save();
-    ctx.globalAlpha=.88;
-    ctx.fillStyle=post.owner==="player"?"rgba(57,153,96,.22)":"rgba(177,58,58,.22)";
-    ctx.strokeStyle=post.owner==="player"?"#75e39c":"#ed7979";
-    ctx.lineWidth=Math.max(1.4,2*camera.zoom);
-    ctx.beginPath();ctx.arc(p.x,p.y,size*1.05,0,Math.PI*2);ctx.fill();ctx.stroke();
-    ctx.fillStyle=post.owner==="player"?"#80e4a0":"#ffaaaa";
-    ctx.font="bold "+Math.max(10,13*camera.zoom)+"px Arial";ctx.textAlign="center";ctx.textBaseline="middle";
-    ctx.fillText(post.owner==="player"?"✓":"⚑",p.x,p.y);
-    if(post.progress>0){
-      ctx.strokeStyle=post.progressArmy==="player"?"#8cf0b0":"#ffcf70";
-      ctx.lineWidth=Math.max(2,3*camera.zoom);
-      ctx.beginPath();ctx.arc(p.x,p.y,size*1.24,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,post.progress/3));ctx.stroke();
-      ctx.fillStyle="#fff";ctx.font="bold "+Math.max(9,11*camera.zoom)+"px Arial";
-      ctx.fillText((3-post.progress).toFixed(1)+"s",p.x,p.y+size*.55);
-    }
-    ctx.restore();
-  }
-  /* Murallas: bloques dibujados en cada casilla. */
-  for(const wall of conquestWallCells()){
-    const isOuter=wall.kind==="outer";
-    if(isOuter&&s.outerBreachOpen&&s.outerBreach&&wall.x===s.outerBreach.x&&wall.y===s.outerBreach.y)continue;
-    const p=worldToScreen(wall.x*TILE,wall.y*TILE);
-    ctx.save();
-    ctx.fillStyle=isOuter?"#5d6871":"#4a505c";
-    ctx.strokeStyle=isOuter?"#d8bd79":"#b7a6c6";
-    ctx.lineWidth=Math.max(1,1.5*camera.zoom);
-    ctx.fillRect(p.x+size*.06,p.y+size*.08,size*.88,size*.82);
-    ctx.strokeRect(p.x+size*.06,p.y+size*.08,size*.88,size*.82);
-    ctx.fillStyle="rgba(255,255,255,.12)";
-    ctx.fillRect(p.x+size*.12,p.y+size*.14,size*.76,size*.12);
-    ctx.restore();
-  }
-  /* Fortaleza principal. */
-  const bp=worldToScreen(cx*TILE+TILE/2,cy*TILE+TILE/2);
-  ctx.save();
-  ctx.fillStyle="#252b35";ctx.strokeStyle="#f0cf79";ctx.lineWidth=Math.max(2,3*camera.zoom);
-  ctx.beginPath();ctx.roundRect(bp.x-size*.95,bp.y-size*.85,size*1.9,size*1.7,7*camera.zoom);ctx.fill();ctx.stroke();
-  ctx.fillStyle="#e7c66e";ctx.font="bold "+Math.max(12,16*camera.zoom)+"px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("♛",bp.x,bp.y-size*.04);
-  ctx.fillStyle="#fff";ctx.font="bold "+Math.max(8,10*camera.zoom)+"px Arial";ctx.fillText(s.baseHP+"%",bp.x,bp.y+size*.48);
-  ctx.restore();
+  const s=conquestState,{cx,cy}=s,size=TILE*camera.zoom,bp=worldToScreen(cx*TILE+TILE/2,cy*TILE+TILE/2);
+  ctx.save();ctx.fillStyle="rgba(30,105,67,.72)";ctx.strokeStyle="#8cf0b0";ctx.lineWidth=Math.max(2,2.5*camera.zoom);ctx.beginPath();ctx.roundRect(bp.x-size*.8,bp.y-size*.68,size*1.6,size*1.36,7*camera.zoom);ctx.fill();ctx.stroke();
+  ctx.fillStyle="#fff2c9";ctx.font="bold "+Math.max(10,14*camera.zoom)+"px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("TU REINO",bp.x,bp.y-size*.12);ctx.fillText("♛",bp.x,bp.y+size*.25);ctx.restore();
+  for(const post of s.posts){const p=worldToScreen(post.x*TILE+TILE/2,post.y*TILE+TILE/2);ctx.save();ctx.fillStyle="#23864f";ctx.strokeStyle="#9af5b5";ctx.lineWidth=Math.max(1.5,2*camera.zoom);ctx.beginPath();ctx.arc(p.x,p.y,size*.42,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#fff";ctx.font="bold "+Math.max(8,10*camera.zoom)+"px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("✓",p.x,p.y);ctx.restore();}
 }
 
 function conquestInstallHooks(){
