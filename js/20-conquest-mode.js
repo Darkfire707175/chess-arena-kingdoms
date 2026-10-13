@@ -188,8 +188,17 @@ function conquestWallCells(){
   return cells.filter(c=>inBounds(c.x,c.y));
 }
 
+function conquestRealmGate(realm,x,y){
+  return (x===realm.x&&Math.abs(y-realm.y)===5)||(y===realm.y&&Math.abs(x-realm.x)===5);
+}
 function conquestIsWall(x,y){
-  return conquestWallCells().find(c=>c.x===x&&c.y===y)||null;
+  const main=conquestWallCells().find(c=>c.x===x&&c.y===y);
+  if(main)return main;
+  for(const realm of conquestRealms){
+    const onRing=(Math.abs(x-realm.x)===5&&Math.abs(y-realm.y)<=5)||(Math.abs(y-realm.y)===5&&Math.abs(x-realm.x)<=5);
+    if(onRing&&!conquestRealmGate(realm,x,y))return {x,y,kind:"realm",realm};
+  }
+  return null;
 }
 
 function conquestCanEnter(x,y){
@@ -207,6 +216,10 @@ function conquestHandleClick(sx,sy){
   if(!inBounds(cell.x,cell.y))return false;
   const wall=conquestIsWall(cell.x,cell.y);
   if(wall){
+    if(wall.kind==="realm"){
+      showMessage("🏰 Accede a "+wall.realm.name+" por una de sus cuatro puertas.");
+      return true;
+    }
     if(!conquestHasFriendlyNear(cell.x,cell.y)){
       showMessage("⚔️ Acerca una pieza a la muralla para atacarla.");
       return true;
@@ -419,6 +432,7 @@ function conquestInstallHooks(){
     if(conquestActive&&conquestState){
       const wall=conquestIsWall(x,y);
       if(wall){
+        if(wall.kind==="realm")return false;
         const breach=conquestState.outerBreach;
         if(!(wall.kind==="outer"&&conquestState.outerBreachOpen&&breach&&breach.x===x&&breach.y===y))return false;
       }
@@ -535,7 +549,7 @@ function conquestOtherRealmsDraw(){
   const size=TILE*camera.zoom;
   for(const r of conquestRealms){
     for(let y=r.y-5;y<=r.y+5;y++)for(let x=r.x-5;x<=r.x+5;x++){
-      if(!inBounds(x,y)||!(Math.abs(x-r.x)===5&&Math.abs(y-r.y)<=5||Math.abs(y-r.y)===5&&Math.abs(x-r.x)<=5))continue;
+      if(!inBounds(x,y)||!(Math.abs(x-r.x)===5&&Math.abs(y-r.y)<=5||Math.abs(y-r.y)===5&&Math.abs(x-r.x)<=5)||conquestRealmGate(r,x,y))continue;
       const p=worldToScreen(x*TILE,y*TILE);ctx.save();ctx.fillStyle=r.color;ctx.strokeStyle="#f0dba4";ctx.globalAlpha=.86;ctx.lineWidth=Math.max(1,1.2*camera.zoom);ctx.fillRect(p.x+size*.12,p.y+size*.12,size*.76,size*.76);ctx.strokeRect(p.x+size*.12,p.y+size*.12,size*.76,size*.76);ctx.restore();
     }
     const p=worldToScreen(r.x*TILE+TILE/2,r.y*TILE+TILE/2);
