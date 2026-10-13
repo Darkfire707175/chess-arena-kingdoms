@@ -261,6 +261,25 @@ function conquestHandleClick(sx,sy){
     if(typeof saveProgress==="function")saveProgress();
     return true;
   }
+  for(const realm of conquestRealms){
+    if(Math.abs(cell.x-realm.x)<=1&&Math.abs(cell.y-realm.y)<=1){
+      if(!realm.posts.every(p=>p.owner===playerArmy)){
+        showMessage("🔒 Conquista primero los cuatro puestos de "+realm.name+".");return true;
+      }
+      if(!conquestHasFriendlyNear(cell.x,cell.y)){
+        showMessage("⚔️ Acerca una pieza aliada a la base de "+realm.name+".");return true;
+      }
+      realm.baseHP=Math.max(0,realm.baseHP-10);
+      showMessage("🏰 "+realm.name+": base al "+realm.baseHP+"%.");
+      if(realm.baseHP===0){
+        for(const u of units){if(u.army===realm.army){u.alive=false;u.deadAnimating=true;}}
+        armies=armies.filter(a=>a!==realm.army);
+        conquestRealms=conquestRealms.filter(r=>r!==realm);
+        showMessage("🏆 ¡Has conquistado "+realm.name+"!");
+      }
+      return true;
+    }
+  }
   return false;
 }
 
@@ -305,6 +324,22 @@ function conquestTick(dt){
       }
       conquestUpdateHud();
     }
+  }
+  for(const realm of conquestRealms){
+    for(const post of realm.posts){
+      const contenders=units.filter(u=>u.alive&&!u.deadAnimating&&Math.max(Math.abs(u.x-post.x),Math.abs(u.y-post.y))<=1);
+      const sides=[...new Set(contenders.map(u=>u.army).filter(Boolean))];
+      if(sides.length!==1){post.progress=0;post.progressArmy=null;continue;}
+      const side=sides[0];
+      if(post.progressArmy!==side){post.progress=0;post.progressArmy=side;}
+      post.progress+=dt;
+      if(post.progress>=3){
+        const changed=post.owner!==side;
+        post.owner=side;post.progress=0;post.progressArmy=null;
+        if(changed)showMessage(side===playerArmy?"🏴 ¡Puesto de "+realm.name+" conquistado!":"🛡️ Un puesto de "+realm.name+" ha cambiado de manos.");
+      }
+    }
+    realm.baseCaptured=realm.posts.every(p=>p.owner===playerArmy);
   }
   conquestUpdateHud();
 }
@@ -487,7 +522,7 @@ function conquestBuildOtherRealms(){
     if(Math.hypot(s.x-pk.x,s.y-pk.y)<19||Math.hypot(s.x-conquestState.cx,s.y-conquestState.cy)<17)continue;
     const army={id:"realm-"+s.id,realmId:s.id,name:s.name,color:s.color,coins:350,xp:0,level:3,lives:3,score:0};
     armies.push(army);
-    const r={...s,army,posts:[[s.x,s.y-4],[s.x,s.y+4],[s.x-4,s.y],[s.x+4,s.y]]};
+    const r={...s,army,baseHP:100,baseCaptured:false,posts:[[s.x,s.y-4],[s.x,s.y+4],[s.x-4,s.y],[s.x+4,s.y]].map((p,i)=>({id:s.id+"-post-"+i,x:p[0],y:p[1],owner:army,progress:0,progressArmy:null}))};
     conquestRealms.push(r);
     const spawn=(x,y,t)=>{const q=conquestFindSpawn(x,y);if(q)createUnit(t,army,q.x,q.y);};
     spawn(s.x,s.y,"king");spawn(s.x-2,s.y,"rook");spawn(s.x+2,s.y,"rook");spawn(s.x,s.y-2,"knight");spawn(s.x,s.y+2,"bishop");spawn(s.x-1,s.y+1,"pawn");spawn(s.x+1,s.y-1,"pawn");
@@ -503,8 +538,8 @@ function conquestOtherRealmsDraw(){
       const p=worldToScreen(x*TILE,y*TILE);ctx.save();ctx.fillStyle=r.color;ctx.strokeStyle="#f0dba4";ctx.globalAlpha=.86;ctx.lineWidth=Math.max(1,1.2*camera.zoom);ctx.fillRect(p.x+size*.12,p.y+size*.12,size*.76,size*.76);ctx.strokeRect(p.x+size*.12,p.y+size*.12,size*.76,size*.76);ctx.restore();
     }
     const p=worldToScreen(r.x*TILE+TILE/2,r.y*TILE+TILE/2);
-    ctx.save();ctx.fillStyle="#18232b";ctx.strokeStyle=r.color;ctx.lineWidth=Math.max(2,3*camera.zoom);ctx.beginPath();ctx.roundRect(p.x-size*.9,p.y-size*.75,size*1.8,size*1.5,6*camera.zoom);ctx.fill();ctx.stroke();ctx.fillStyle="#fff2c9";ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="bold "+Math.max(9,12*camera.zoom)+"px Arial";ctx.fillText(r.name,p.x,p.y-size*.05);ctx.font="bold "+Math.max(8,10*camera.zoom)+"px Arial";ctx.fillText("♛",p.x,p.y+size*.30);ctx.restore();
-    for(const [x,y] of r.posts){const q=worldToScreen(x*TILE+TILE/2,y*TILE+TILE/2);ctx.save();ctx.fillStyle=r.color;ctx.strokeStyle="#f6df9b";ctx.globalAlpha=.88;ctx.beginPath();ctx.arc(q.x,q.y,size*.5,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();}
+    ctx.save();ctx.fillStyle="#18232b";ctx.strokeStyle=r.color;ctx.lineWidth=Math.max(2,3*camera.zoom);ctx.beginPath();ctx.roundRect(p.x-size*.9,p.y-size*.75,size*1.8,size*1.5,6*camera.zoom);ctx.fill();ctx.stroke();ctx.fillStyle="#fff2c9";ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="bold "+Math.max(9,12*camera.zoom)+"px Arial";ctx.fillText(r.name,p.x,p.y-size*.05);ctx.font="bold "+Math.max(8,10*camera.zoom)+"px Arial";ctx.fillText("♛",p.x,p.y+size*.22);ctx.font="bold "+Math.max(8,10*camera.zoom)+"px Arial";ctx.fillText(r.baseHP+"%",p.x,p.y+size*.48);ctx.restore();
+    for(const post of r.posts){const q=worldToScreen(post.x*TILE+TILE/2,post.y*TILE+TILE/2);const owned=post.owner===playerArmy;ctx.save();ctx.fillStyle=owned?"#51c878":post.owner.color;ctx.strokeStyle="#f6df9b";ctx.globalAlpha=.92;ctx.beginPath();ctx.arc(q.x,q.y,size*.52,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#fff";ctx.font="bold "+Math.max(8,10*camera.zoom)+"px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(owned?"✓":"⚑",q.x,q.y);if(post.progress>0){ctx.strokeStyle="#fff0a6";ctx.lineWidth=Math.max(2,3*camera.zoom);ctx.beginPath();ctx.arc(q.x,q.y,size*.72,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,post.progress/3));ctx.stroke();}ctx.restore();}
   }
 }
 function conquestAiMove(army){
