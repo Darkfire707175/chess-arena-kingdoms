@@ -83,9 +83,12 @@ function conquestCreateModePicker(){
 function conquestStartFresh(){
   conquestActive=true;conquestState=null;conquestRealms=[];conquestAllies=new Set();if(conquestDiplomacyPanel)conquestDiplomacyPanel.style.display="none";
   if(typeof restartGame==="function"){conquestStartingNew=true;restartGame();conquestStartingNew=false;}else{const start=document.getElementById("startScreen");if(start)start.style.display="none";}
+  /* Conquista no reutiliza los ocho ejércitos genéricos de Endless. */
+  units=units.filter(u=>u.army===playerArmy);
+  armies=[];
   conquestBuildFortress();if(typeof gamePaused!=="undefined")gamePaused=false;window.gamePaused=false;
   const pause=document.getElementById("pauseOverlay");if(pause)pause.style.display="none";const button=document.getElementById("pauseGameButton");if(button)button.textContent="⚙️";
-  showMessage("👑 Este es tu reino inicial. Explora el mapa y conquista los reinos enemigos; tu capital no es un objetivo.");conquestUpdateHud();if(typeof saveProgress==="function")saveProgress();
+  showMessage("👑 Tu reino está listo. Conquista los castillos enemigos para expandir tu territorio.");conquestUpdateHud();if(typeof saveProgress==="function")saveProgress();
 }
 
 function conquestBuildFortress(){
@@ -95,7 +98,11 @@ function conquestBuildFortress(){
     posts:[{id:"home-north",x:cx,y:cy-4,label:"Puesto Norte",owner:"player",progress:0,progressArmy:null},{id:"home-south",x:cx,y:cy+4,label:"Puesto Sur",owner:"player",progress:0,progressArmy:null},{id:"home-west",x:cx-4,y:cy,label:"Puesto Oeste",owner:"player",progress:0,progressArmy:null},{id:"home-east",x:cx+4,y:cy,label:"Puesto Este",owner:"player",progress:0,progressArmy:null}],
     defenders:playerArmy,won:false};
   /* No se borra ni se sustituye el ejército inicial: esta es la capital propia. */
-  conquestBuildOtherRealms();camera.x=king.x*TILE+TILE/2;camera.y=king.y*TILE+TILE/2;if(typeof clampCamera==="function")clampCamera();
+  conquestBuildOtherRealms();
+  /* Alejar la cámara al entrar para mostrar castillos y fronteras a la vez. */
+  camera.zoom=Math.min(Number(camera.zoom)||1,.72);
+  camera.x=king.x*TILE+TILE/2;camera.y=king.y*TILE+TILE/2;
+  if(typeof clampCamera==="function")clampCamera();
 }
 
 function conquestFindSpawn(x,y){
@@ -220,6 +227,9 @@ function conquestInstallHooks(){
   restartGame=function(){
     originalRestartGame();
     if(conquestActive&&!conquestStartingNew){
+      /* Reiniciar Conquista vuelve a quitar los ejércitos genéricos de Endless. */
+      units=units.filter(u=>u.army===playerArmy);
+      armies=[];
       conquestState=null;
       conquestBuildFortress();
       if(typeof gamePaused!=="undefined")gamePaused=false;
@@ -289,9 +299,9 @@ function conquestBuildOtherRealms(){
   const pk=units.find(u=>u.alive&&!u.deadAnimating&&u.army===playerArmy&&u.type==="king");if(!pk)return;
   /* Reinos cercanos a la capital para que el jugador vea castillos y fronteras al entrar. */
   const specs=[
-    {id:"verdant",name:"Reino Esmeralda",x:clamp(pk.x+13,12,MAP_W-13),y:clamp(pk.y-8,12,MAP_H-12),color:"#4fa66b"},
-    {id:"dune",name:"Sultanato de Dunas",x:clamp(pk.x-13,12,MAP_W-13),y:clamp(pk.y+8,12,MAP_H-12),color:"#d4a04f"},
-    {id:"ember",name:"Reino Carmesí",x:clamp(pk.x+13,12,MAP_W-13),y:clamp(pk.y+9,12,MAP_H-12),color:"#cf5b56"}
+    {id:"verdant",name:"Reino Esmeralda",x:clamp(pk.x+11,12,MAP_W-13),y:clamp(pk.y-6,12,MAP_H-12),color:"#4fa66b"},
+    {id:"dune",name:"Sultanato de Dunas",x:clamp(pk.x-11,12,MAP_W-13),y:clamp(pk.y+5,12,MAP_H-12),color:"#d4a04f"},
+    {id:"ember",name:"Reino Carmesí",x:clamp(pk.x+10,12,MAP_W-13),y:clamp(pk.y+7,12,MAP_H-12),color:"#cf5b56"}
   ];
   for(const s of specs){
     if(Math.hypot(s.x-pk.x,s.y-pk.y)<10)continue;
