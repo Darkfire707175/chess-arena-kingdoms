@@ -298,7 +298,8 @@ function update(dt){
     }
   }
 
-  if(progressionTimer>=8){
+  /* Endless tiene progresión y refuerzos automáticos; Conquista no. */
+  if(!conquestActive&&progressionTimer>=8){
 
     progressionTimer=0;
 
@@ -320,7 +321,7 @@ function update(dt){
     }
   }
 
-  if(recruitTimer>=3.2){
+  if(!conquestActive&&recruitTimer>=3.2){
 
     recruitTimer=0;
 
