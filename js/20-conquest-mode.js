@@ -418,4 +418,5 @@ function conquestInstallHooks(){
   }
 }
 
-document.addEventListener("DOMContentLoaded",conquestInstallHooks);
+/* El script se carga con defer al final del HTML: los elementos ya existen. Instalar ahora evita que el selector dependa de DOMContentLoaded. */
+conquestInstallHooks();
