@@ -58,6 +58,10 @@ function conquestCreateModePicker(){
       if(mode==="endless"){
         conquestActive=false;
         conquestState=null;
+        const diplomacyButton=document.getElementById("conquestDiplomacyButton");
+        if(diplomacyButton)diplomacyButton.style.display="none";
+        if(conquestDiplomacyPanel)conquestDiplomacyPanel.style.display="none";
+        conquestRealms=[];
         const start=document.getElementById("startScreen");
         if(start)start.style.display="none";
         if(typeof gamePaused!=="undefined")gamePaused=false;
