@@ -237,11 +237,15 @@ function conquestInstallHooks(){
       conquestUpdateHud();
     }
   };
-  const originalDrawMap=drawMap;
-  drawMap=function(){
-    originalDrawMap();
-    conquestDraw();
-    conquestOtherRealmsDraw();
+  /* Dibujar los castillos al FINAL del render, después de mapa y niebla.
+     Así no pueden quedar tapados por el render del terreno. */
+  const originalRender=render;
+  render=function(){
+    originalRender();
+    if(conquestActive){
+      conquestDraw();
+      conquestOtherRealmsDraw();
+    }
   };
   const playButton=document.getElementById("playButton");
   if(playButton){
